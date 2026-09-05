@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KRIPTA — Protótipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* === Paleta extraída da logo KRIPTA === */
+  --indigo:       #3D3DB4;   /* azul-índigo principal — navegação, botões primários */
+  --indigo-light: #EEEEF9;   /* fundo de chips/tags índigo */
+  --teal:         #4ECDC4;   /* ciano/teal — progresso, concluído */
+  --teal-light:   #E6F9F8;
+  --lilac:        #A78BFA;   /* lilás — Kai / IA */
+  --lilac-light:  #F0EBFF;
+  --orange:       #FF6B35;   /* laranja quente — streak / urgente */
+  --orange-light: #FFF0EB;
+  --crimson:      #C0392B;   /* vermelho da logo — erro / exclusão */
+  --crimson-light:#FDECEA;
+
+  /* === Superfícies claras === */
+  --bg:           #F6F7FB;   /* off-white frio, não branco puro */
+  --surface:      #FFFFFF;
+  --surface-2:    #F0F1F8;
+  --border:       #E2E4F0;
+
+  /* === Texto === */
+  --text-hi:      #1A1A2E;   /* quase preto, com leve tom azul */
+  --text-mid:     #6B6F8E;
+  --text-low:     #A8ABBD;
+
+  /* === Raios e fontes === */
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --font-display: 'Nunito', sans-serif;
+  --font-body:    'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #E8E9F0;
+  font-family: var(--font-body);
+  color: var(--text-hi);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Frame do celular ── */
+.device {
+  width: 390px;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  overflow-x: hidden;
+  box-shadow: 0 0 40px rgba(0,0,0,0.12);
+}
+
+/* ── Sistema de telas ── */
+.screen {
+  display: none;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: 90px;
+  animation: fadeIn .22s ease;
+}
+.screen.active { display: flex; }
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(5px); }
+  to   { opacity:1; transform:translateY(0);   }
+}
+
+/* ── Status bar ── */
+.statusbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 24px 0;
+  font-size: 12.5px;
+  color: var(--text-mid);
+  font-weight: 600;
+}
+
+/* ── Top bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 8px;
+}
+.topbar h1 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--text-hi);
+}
+.topbar .sub { font-size: 12.5px; color: var(--text-mid); margin-top: 1px; }
+
+/* ── Botões de ícone ── */
+.icon-btn {
+  width: 38px; height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.icon-btn:hover  { background: var(--surface-2); }
+.icon-btn:active { transform: scale(.94); }
+button:focus-visible,
+.icon-btn:focus-visible,
+.navitem:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+
+/* ── Bottom nav ── */
+.bottomnav {
+  position: fixed;
+  bottom: 0;
+  width: 390px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(14px);
+  border-top: 1.5px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 8px 18px;
+  z-index: 50;
+}
+.navitem {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  font-family: "Nunito", sans-serif;
+  color: var(--text-low);
+  cursor: pointer; flex: 1;
+  padding: 4px 0;
+  transition: color .15s;
+  position: relative;
+  border: none; background: transparent;
+}
+.navitem svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.navitem span { font-size: 10px; font-weight: 700; letter-spacing: .02em; }
+.navitem.active { color: var(--indigo); }
+.navitem.active::before {
+  content: '';
+  position: absolute; top: -8px;
+  width: 26px; height: 3px;
+  border-radius: 3px;
+  background: var(--indigo);
+}
+
+/* ── Utilitários ── */
+.px  { padding-left: 20px; font-family: "Nunito", sans-serif; padding-right: 20px; }
+
+.card {
+  background: var(--surface);
+  font-family: "Nunito", sans-serif;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.pill {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-family: "Nunito", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex; align-items: center; gap: 4px;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--indigo); color: #fff;
+  border: none; border-radius: var(--radius-md);
+  padding: 14px 20px;
+  font-family: var(--font-body); font-weight: 700; font-size: 15px;
+  cursor: pointer; width: 100%;
+  transition: filter .15s, transform .1s;
+}
+.btn-primary:hover  { filter: brightness(1.1); }
+.btn-primary:active { transform: scale(.98); }
+
+.btn-ghost {
+  background: var(--surface); color: var(--text-hi);
+  border: 1.5px solid var(--border); border-radius: var(--radius-md);
+  padding: 14px 20px;
+  font-family: "Nunito", sans-serif; font-weight: 600; font-size: 15px;
+  cursor: pointer; width: 100%;
+}
+
+.section-label {
+  font-size: 11px; font-weight: 700;
+  color: var(--text-low);
+  letter-spacing: .05em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ==== DESKTOP LAYOUT KRIPTA ==== */
+@media (min-width:1024px){
+ body{background:#dfe3ee;}
+ .device{width:100%;max-width:none;box-shadow:none;}
+ .screen{padding-left:110px;padding-bottom:24px;}
+ .bottomnav{
+   left:0;top:0;bottom:auto;width:92px;height:100vh;
+   flex-direction:column;justify-content:flex-start;
+   gap:10px;padding:20px 10px;border-top:none;
+   border-right:1.5px solid var(--border);
+ }
+ .navitem{min-height:70px;}
+ .navitem.active::before{
+   top:auto;left:-10px;width:4px;height:32px;
+ }
+}
+.navitem[data-screen="tasks"].active{color:#FF806F;}
+.navitem[data-screen="tasks"].active::before{background:#FF806F;}
+.navitem[data-screen="materias"].active{color:#4FF8E0;}
+.navitem[data-screen="materias"].active::before{background:#4FF8E0;}
+.navitem[data-screen="ia"].active{color:#AE78F5;}
+.navitem[data-screen="ia"].active::before{background:#AE78F5;}
+
+</style>
+</head>
+<body>
+<div class="device">
+
+<!-- ══════════════════════════════════════════════════
+     ONBOARDING
+     Uma ação principal, sem ruído (Krug — Don't Make Me Think)
+     ══════════════════════════════════════════════════ -->
+<section class="screen active" id="screen-onboarding">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:56px 28px 44px;">
+    <div></div>
+    <div style="text-align:center;">
+      
+<div style="width:180px;height:180px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">
+<img src="KriptaLogoNw.png" alt="KRIPTA" style="max-width:100%;max-height:100%;object-fit:contain;">
+</div>
+<h1 style="font-family:var(--font-display);font-size:42px;font-weight:700;letter-spacing:-.02em;color:var(--indigo);">KRIPTA</h1>
+
+      <p style="color:var(--text-mid);font-size:15px;margin-top:10px;line-height:1.55;padding:0 12px;">
+        Suas matérias, prazos e tarefas num só lugar.<br>Sem precisar pensar onde procurar.
+      </p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button class="btn-primary" onclick="goTo('home')">Começar</button>
+      <button class="btn-ghost" onclick="goTo('home')">Já tenho uma conta</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     HOME
+     Streak (foguinho, seção 2.7) + XP + tarefas urgentes
+     Atalho para o Kai no rodapé do scroll
+     ══════════════════════════════════════════════════ -->
+<section class="screen" id="screen-home">
+  <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+  <div class="topbar">
+    <div>
+      <h1>Olá, Júlia</h1>
+      <div class="sub">Terça, 1 de julho</div>
+    </div>
+    <button class="icon-btn" onclick="goTo('avisos')" aria-label="Avisos">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 3 1 4 1 6H5c0-2 1-3 1-6"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+    </button>
+  </div>
+
+  <!-- Streak + XP -->
+  <div class="px" style="margin-top:4px;">
+    <div class="card" style="padding:16px;display:flex;align-items:center;gap:14px;border-color:var(--orange);border-width:1.5px;">
+      <!-- anel de progresso — 7/10 min representado em stroke-dashoffset -->
+      <div style="position:relative;width:58px;height:58px;flex-shrink:0;">
+        <svg width="58" height="58" viewBox="0 0 58 58" style="transform:rotate(-90deg);">
+          <circle cx="29" cy="29" r="23" stroke="var(--orange-light)" stroke-width="5" fill="none"/>
+          <circle cx="29" cy="29" r="23" stroke="var(--orange)" stroke-width="5" fill="none"
+            stroke-dasharray="144.5" stroke-dashoffset="41" stroke-linecap="round"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;">🔥</div>
+      </div>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text-hi);">7 dias seguidos!</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:2px;">Faltam 3 min hoje pra manter o foguinho</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:9px;margin-top:9px;">
+      <div class="card" style="flex:1;padding:12px;text-align:center;">
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--indigo);">1.240</div>
+        <div style="font-size:10px;color:var(--text-low);font-weight:700;margin-top:1px;letter-spacing:.04em;">XP TOTAL</div>
+      </div>
+      <div class="card" style="flex:1;padding:12px;text-align:center;">
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:700;">Nível 6</div>
+        <div style="font-size:10px;color:var(--text-low);font-weight:700;margin-top:1px;letter-spacing:.04em;">EXPLORADORA</div>
+      </div>
+      <div class="card" style="flex:1;padding:12px;text-align:center;cursor:pointer;" onclick="goTo('perfil')">
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:700;">12</div>
+        <div style="font-size:10px;color:var(--text-low);font-weight:700;margin-top:1px;letter-spacing:.04em;">INSÍGNIAS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarefas -->
+  <div class="px" style="margin-top:24px;display:flex;justify-content:space-between;align-items:baseline;">
+    <span style="font-family:var(--font-display);font-size:15px;font-weight:700;">Para hoje e amanhã</span>
+    <span style="font-size:12px;color:var(--indigo);font-weight:700;cursor:pointer;" onclick="goTo('tasks')">ver tudo</span>
+  </div>
+
+  <div class="px" style="display:flex;flex-direction:column;gap:9px;margin-top:11px;">
+    <div class="card" style="padding:13px 15px;display:flex;align-items:center;gap:11px;border-left:3px solid var(--orange);">
+      <div onclick="completeTask(this)" style="width:22px;height:22px;border-radius:7px;border:2px solid var(--border);flex-shrink:0;cursor:pointer;"></div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">Lista de exercícios — Funções</div>
+        <div style="font-size:11.5px;color:var(--text-mid);margin-top:2px;">Matemática · hoje, 23h59</div>
+      </div>
+      <span class="pill" style="background:var(--orange-light);color:var(--orange);">hoje</span>
+    </div>
+
+    <div class="card" style="padding:13px 15px;display:flex;align-items:center;gap:11px;border-left:3px solid var(--teal);">
+      <div onclick="completeTask(this)" style="width:22px;height:22px;border-radius:7px;border:2px solid var(--border);flex-shrink:0;cursor:pointer;"></div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">Entrega do protótipo — TCC</div>
+        <div style="font-size:11.5px;color:var(--text-mid);margin-top:2px;">Proj. Integrador · amanhã, 18h</div>
+      </div>
+      <span class="pill" style="background:var(--teal-light);color:var(--teal);">amanhã</span>
+    </div>
+
+    <div class="card" style="padding:13px 15px;display:flex;align-items:center;gap:11px;opacity:.55;">
+      <div style="width:22px;height:22px;border-radius:7px;background:var(--teal);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;text-decoration:line-through;">Resumo cap. 4 — Biologia</div>
+        <div style="font-size:11.5px;color:var(--text-mid);margin-top:2px;">Biologia · concluída ontem</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Atalho Kai -->
+  <div class="px" style="margin-top:20px;">
+    <div class="card" style="padding:15px;display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--lilac-light);border-color:var(--lilac);" onclick="goTo('ia')">
+      <div style="width:40px;height:40px;border-radius:12px;background:var(--lilac);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:13.5px;font-weight:700;color:var(--text-hi);">Travou em algo?</div>
+        <div style="font-size:11.5px;color:var(--text-mid);">Pergunte ao Kai sobre qualquer matéria</div>
+      </div>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     MATÉRIAS
+     Hierarquia (matéria > unidade > conteúdo) + filtro categórico (seção 2.3)
+     ══════════════════════════════════════════════════ -->
+<section class="screen" id="screen-materias">
+  <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+  <div class="topbar">
+    <div><h1>Matérias</h1><div class="sub">7 matérias este semestre</div></div>
+    <button class="icon-btn" aria-label="Buscar">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    </button>
+  </div>
+
+  <!-- filtros categóricos -->
+  <div style="display:flex;gap:8px;overflow-x:auto;padding:4px 20px 0;scrollbar-width:none;">
+    <span class="pill" style="background:var(--indigo);color:#fff;">Todas</span>
+    <span class="pill" style="background:var(--surface);color:var(--text-mid);border:1.5px solid var(--border);">📌 Provas em breve</span>
+    <span class="pill" style="background:var(--surface);color:var(--text-mid);border:1.5px solid var(--border);">📁 Projetos</span>
+    <span class="pill" style="background:var(--surface);color:var(--text-mid);border:1.5px solid var(--border);">⭐ Favoritas</span>
+  </div>
+
+  <div class="px" style="display:flex;flex-direction:column;gap:9px;margin-top:16px;">
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="goTo('materia-detalhe')">
+      <div style="width:44px;height:44px;border-radius:13px;background:var(--indigo-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📐</div>
+      <div style="flex:1;">
+        <div style="font-size:14.5px;font-weight:700;">Matemática</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:1px;">3 pendências · prof. Renato</div>
+      </div>
+      <span class="pill" style="background:var(--crimson-light);color:var(--crimson);">1 prova</span>
+    </div>
+
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;">
+      <div style="width:44px;height:44px;border-radius:13px;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🧬</div>
+      <div style="flex:1;">
+        <div style="font-size:14.5px;font-weight:700;">Biologia</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:1px;">Tudo em dia · prof.ª Carla</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;">
+      <div style="width:44px;height:44px;border-radius:13px;background:var(--orange-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">💻</div>
+      <div style="flex:1;">
+        <div style="font-size:14.5px;font-weight:700;">Desenvolvimento de Sistemas</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:1px;">2 pendências · prof. José Roberto</div>
+      </div>
+      <span class="pill" style="background:var(--orange-light);color:var(--orange);">projeto</span>
+    </div>
+
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;">
+      <div style="width:44px;height:44px;border-radius:13px;background:var(--lilac-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📖</div>
+      <div style="flex:1;">
+        <div style="font-size:14.5px;font-weight:700;">Língua Portuguesa</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:1px;">Tudo em dia · prof.ª Marina</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;opacity:.65;">
+      <div style="width:44px;height:44px;border-radius:13px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🌍</div>
+      <div style="flex:1;">
+        <div style="font-size:14.5px;font-weight:700;">Geografia</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:1px;">Tudo em dia</div>
+      </div>
+    </div>
+
+    <button class="btn-ghost" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Adicionar matéria
+    </button>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     DETALHE DA MATÉRIA
+     Hierarquia matéria > unidades > materiais (seção 2.3)
+     Barra de progresso por unidade (feedback visual, Norman)
+     ══════════════════════════════════════════════════ -->
+<section class="screen" id="screen-materia-detalhe">
+  <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+  <div class="topbar">
+    <button class="icon-btn" onclick="goTo('materias')" aria-label="Voltar">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div style="text-align:center;"><h1 style="font-size:17px;">Matemática</h1><div class="sub">prof. Renato</div></div>
+    <button class="icon-btn" aria-label="Mais opções">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+    </button>
+  </div>
+
+  <!-- abas -->
+  <div class="px" style="display:flex;border-bottom:1.5px solid var(--border);margin-top:6px;">
+    <div style="padding:10px 4px;font-size:13px;font-weight:700;color:var(--indigo);border-bottom:2.5px solid var(--indigo);margin-bottom:-1.5px;margin-right:18px;">Unidades</div>
+    <div style="padding:10px 4px;font-size:13px;font-weight:600;color:var(--text-mid);margin-right:18px;">Materiais</div>
+    <div style="padding:10px 4px;font-size:13px;font-weight:600;color:var(--text-mid);">Avisos</div>
+  </div>
+
+  <div class="px" style="display:flex;flex-direction:column;gap:9px;margin-top:16px;">
+    <!-- unidade ativa -->
+    <div class="card" style="padding:15px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:14.5px;font-weight:700;">📂 Unidade 3 — Funções</div>
+        <span style="font-size:11.5px;color:var(--text-mid);font-weight:600;">2 / 3</span>
+      </div>
+      <div style="height:5px;background:var(--surface-2);border-radius:3px;margin-top:10px;overflow:hidden;">
+        <div style="width:66%;height:100%;background:var(--indigo);border-radius:3px;"></div>
+      </div>
+
+      <div style="border-top:1.5px solid var(--border);margin-top:13px;padding-top:11px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:19px;height:19px;border-radius:6px;background:var(--teal);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          </div>
+          <span style="font-size:13px;text-decoration:line-through;color:var(--text-mid);">Slides — Funções afins</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:19px;height:19px;border-radius:6px;background:var(--teal);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          </div>
+          <span style="font-size:13px;text-decoration:line-through;color:var(--text-mid);">Videoaula — Quadráticas</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:19px;height:19px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;"></div>
+          <span style="font-size:13px;font-weight:600;">Lista de exercícios — Funções</span>
+          <span class="pill" style="background:var(--orange-light);color:var(--orange);margin-left:auto;">hoje</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:14px;opacity:.7;cursor:pointer;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:14px;font-weight:700;">📂 Unidade 2 — Geometria</div>
+        <span style="font-size:12px;color:var(--teal);font-weight:700;">Concluída</span>
+      </div>
+    </div>
+
+    <div class="card" style="padding:14px;opacity:.7;cursor:pointer;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:14px;font-weight:700;">📂 Unidade 1 — Conjuntos</div>
+        <span style="font-size:12px;color:var(--teal);font-weight:700;">Concluída</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     TAREFAS
+     Exclusão sempre confirma via modal (prevenção de erro, seção 2.5.3)
+     ══════════════════════════════════════════════════ -->
+<section class="screen" id="screen-tasks">
+  <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+  <div class="topbar">
+    <div><h1>Tarefas</h1><div class="sub">4 pendentes</div></div>
+    <button class="icon-btn" aria-label="Filtrar">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+    </button>
+  </div>
+
+  <div style="display:flex;gap:8px;padding:4px 20px 0;overflow-x:auto;scrollbar-width:none;">
+    <span class="pill" style="background:var(--indigo);color:#fff;">Pendentes</span>
+    <span class="pill" style="background:var(--surface);color:var(--text-mid);border:1.5px solid var(--border);">Concluídas</span>
+    <span class="pill" style="background:var(--surface);color:var(--text-mid);border:1.5px solid var(--border);">Calendário</span>
+  </div>
+
+  <div class="px" style="display:flex;flex-direction:column;gap:9px;margin-top:18px;">
+    <div class="section-label">Hoje</div>
+
+    <div class="card" style="padding:13px 15px;display:flex;align-items:center;gap:11px;border-left:3px solid var(--orange);">
+      <div onclick="completeTask(this)" style="width:22px;height:22px;border-radius:7px;border:2px solid var(--border);flex-shrink:0;cursor:pointer;"></div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">Lista de exercícios — Funções</div>
+        <div style="font-size:11.5px;color:var(--text-mid);margin-top:2px;">Matemática · 23h59</div>
+      </div>
+      <button onclick="openDeleteModal('Lista de exercícios — Funções')" class="icon-btn" style="width:32px;height:32px;" aria-label="Excluir">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>
+      </button>
+    </div>
+
+    <div class="section-label" style="margin-top:10px;">Amanhã</div>
+
+    <div class="card" style="padding:13px 15px;display:flex;align-items:center;gap:11px;border-left:3px solid var(--teal);">
+      <div onclick="completeTask(this)" style="width:22px;height:22px;border-radius:7px;border:2px solid var(--border);flex-shrink:0;cursor:pointer;"></div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">Entrega do protótipo — TCC</div>
+        <div style="font-size:11.5px;color:var(--text-mid);margin-top:2px;">Proj. Integrador · 18h</div>
+      </div>
+      <button onclick="openDeleteModal('Entrega do protótipo — TCC')" class="icon-btn" style="width:32px;height:32px;" aria-label="Excluir">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>
+      </button>
+    </div>
+
+    <div class="section-label" style="margin-top:10px;">Esta semana</div>
+
+    <div class="card" style="padding:13px 15px;display:flex;align-items:center;gap:11px;border-left:3px solid var(--border);">
+      <div onclick="completeTask(this)" style="width:22px;height:22px;border-radius:7px;border:2px solid var(--border);flex-shrink:0;cursor:pointer;"></div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">Trabalho em grupo — Sistemas</div>
+        <div style="font-size:11.5px;color:var(--text-mid);margin-top:2px;">Des. de Sistemas · sexta</div>
+      </div>
+      <button onclick="openDeleteModal('Trabalho em grupo — Sistemas')" class="icon-btn" style="width:32px;height:32px;" aria-label="Excluir">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- FAB nova tarefa -->
+  <button onclick="void(0)" aria-label="Nova tarefa" style="position:fixed;bottom:98px;right:calc(50% - 175px);width:50px;height:50px;border-radius:15px;background:var(--indigo);border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(61,61,180,.3);cursor:pointer;z-index:40;">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     KAI — Agente de IA (seção 2.8)
+     Tira dúvidas, gera roteiro, gera relatórios, entrada por voz
+     Chips de sugestão reduzem carga cognitiva (Krug)
+     ══════════════════════════════════════════════════ -->
+<section class="screen" id="screen-ia">
+  <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:34px;height:34px;border-radius:10px;background:var(--lilac);display:flex;align-items:center;justify-content:center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+      </div>
+      <div><h1 style="font-size:17px;">Kai</h1><div class="sub">assistente de estudos</div></div>
+    </div>
+    <button class="icon-btn" aria-label="Configurações do Kai">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33A1.65 1.65 0 0 0 14 20.9V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.52A1.65 1.65 0 0 0 7.1 19.7l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.52-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.52V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9z"/></svg>
+    </button>
+  </div>
+
+  <div class="px" style="display:flex;flex-direction:column;gap:13px;margin-top:6px;flex:1;">
+    <!-- mensagem do Kai -->
+    <div style="display:flex;gap:8px;max-width:90%;">
+      <div style="width:28px;height:28px;border-radius:9px;background:var(--lilac);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;">🤖</div>
+      <div class="card" style="padding:12px 14px;border-radius:4px 14px 14px 14px;background:var(--lilac-light);border-color:var(--lilac);">
+        <div style="font-size:13px;line-height:1.55;color:var(--text-hi);">Oi, Júlia! Vi que sua lista de Funções vence hoje. Quer que eu monte um roteiro de estudo de 20 min com base nos slides da Unidade 3?</div>
+      </div>
+    </div>
+
+    <!-- resposta do usuário -->
+    <div style="display:flex;justify-content:flex-end;">
+      <div class="card" style="padding:12px 14px;max-width:80%;background:var(--indigo);border:none;border-radius:14px 4px 14px 14px;">
+        <div style="font-size:13px;line-height:1.55;color:#fff;">manda sim, e explica função quadrática rapidinho</div>
+      </div>
+    </div>
+
+    <!-- resposta estruturada do Kai -->
+    <div style="display:flex;gap:8px;max-width:92%;">
+      <div style="width:28px;height:28px;border-radius:9px;background:var(--lilac);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;">🤖</div>
+      <div class="card" style="padding:12px 14px;border-radius:4px 14px 14px 14px;background:var(--lilac-light);border-color:var(--lilac);">
+        <div style="font-size:13px;line-height:1.55;color:var(--text-hi);">Função quadrática tem grau 2: <strong>f(x) = ax² + bx + c</strong>. O gráfico é uma parábola — se "a" for positivo, abre pra cima.</div>
+        <div style="font-size:13px;font-weight:700;margin-top:10px;color:var(--text-hi);">Roteiro de 20 min:</div>
+        <div style="font-size:12.5px;margin-top:5px;line-height:1.8;color:var(--text-mid);">1. Revisar slides 4–7 (8 min)<br>2. Refazer exercícios 1–3 da lista (10 min)<br>3. Conferir gabarito (2 min)</div>
+        <button class="btn-ghost" style="width:100%;margin-top:11px;padding:9px;font-size:12.5px;" onclick="goTo('materia-detalhe')">Abrir Unidade 3</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- chips de sugestão rápida -->
+  <div style="display:flex;gap:8px;padding:10px 20px 0;overflow-x:auto;scrollbar-width:none;">
+    <span class="pill" style="background:var(--surface);color:var(--text-mid);border:1.5px solid var(--border);">📋 Lista da semana</span>
+    <span class="pill" style="background:var(--surface);color:var(--text-mid);border:1.5px solid var(--border);">📊 Relatório de progresso</span>
+    <span class="pill" style="background:var(--surface);color:var(--text-mid);border:1.5px solid var(--border);">🔔 Me lembra das provas</span>
+  </div>
+
+  <!-- input + microfone -->
+  <div class="px" style="margin-top:10px;display:flex;gap:8px;">
+    <div class="card" style="flex:1;display:flex;align-items:center;padding:4px 8px 4px 14px;">
+      <input type="text" placeholder="Pergunte ao Kai…" style="flex:1;background:transparent;border:none;color:var(--text-hi);font-family:var(--font-body);font-size:13.5px;outline:none;">
+    </div>
+    <button aria-label="Falar com o Kai" style="width:46px;height:46px;border-radius:13px;background:var(--lilac);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     PERFIL
+     Insígnias registradas (seção 2.7 — Drive: propósito/domínio)
+     ══════════════════════════════════════════════════ -->
+<section class="screen" id="screen-perfil">
+  <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+  <div class="topbar"><h1>Perfil</h1></div>
+
+  <div class="px" style="display:flex;flex-direction:column;align-items:center;margin-top:8px;">
+    <div style="width:84px;height:84px;border-radius:24px;background:linear-gradient(135deg,var(--indigo),var(--lilac));display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 22px rgba(61,61,180,.18);">🦊</div>
+    <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-top:12px;">Júlia Cerqueira</div>
+    <div style="font-size:12.5px;color:var(--text-mid);margin-top:2px;">Nível 6 · Exploradora · 1.240 XP</div>
+
+    <div style="width:100%;height:6px;background:var(--surface-2);border-radius:3px;margin-top:14px;overflow:hidden;">
+      <div style="width:62%;height:100%;background:linear-gradient(90deg,var(--indigo),var(--lilac));border-radius:3px;"></div>
+    </div>
+    <div style="font-size:11px;color:var(--text-low);margin-top:5px;">260 XP para o Nível 7</div>
+  </div>
+
+  <div class="px" style="margin-top:26px;">
+    <div class="section-label">Insígnias conquistadas</div>
+    <div style="display:grid;grid-template-columns:repeat(4,140px);justify-content:start;gap:9px;margin-top:2px;">
+      <div class="card" style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;"><span style="font-size:22px;">🔥</span><span style="font-size:9px;color:var(--text-mid);font-weight:700;">7 DIAS</span></div>
+      <div class="card" style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;"><span style="font-size:22px;">📐</span><span style="font-size:9px;color:var(--text-mid);font-weight:700;">MAT 100%</span></div>
+      <div class="card" style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;"><span style="font-size:22px;">🌙</span><span style="font-size:9px;color:var(--text-mid);font-weight:700;">NOTURNA</span></div>
+      <div class="card" style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;opacity:.28;border-style:dashed;"><span style="font-size:22px;">🔒</span><span style="font-size:9px;color:var(--text-low);font-weight:700;">BLOQUEADA</span></div>
+    </div>
+  </div>
+
+  <div class="px" style="margin-top:22px;display:flex;flex-direction:column;gap:8px;">
+    <div class="card" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="goTo('ia')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--lilac)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+      <span style="font-size:13.5px;font-weight:600;">Personalizar o Kai</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-low)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;"><path d="m9 18 6-6-6-6"/></svg>
+    </div>
+    <div class="card" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 3 1 4 1 6H5c0-2 1-3 1-6"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+      <span style="font-size:13.5px;font-weight:600;">Notificações</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-low)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;"><path d="m9 18 6-6-6-6"/></svg>
+    </div>
+    <div class="card" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--crimson)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      <span style="font-size:13.5px;font-weight:600;color:var(--crimson);">Sair</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     AVISOS
+     Centraliza comunicados dispersos (Contextualização 1.1)
+     ══════════════════════════════════════════════════ -->
+<section class="screen" id="screen-avisos">
+  <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+  <div class="topbar">
+    <button class="icon-btn" onclick="goTo('home')" aria-label="Voltar">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <h1 style="font-size:17px;">Avisos</h1>
+    <div style="width:38px;"></div>
+  </div>
+
+  <div class="px" style="display:flex;flex-direction:column;gap:9px;margin-top:10px;">
+    <div class="card" style="padding:14px;">
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:11px;font-weight:700;color:var(--indigo);letter-spacing:.04em;">MATEMÁTICA</span>
+        <span style="font-size:11px;color:var(--text-low);">há 2h</span>
+      </div>
+      <div style="font-size:14px;font-weight:700;margin-top:6px;">Prova remarcada para sexta-feira</div>
+      <div style="font-size:12.5px;color:var(--text-mid);margin-top:3px;line-height:1.5;">Prof. Renato avisou que a prova de Funções foi remarcada.</div>
+    </div>
+    <div class="card" style="padding:14px;">
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.04em;">DES. DE SISTEMAS</span>
+        <span style="font-size:11px;color:var(--text-low);">ontem</span>
+      </div>
+      <div style="font-size:14px;font-weight:700;margin-top:6px;">Material da Unidade 4 disponível</div>
+      <div style="font-size:12.5px;color:var(--text-mid);margin-top:3px;line-height:1.5;">Slides e exercícios já estão na pasta da matéria.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL DE EXCLUSÃO
+     Confirmação obrigatória antes de deletar (heurística de
+     prevenção de erro, Norman / Nielsen — seção 2.5.3)
+     ══════════════════════════════════════════════════ -->
+<div id="delete-modal" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,.45);z-index:100;align-items:center;justify-content:center;" onclick="closeDeleteModal()">
+  <div class="card" style="width:310px;padding:22px;background:var(--surface);" onclick="event.stopPropagation()">
+    <div style="font-size:16px;font-weight:700;">Excluir esta tarefa?</div>
+    <div style="font-size:13px;color:var(--text-mid);margin-top:8px;line-height:1.5;">"<span id="delete-task-name"></span>" será removida e não poderá ser recuperada.</div>
+    <div style="display:flex;gap:9px;margin-top:18px;">
+      <button class="btn-ghost" style="padding:11px;" onclick="closeDeleteModal()">Cancelar</button>
+      <button style="flex:1;padding:11px;background:var(--crimson);border:none;border-radius:var(--radius-md);color:#fff;font-weight:700;font-size:14px;cursor:pointer;" onclick="closeDeleteModal()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     BOTTOM NAV
+     ══════════════════════════════════════════════════ -->
+<nav class="bottomnav" id="bottomnav" style="display:none;">
+  <button class="navitem" data-screen="home" onclick="goTo('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
+    <span>Início</span>
+  </button>
+  <button class="navitem" data-screen="tasks" onclick="goTo('tasks')">
+    <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 2.5 2.5L16 9"/></svg>
+    <span>Tarefas</span>
+  </button>
+  <button class="navitem" data-screen="materias" onclick="goTo('materias')">
+    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4.5A2.5 2.5 0 0 0 17.5 2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20"/></svg>
+    <span>Matérias</span>
+  </button>
+  <button class="navitem" data-screen="ia" onclick="goTo('ia')">
+    <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+    <span>Kai</span>
+  </button>
+  <button class="navitem" data-screen="perfil" onclick="goTo('perfil')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    <span>Perfil</span>
+  </button>
+</nav>
+
+<script>
+  /* ── Navegação entre telas ── */
+  function goTo(screenName) {
+    // esconde todas as telas
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.classList.remove('active');
+    });
+
+    // ativa a tela alvo
+    var target = document.getElementById('screen-' + screenName);
+    if (target) {
+      target.classList.add('active');
+    }
+
+    // atualiza o estado ativo no nav
+    document.querySelectorAll('.navitem').forEach(function(n) {
+      n.classList.remove('active');
+    });
+    var navItem = document.querySelector('.navitem[data-screen="' + screenName + '"]');
+    if (navItem) {
+      navItem.classList.add('active');
+    }
+
+    // esconde nav no onboarding
+    var nav = document.getElementById('bottomnav');
+    if (screenName === 'onboarding') {
+      nav.style.display = 'none';
+    } else {
+      nav.style.display = 'flex';
+    }
+
+    window.scrollTo(0, 0);
+  }
+
+  /* ── Completar tarefa com feedback visual (Norman — seção 2.5.1) ── */
+  function completeTask(checkbox) {
+    checkbox.style.background = 'var(--teal)';
+    checkbox.style.border = 'none';
+    checkbox.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:5px;"><path d="m5 13 4 4L19 7"/><\/svg>';
+    var row = checkbox.closest('.card');
+    var title = row ? row.querySelector('[style*="font-weight:600"]') : null;
+    if (title) title.style.textDecoration = 'line-through';
+    if (row) {
+      row.style.transition = 'opacity .4s ease';
+      setTimeout(function() { row.style.opacity = '0.5'; }, 400);
+    }
+  }
+
+  /* ── Modal de exclusão (prevenção de erro — seção 2.5.3) ── */
+  function openDeleteModal(taskName) {
+    document.getElementById('delete-task-name').textContent = taskName;
+    document.getElementById('delete-modal').style.display = 'flex';
+  }
+  function closeDeleteModal() {
+    document.getElementById('delete-modal').style.display = 'none';
+  }
+</script>
+</div>
+</body>
+</html>

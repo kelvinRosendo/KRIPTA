@@ -1,1 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KRIPTA — Protótipo</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="shortcut icon" href="assets/KriptaLogoNw.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles/output.css">
+</head>
+<body>
+
+<div class="device">
+
+  <!-- ══════════════════════════════════════════════════
+       ONBOARDING
+       ══════════════════════════════════════════════════ -->
+  <section class="screen active" id="screen-onboarding">
+    <div class="flex flex-col justify-between flex-1 pt-14 px-7 pb-11">
+      <div></div>
+      <div class="text-center">
+        <div class="w-[180px] h-[180px] mx-auto mb-5 flex items-center justify-center">
+          <img src="assets/KriptaLogoNw.png" alt="KRIPTA" class="max-w-full max-h-full object-contain">
+        </div>
+        <h1 class="font-display text-[42px] font-bold tracking-tight text-indigo">KRIPTA</h1>
+        <p class="text-text-mid text-[15px] mt-2.5 leading-[1.55] px-3">
+          Suas matérias, prazos e tarefas num só lugar.<br>Sem precisar pensar onde procurar.
+        </p>
+      </div>
+      <div class="flex flex-col gap-3">
+        <button class="btn-primary" onclick="goTo('home')">Começar</button>
+        <button class="btn-ghost" onclick="goTo('home')">Já tenho uma conta</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       HOME
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-home">
+    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+    <div class="topbar">
+      <div>
+        <h1>Olá, Júlia</h1>
+        <div class="sub">Terça, 1 de julho</div>
+      </div>
+      <button class="icon-btn" onclick="goTo('avisos')" aria-label="Avisos">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 3 1 4 1 6H5c0-2 1-3 1-6"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+      </button>
+    </div>
+
+    <!-- Streak + XP -->
+    <div class="px-app mt-1">
+      <div class="card p-4 flex items-center gap-[14px] border-orange border-[1.5px]">
+        <div class="relative w-[58px] h-[58px] shrink-0">
+          <svg width="58" height="58" viewBox="0 0 58 58" class="-rotate-90">
+            <circle cx="29" cy="29" r="23" stroke="#FFF0EB" stroke-width="5" fill="none"/>
+            <circle cx="29" cy="29" r="23" stroke="#FF6B35" stroke-width="5" fill="none"
+              stroke-dasharray="144.5" stroke-dashoffset="41" stroke-linecap="round"/>
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center text-xl">🔥</div>
+        </div>
+        <div class="flex-1">
+          <div class="font-display text-[17px] font-bold text-text-hi">7 dias seguidos!</div>
+          <div class="text-xs text-text-mid mt-0.5">Faltam 3 min hoje pra manter o foguinho</div>
+        </div>
+      </div>
+
+      <div class="flex gap-[9px] mt-[9px]">
+        <div class="card flex-1 p-3 text-center">
+          <div class="font-display text-[17px] font-bold text-indigo">1.240</div>
+          <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">XP TOTAL</div>
+        </div>
+        <div class="card flex-1 p-3 text-center">
+          <div class="font-display text-[17px] font-bold">Nível 6</div>
+          <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">EXPLORADORA</div>
+        </div>
+        <div class="card flex-1 p-3 text-center cursor-pointer" onclick="goTo('perfil')">
+          <div class="font-display text-[17px] font-bold">12</div>
+          <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">INSÍGNIAS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarefas -->
+    <div class="px-app mt-6 flex justify-between items-baseline">
+      <span class="font-display text-[15px] font-bold">Para hoje e amanhã</span>
+      <span class="text-xs text-indigo font-bold cursor-pointer" onclick="goTo('tasks')">ver tudo</span>
+    </div>
+
+    <div class="px-app flex flex-col gap-[9px] mt-[11px]">
+      <div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-l-orange border-t-0 border-r-0 border-b-0 border border-border">
+        <div onclick="completeTask(this)" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer"></div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold">Lista de exercícios — Funções</div>
+          <div class="text-[11.5px] text-text-mid mt-0.5">Matemática · hoje, 23h59</div>
+        </div>
+        <span class="pill bg-orange-light text-orange">hoje</span>
+      </div>
+
+      <div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-l-teal border-t-0 border-r-0 border-b-0 border border-border">
+        <div onclick="completeTask(this)" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer"></div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold">Entrega do protótipo — TCC</div>
+          <div class="text-[11.5px] text-text-mid mt-0.5">Proj. Integrador · amanhã, 18h</div>
+        </div>
+        <span class="pill bg-teal-light text-teal">amanhã</span>
+      </div>
+
+      <div class="card py-[13px] px-4 flex items-center gap-[11px] opacity-55">
+        <div class="w-[22px] h-[22px] rounded-[7px] bg-teal shrink-0 flex items-center justify-center">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold line-through">Resumo cap. 4 — Biologia</div>
+          <div class="text-[11.5px] text-text-mid mt-0.5">Biologia · concluída ontem</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Atalho Kai -->
+    <div class="px-app mt-5">
+      <div class="card p-[15px] flex items-center gap-3 cursor-pointer bg-lilac-light border-lilac" onclick="goTo('ia')">
+        <div class="w-10 h-10 rounded-xl bg-lilac flex items-center justify-center shrink-0">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="text-[13.5px] font-bold text-text-hi">Travou em algo?</div>
+          <div class="text-[11.5px] text-text-mid">Pergunte ao Kai sobre qualquer matéria</div>
+        </div>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       MATÉRIAS
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-materias">
+    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+    <div class="topbar">
+      <div><h1>Matérias</h1><div class="sub">7 matérias este semestre</div></div>
+      <button class="icon-btn" aria-label="Buscar">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+    </div>
+
+    <div class="flex gap-2 overflow-x-auto pt-1 px-5 scrollbar-hidden">
+      <span class="pill bg-indigo text-white">Todas</span>
+      <span class="pill bg-surface text-text-mid border border-border">📌 Provas em breve</span>
+      <span class="pill bg-surface text-text-mid border border-border">📁 Projetos</span>
+      <span class="pill bg-surface text-text-mid border border-border">⭐ Favoritas</span>
+    </div>
+
+    <div class="px-app flex flex-col gap-[9px] mt-4">
+      <div class="card p-3.5 flex items-center gap-3 cursor-pointer" onclick="goTo('materia-detalhe')">
+        <div class="w-[44px] h-[44px] rounded-[13px] bg-indigo-light flex items-center justify-center text-xl shrink-0">📐</div>
+        <div class="flex-1">
+          <div class="text-[14.5px] font-bold">Matemática</div>
+          <div class="text-xs text-text-mid mt-px">3 pendências · prof. Renato</div>
+        </div>
+        <span class="pill bg-crimson-light text-crimson">1 prova</span>
+      </div>
+
+      <div class="card p-3.5 flex items-center gap-3 cursor-pointer">
+        <div class="w-[44px] h-[44px] rounded-[13px] bg-teal-light flex items-center justify-center text-xl shrink-0">🧬</div>
+        <div class="flex-1">
+          <div class="text-[14.5px] font-bold">Biologia</div>
+          <div class="text-xs text-text-mid mt-px">Tudo em dia · prof.ª Carla</div>
+        </div>
+      </div>
+
+      <div class="card p-3.5 flex items-center gap-3 cursor-pointer">
+        <div class="w-[44px] h-[44px] rounded-[13px] bg-orange-light flex items-center justify-center text-xl shrink-0">💻</div>
+        <div class="flex-1">
+          <div class="text-[14.5px] font-bold">Desenvolvimento de Sistemas</div>
+          <div class="text-xs text-text-mid mt-px">2 pendências · prof. José Roberto</div>
+        </div>
+        <span class="pill bg-orange-light text-orange">projeto</span>
+      </div>
+
+      <div class="card p-3.5 flex items-center gap-3 cursor-pointer">
+        <div class="w-[44px] h-[44px] rounded-[13px] bg-lilac-light flex items-center justify-center text-xl shrink-0">📖</div>
+        <div class="flex-1">
+          <div class="text-[14.5px] font-bold">Língua Portuguesa</div>
+          <div class="text-xs text-text-mid mt-px">Tudo em dia · prof.ª Marina</div>
+        </div>
+      </div>
+
+      <div class="card p-3.5 flex items-center gap-3 cursor-pointer opacity-65">
+        <div class="w-[44px] h-[44px] rounded-[13px] bg-surface-2 flex items-center justify-center text-xl shrink-0">🌍</div>
+        <div class="flex-1">
+          <div class="text-[14.5px] font-bold">Geografia</div>
+          <div class="text-xs text-text-mid mt-px">Tudo em dia</div>
+        </div>
+      </div>
+
+      <button class="btn-ghost flex items-center justify-center gap-2 mt-1">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Adicionar matéria
+      </button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       DETALHE DA MATÉRIA
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-materia-detalhe">
+    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+    <div class="topbar">
+      <button class="icon-btn" onclick="goTo('materias')" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="text-center"><h1 class="!text-[17px]">Matemática</h1><div class="sub">prof. Renato</div></div>
+      <button class="icon-btn" aria-label="Mais opções">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="px-app flex border-b border-border mt-1.5">
+      <div class="py-2.5 px-1 text-[13px] font-bold text-indigo border-b-[2.5px] border-indigo mb-[-1.5px] mr-[18px]">Unidades</div>
+      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid mr-[18px]">Materiais</div>
+      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid">Avisos</div>
+    </div>
+
+    <div class="px-app flex flex-col gap-[9px] mt-4">
+      <!-- Unidade ativa -->
+      <div class="card p-[15px]">
+        <div class="flex justify-between items-center">
+          <div class="text-[14.5px] font-bold">📂 Unidade 3 — Funções</div>
+          <span class="text-[11.5px] text-text-mid font-semibold">2 / 3</span>
+        </div>
+        <div class="h-[5px] bg-surface-2 rounded-[3px] mt-2.5 overflow-hidden">
+          <div class="w-[66%] h-full bg-indigo rounded-[3px]"></div>
+        </div>
+
+        <div class="border-t border-border mt-[13px] pt-[11px] flex flex-col gap-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-[19px] h-[19px] rounded-md bg-teal shrink-0 flex items-center justify-center">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+            </div>
+            <span class="text-[13px] line-through text-text-mid">Slides — Funções afins</span>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <div class="w-[19px] h-[19px] rounded-md bg-teal shrink-0 flex items-center justify-center">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+            </div>
+            <span class="text-[13px] line-through text-text-mid">Videoaula — Quadráticas</span>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <div class="w-[19px] h-[19px] rounded-md border-2 border-border shrink-0"></div>
+            <span class="text-[13px] font-semibold">Lista de exercícios — Funções</span>
+            <span class="pill bg-orange-light text-orange ml-auto">hoje</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-3.5 opacity-70 cursor-pointer">
+        <div class="flex justify-between items-center">
+          <div class="text-sm font-bold">📂 Unidade 2 — Geometria</div>
+          <span class="text-xs text-teal font-bold">Concluída</span>
+        </div>
+      </div>
+
+      <div class="card p-3.5 opacity-70 cursor-pointer">
+        <div class="flex justify-between items-center">
+          <div class="text-sm font-bold">📂 Unidade 1 — Conjuntos</div>
+          <span class="text-xs text-teal font-bold">Concluída</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       TAREFAS
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-tasks">
+    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+    <div class="topbar">
+      <div><h1>Tarefas</h1><div class="sub">4 pendentes</div></div>
+      <button class="icon-btn" aria-label="Filtrar">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+      </button>
+    </div>
+
+    <div class="flex gap-2 pt-1 px-5 overflow-x-auto scrollbar-hidden">
+      <span class="pill bg-indigo text-white">Pendentes</span>
+      <span class="pill bg-surface text-text-mid border border-border">Concluídas</span>
+      <span class="pill bg-surface text-text-mid border border-border">Calendário</span>
+    </div>
+
+    <div class="px-app flex flex-col gap-[9px] mt-[18px]">
+      <div class="section-label">Hoje</div>
+
+      <div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-l-orange border-t-0 border-r-0 border-b-0 border border-border">
+        <div onclick="completeTask(this)" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer"></div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold">Lista de exercícios — Funções</div>
+          <div class="text-[11.5px] text-text-mid mt-0.5">Matemática · 23h59</div>
+        </div>
+        <button onclick="openDeleteModal('Lista de exercícios — Funções')" class="icon-btn !w-8 !h-8" aria-label="Excluir">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>
+        </button>
+      </div>
+
+      <div class="section-label mt-2.5">Amanhã</div>
+
+      <div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-l-teal border-t-0 border-r-0 border-b-0 border border-border">
+        <div onclick="completeTask(this)" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer"></div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold">Entrega do protótipo — TCC</div>
+          <div class="text-[11.5px] text-text-mid mt-0.5">Proj. Integrador · 18h</div>
+        </div>
+        <button onclick="openDeleteModal('Entrega do protótipo — TCC')" class="icon-btn !w-8 !h-8" aria-label="Excluir">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>
+        </button>
+      </div>
+
+      <div class="section-label mt-2.5">Esta semana</div>
+
+      <div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-l-border border-t-0 border-r-0 border-b-0 border border-border">
+        <div onclick="completeTask(this)" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer"></div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold">Trabalho em grupo — Sistemas</div>
+          <div class="text-[11.5px] text-text-mid mt-0.5">Des. de Sistemas · sexta</div>
+        </div>
+        <button onclick="openDeleteModal('Trabalho em grupo — Sistemas')" class="icon-btn !w-8 !h-8" aria-label="Excluir">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" onclick="void(0)" aria-label="Nova tarefa">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       KAI — Agente de IA
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-ia">
+    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+    <div class="topbar">
+      <div class="flex items-center gap-2.5">
+        <div class="w-[34px] h-[34px] rounded-[10px] bg-lilac flex items-center justify-center">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+        </div>
+        <div><h1 class="!text-[17px]">Kai</h1><div class="sub">assistente de estudos</div></div>
+      </div>
+      <button class="icon-btn" aria-label="Configurações do Kai">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33A1.65 1.65 0 0 0 14 20.9V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.52A1.65 1.65 0 0 0 7.1 19.7l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.52-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.52V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9z"/></svg>
+      </button>
+    </div>
+
+    <div class="px-app flex flex-col gap-[13px] mt-1.5 flex-1">
+      <!-- Mensagem do Kai -->
+      <div class="flex gap-2 max-w-[90%]">
+        <div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">🤖</div>
+        <div class="chat-bubble-kai">
+          <div class="text-[13px] leading-[1.55] text-text-hi">Oi, Júlia! Vi que sua lista de Funções vence hoje. Quer que eu monte um roteiro de estudo de 20 min com base nos slides da Unidade 3?</div>
+        </div>
+      </div>
+
+      <!-- Resposta do usuário -->
+      <div class="flex justify-end">
+        <div class="chat-bubble-user">
+          <div class="text-[13px] leading-[1.55] text-white">manda sim, e explica função quadrática rapidinho</div>
+        </div>
+      </div>
+
+      <!-- Resposta estruturada do Kai -->
+      <div class="flex gap-2 max-w-[92%]">
+        <div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">🤖</div>
+        <div class="chat-bubble-kai">
+          <div class="text-[13px] leading-[1.55] text-text-hi">Função quadrática tem grau 2: <strong>f(x) = ax² + bx + c</strong>. O gráfico é uma parábola — se "a" for positivo, abre pra cima.</div>
+          <div class="text-[13px] font-bold mt-2.5 text-text-hi">Roteiro de 20 min:</div>
+          <div class="text-[12.5px] mt-[5px] leading-[1.8] text-text-mid">1. Revisar slides 4–7 (8 min)<br>2. Refazer exercícios 1–3 da lista (10 min)<br>3. Conferir gabarito (2 min)</div>
+          <button class="btn-ghost !py-2.5 !text-[12.5px] mt-[11px]" onclick="goTo('materia-detalhe')">Abrir Unidade 3</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chips -->
+    <div class="flex gap-2 pt-[10px] px-5 overflow-x-auto scrollbar-hidden">
+      <span class="pill bg-surface text-text-mid border border-border">📋 Lista da semana</span>
+      <span class="pill bg-surface text-text-mid border border-border">📊 Relatório de progresso</span>
+      <span class="pill bg-surface text-text-mid border border-border">🔔 Me lembra das provas</span>
+    </div>
+
+    <!-- Input + microfone -->
+    <div class="px-app mt-2.5 flex gap-2">
+      <div class="card flex-1 flex items-center py-1 pr-2 pl-[14px]">
+        <input type="text" placeholder="Pergunte ao Kai…" class="input-kai">
+      </div>
+      <button class="w-[46px] h-[46px] rounded-[13px] bg-lilac border-none flex items-center justify-center cursor-pointer shrink-0" aria-label="Falar com o Kai">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PERFIL
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-perfil">
+    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+    <div class="topbar"><h1>Perfil</h1></div>
+
+    <div class="px-app flex flex-col items-center mt-2">
+      <div class="w-[84px] h-[84px] rounded-[24px] bg-gradient-to-br from-indigo to-lilac flex items-center justify-center text-[34px] shadow-[0_8px_22px_rgba(61,61,180,.18)]">🦊</div>
+      <div class="font-display text-lg font-bold mt-3">Júlia Cerqueira</div>
+      <div class="text-[12.5px] text-text-mid mt-0.5">Nível 6 · Exploradora · 1.240 XP</div>
+
+      <div class="w-full h-1.5 bg-surface-2 rounded-[3px] mt-3.5 overflow-hidden">
+        <div class="w-[62%] h-full bg-gradient-to-r from-indigo to-lilac rounded-[3px]"></div>
+      </div>
+      <div class="text-[11px] text-text-low mt-[5px]">260 XP para o Nível 7</div>
+    </div>
+
+    <!-- Insígnias -->
+    <div class="px-app mt-[26px]">
+      <div class="section-label">Insígnias conquistadas</div>
+      <div class="grid grid-cols-4 gap-[9px] mt-0.5">
+        <div class="card aspect-square flex flex-col items-center justify-center gap-[5px]"><span class="text-xl">🔥</span><span class="text-[9px] text-text-mid font-bold">7 DIAS</span></div>
+        <div class="card aspect-square flex flex-col items-center justify-center gap-[5px]"><span class="text-xl">📐</span><span class="text-[9px] text-text-mid font-bold">MAT 100%</span></div>
+        <div class="card aspect-square flex flex-col items-center justify-center gap-[5px]"><span class="text-xl">🌙</span><span class="text-[9px] text-text-mid font-bold">NOTURNA</span></div>
+        <div class="card aspect-square flex flex-col items-center justify-center gap-[5px] opacity-[.28] border-dashed"><span class="text-xl">🔒</span><span class="text-[9px] text-text-low font-bold">BLOQUEADA</span></div>
+      </div>
+    </div>
+
+    <!-- Menu -->
+    <div class="px-app mt-[22px] flex flex-col gap-2">
+      <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer" onclick="goTo('ia')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+        <span class="text-[13.5px] font-semibold">Personalizar o Kai</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+      <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 3 1 4 1 6H5c0-2 1-3 1-6"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="text-[13.5px] font-semibold">Notificações</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+      <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C0392B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span class="text-[13.5px] font-semibold text-crimson">Sair</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       AVISOS
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-avisos">
+    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+    <div class="topbar">
+      <button class="icon-btn" onclick="goTo('home')" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h1 class="!text-[17px]">Avisos</h1>
+      <div class="w-[38px]"></div>
+    </div>
+
+    <div class="px-app flex flex-col gap-[9px] mt-[10px]">
+      <div class="card p-3.5">
+        <div class="flex justify-between">
+          <span class="text-[11px] font-bold text-indigo tracking-wider">MATEMÁTICA</span>
+          <span class="text-[11px] text-text-low">há 2h</span>
+        </div>
+        <div class="text-sm font-bold mt-1.5">Prova remarcada para sexta-feira</div>
+        <div class="text-[12.5px] text-text-mid mt-[3px] leading-[1.5]">Prof. Renato avisou que a prova de Funções foi remarcada.</div>
+      </div>
+      <div class="card p-3.5">
+        <div class="flex justify-between">
+          <span class="text-[11px] font-bold text-orange tracking-wider">DES. DE SISTEMAS</span>
+          <span class="text-[11px] text-text-low">ontem</span>
+        </div>
+        <div class="text-sm font-bold mt-1.5">Material da Unidade 4 disponível</div>
+        <div class="text-[12.5px] text-text-mid mt-[3px] leading-[1.5]">Slides e exercícios já estão na pasta da matéria.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       MODAL DE EXCLUSÃO
+       ══════════════════════════════════════════════════ -->
+  <div id="delete-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center" onclick="closeDeleteModal()">
+    <div class="card w-[310px] p-[22px] bg-surface" onclick="event.stopPropagation()">
+      <div class="text-base font-bold">Excluir esta tarefa?</div>
+      <div class="text-[13px] text-text-mid mt-2 leading-[1.5]">"<span id="delete-task-name"></span>" será removida e não poderá ser recuperada.</div>
+      <div class="flex gap-[9px] mt-[18px]">
+        <button class="btn-ghost !py-[11px] px-5" onclick="closeDeleteModal()">Cancelar</button>
+        <button class="flex-1 py-[11px] bg-crimson border-none rounded-md text-white font-bold text-sm cursor-pointer" onclick="closeDeleteModal()">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       BOTTOM NAV
+       ══════════════════════════════════════════════════ -->
+  <nav class="bottomnav" id="bottomnav" style="display:none;">
+    <button class="navitem" data-screen="home" onclick="goTo('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
+      <span>Início</span>
+    </button>
+    <button class="navitem" data-screen="tasks" onclick="goTo('tasks')">
+      <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 2.5 2.5L16 9"/></svg>
+      <span>Tarefas</span>
+    </button>
+    <button class="navitem" data-screen="materias" onclick="goTo('materias')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4.5A2.5 2.5 0 0 0 17.5 2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20"/></svg>
+      <span>Matérias</span>
+    </button>
+    <button class="navitem" data-screen="ia" onclick="goTo('ia')">
+      <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+      <span>Kai</span>
+    </button>
+    <button class="navitem" data-screen="perfil" onclick="goTo('perfil')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Perfil</span>
+    </button>
+  </nav>
+
+</div>
+
+<script src="services/app.js"></script>
+<script src="services/navigation.js"></script>
+<script src="services/tasks.js"></script>
+<script src="services/modal.js"></script>
+</body>
+</html>

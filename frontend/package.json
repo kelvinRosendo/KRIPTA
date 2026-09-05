@@ -1,0 +1,18 @@
+{
+  "name": "kripta-frontend",
+  "version": "1.0.0",
+  "description": "KRIPTA — Protótipo Frontend com Tailwind CSS",
+  "scripts": {
+    "dev": "tailwindcss -i ./src/input.css -o ./styles/output.css --watch",
+    "build": "tailwindcss -i ./src/input.css -o ./styles/output.css",
+    "serve": "start index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.5.4",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^3.4.19"
+  }
+}

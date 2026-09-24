@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KRIPTA — Protótipo</title>
+  <title>KRIPTA</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,24 +16,89 @@
 
 <div class="device">
 
+  <!-- Banner de conexão com o backend -->
+  <div id="conn-banner" class="hidden fixed top-0 z-[150] inset-x-0 mx-auto max-w-[480px] text-center px-4 py-1.5 text-[11px] font-bold"></div>
+
   <!-- ══════════════════════════════════════════════════
-       ONBOARDING
+       LOGIN
        ══════════════════════════════════════════════════ -->
-  <section class="screen active" id="screen-onboarding">
+  <section class="screen" id="screen-login">
     <div class="flex flex-col justify-between flex-1 pt-14 px-7 pb-11">
-      <div></div>
-      <div class="text-center">
-        <div class="w-[180px] h-[180px] mx-auto mb-5 flex items-center justify-center">
+      <div class="text-center mt-6">
+        <div class="w-[150px] h-[150px] mx-auto mb-4 flex items-center justify-center">
           <img src="assets/KriptaLogoNw.png" alt="KRIPTA" class="max-w-full max-h-full object-contain">
         </div>
-        <h1 class="font-display text-[42px] font-bold tracking-tight text-indigo">KRIPTA</h1>
-        <p class="text-text-mid text-[15px] mt-2.5 leading-[1.55] px-3">
-          Suas matérias, prazos e tarefas num só lugar.<br>Sem precisar pensar onde procurar.
+        <h1 class="font-display text-[38px] font-bold tracking-tight text-indigo">KRIPTA</h1>
+        <p class="text-text-mid text-[15px] mt-2 leading-[1.55]">
+          Que bom te ver de novo. Continue de onde parou.
         </p>
       </div>
-      <div class="flex flex-col gap-3">
-        <button class="btn-primary" onclick="goTo('home')">Começar</button>
-        <button class="btn-ghost" onclick="goTo('home')">Já tenho uma conta</button>
+
+      <form id="login-form" class="flex flex-col gap-3 mt-8" novalidate>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">E-MAIL</span>
+          <input type="email" name="email" required autocomplete="email" placeholder="voce@email.com"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">SENHA</span>
+          <input type="password" name="password" required autocomplete="current-password" placeholder="••••••••"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <div id="login-error" class="text-[12px] text-crimson font-semibold min-h-[16px]"></div>
+        <button type="submit" class="btn-primary">Entrar</button>
+      </form>
+
+      <div class="mt-6 text-center">
+        <span class="text-[13px] text-text-mid">Ainda não tem conta?</span>
+        <button type="button" class="text-[13px] font-bold text-indigo cursor-pointer bg-transparent border-none ml-1" onclick="goToAuth('register')">Cadastre-se</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       CADASTRO
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-register">
+    <div class="flex flex-col justify-between flex-1 pt-14 px-7 pb-11">
+      <div class="text-center mt-6">
+        <div class="w-[120px] h-[120px] mx-auto mb-4 flex items-center justify-center">
+          <img src="assets/KriptaLogoNw.png" alt="KRIPTA" class="max-w-full max-h-full object-contain">
+        </div>
+        <h1 class="font-display text-[30px] font-bold tracking-tight text-indigo">Criar conta</h1>
+        <p class="text-text-mid text-[14px] mt-2 leading-[1.55]">
+          Suas matérias, prazos e tarefas num só lugar.
+        </p>
+      </div>
+
+      <form id="register-form" class="flex flex-col gap-3 mt-6" novalidate>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">NOME</span>
+          <input type="text" name="name" required autocomplete="name" placeholder="Seu nome"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">E-MAIL</span>
+          <input type="email" name="email" required autocomplete="email" placeholder="voce@email.com"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">SENHA</span>
+          <input type="password" name="password" required autocomplete="new-password" placeholder="Mínimo 6 caracteres"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">CONFIRMAR SENHA</span>
+          <input type="password" name="confirmPassword" required autocomplete="new-password" placeholder="Repita a senha"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <div id="register-error" class="text-[12px] text-crimson font-semibold min-h-[16px]"></div>
+        <button type="submit" class="btn-primary">Cadastrar</button>
+      </form>
+
+      <div class="mt-6 text-center">
+        <span class="text-[13px] text-text-mid">Já tem conta?</span>
+        <button type="button" class="text-[13px] font-bold text-indigo cursor-pointer bg-transparent border-none ml-1" onclick="goToAuth('login')">Entrar</button>
       </div>
     </div>
   </section>
@@ -45,17 +110,16 @@
     <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
       <div>
-        <h1>Olá, Júlia</h1>
-        <div class="sub">Terça, 1 de julho</div>
+        <h1 id="home-greeting">Olá</h1>
+        <div class="sub" id="home-date"></div>
       </div>
       <button class="icon-btn" onclick="goTo('avisos')" aria-label="Avisos">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 3 1 4 1 6H5c0-2 1-3 1-6"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
       </button>
     </div>
 
-    <!-- Streak + XP -->
     <div class="px-app mt-1">
-      <div class="card p-4 flex items-center gap-[14px] border-orange border-[1.5px]">
+      <div class="card p-4 flex items-center gap-[14px] border-orange border-[1.5px]" id="home-streak-card">
         <div class="relative w-[58px] h-[58px] shrink-0">
           <svg width="58" height="58" viewBox="0 0 58 58" class="-rotate-90">
             <circle cx="29" cy="29" r="23" stroke="#FFF0EB" stroke-width="5" fill="none"/>
@@ -65,64 +129,34 @@
           <div class="absolute inset-0 flex items-center justify-center text-xl">🔥</div>
         </div>
         <div class="flex-1">
-          <div class="font-display text-[17px] font-bold text-text-hi">7 dias seguidos!</div>
-          <div class="text-xs text-text-mid mt-0.5">Faltam 3 min hoje pra manter o foguinho</div>
+          <div class="font-display text-[17px] font-bold text-text-hi" id="home-streak-days">—</div>
+          <div class="text-xs text-text-mid mt-0.5" id="home-streak-sub">Continue assim para manter a sequência</div>
         </div>
       </div>
 
       <div class="flex gap-[9px] mt-[9px]">
         <div class="card flex-1 p-3 text-center">
-          <div class="font-display text-[17px] font-bold text-indigo">1.240</div>
+          <div class="font-display text-[17px] font-bold text-indigo" id="home-stat-xp">—</div>
           <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">XP TOTAL</div>
         </div>
         <div class="card flex-1 p-3 text-center">
-          <div class="font-display text-[17px] font-bold">Nível 6</div>
-          <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">EXPLORADORA</div>
+          <div class="font-display text-[17px] font-bold" id="home-stat-level">—</div>
+          <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">NÍVEL</div>
         </div>
         <div class="card flex-1 p-3 text-center cursor-pointer" onclick="goTo('perfil')">
-          <div class="font-display text-[17px] font-bold">12</div>
+          <div class="font-display text-[17px] font-bold" id="home-stat-badges">—</div>
           <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">INSÍGNIAS</div>
         </div>
       </div>
     </div>
 
-    <!-- Tarefas -->
     <div class="px-app mt-6 flex justify-between items-baseline">
       <span class="font-display text-[15px] font-bold">Para hoje e amanhã</span>
       <span class="text-xs text-indigo font-bold cursor-pointer" onclick="goTo('tasks')">ver tudo</span>
     </div>
 
-    <div class="px-app flex flex-col gap-[9px] mt-[11px]">
-      <div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-l-orange border-t-0 border-r-0 border-b-0 border border-border">
-        <div onclick="completeTask(this)" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer"></div>
-        <div class="flex-1">
-          <div class="text-sm font-semibold">Lista de exercícios — Funções</div>
-          <div class="text-[11.5px] text-text-mid mt-0.5">Matemática · hoje, 23h59</div>
-        </div>
-        <span class="pill bg-orange-light text-orange">hoje</span>
-      </div>
+    <div class="px-app flex flex-col gap-[9px] mt-[11px]" id="home-tasks"></div>
 
-      <div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-l-teal border-t-0 border-r-0 border-b-0 border border-border">
-        <div onclick="completeTask(this)" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer"></div>
-        <div class="flex-1">
-          <div class="text-sm font-semibold">Entrega do protótipo — TCC</div>
-          <div class="text-[11.5px] text-text-mid mt-0.5">Proj. Integrador · amanhã, 18h</div>
-        </div>
-        <span class="pill bg-teal-light text-teal">amanhã</span>
-      </div>
-
-      <div class="card py-[13px] px-4 flex items-center gap-[11px] opacity-55">
-        <div class="w-[22px] h-[22px] rounded-[7px] bg-teal shrink-0 flex items-center justify-center">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
-        </div>
-        <div class="flex-1">
-          <div class="text-sm font-semibold line-through">Resumo cap. 4 — Biologia</div>
-          <div class="text-[11.5px] text-text-mid mt-0.5">Biologia · concluída ontem</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Atalho Kai -->
     <div class="px-app mt-5">
       <div class="card p-[15px] flex items-center gap-3 cursor-pointer bg-lilac-light border-lilac" onclick="goTo('ia')">
         <div class="w-10 h-10 rounded-xl bg-lilac flex items-center justify-center shrink-0">
@@ -143,67 +177,20 @@
   <section class="screen" id="screen-materias">
     <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
-      <div><h1>Matérias</h1><div class="sub">7 matérias este semestre</div></div>
+      <div><h1>Matérias</h1><div class="sub" id="subjects-count">Carregando…</div></div>
       <button class="icon-btn" aria-label="Buscar">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       </button>
     </div>
 
     <div class="flex gap-2 overflow-x-auto pt-1 px-5 scrollbar-hidden">
-      <span class="pill bg-indigo text-white">Todas</span>
-      <span class="pill bg-surface text-text-mid border border-border">📌 Provas em breve</span>
-      <span class="pill bg-surface text-text-mid border border-border">📁 Projetos</span>
-      <span class="pill bg-surface text-text-mid border border-border">⭐ Favoritas</span>
+      <span class="pill bg-indigo text-white cursor-pointer" data-subject-filter="all">Todas</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-subject-filter="hasExam">📌 Provas em breve</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-subject-filter="isProject">📁 Projetos</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-subject-filter="isFavorite">⭐ Favoritas</span>
     </div>
 
-    <div class="px-app flex flex-col gap-[9px] mt-4">
-      <div class="card p-3.5 flex items-center gap-3 cursor-pointer" onclick="goTo('materia-detalhe')">
-        <div class="w-[44px] h-[44px] rounded-[13px] bg-indigo-light flex items-center justify-center text-xl shrink-0">📐</div>
-        <div class="flex-1">
-          <div class="text-[14.5px] font-bold">Matemática</div>
-          <div class="text-xs text-text-mid mt-px">3 pendências · prof. Renato</div>
-        </div>
-        <span class="pill bg-crimson-light text-crimson">1 prova</span>
-      </div>
-
-      <div class="card p-3.5 flex items-center gap-3 cursor-pointer">
-        <div class="w-[44px] h-[44px] rounded-[13px] bg-teal-light flex items-center justify-center text-xl shrink-0">🧬</div>
-        <div class="flex-1">
-          <div class="text-[14.5px] font-bold">Biologia</div>
-          <div class="text-xs text-text-mid mt-px">Tudo em dia · prof.ª Carla</div>
-        </div>
-      </div>
-
-      <div class="card p-3.5 flex items-center gap-3 cursor-pointer">
-        <div class="w-[44px] h-[44px] rounded-[13px] bg-orange-light flex items-center justify-center text-xl shrink-0">💻</div>
-        <div class="flex-1">
-          <div class="text-[14.5px] font-bold">Desenvolvimento de Sistemas</div>
-          <div class="text-xs text-text-mid mt-px">2 pendências · prof. José Roberto</div>
-        </div>
-        <span class="pill bg-orange-light text-orange">projeto</span>
-      </div>
-
-      <div class="card p-3.5 flex items-center gap-3 cursor-pointer">
-        <div class="w-[44px] h-[44px] rounded-[13px] bg-lilac-light flex items-center justify-center text-xl shrink-0">📖</div>
-        <div class="flex-1">
-          <div class="text-[14.5px] font-bold">Língua Portuguesa</div>
-          <div class="text-xs text-text-mid mt-px">Tudo em dia · prof.ª Marina</div>
-        </div>
-      </div>
-
-      <div class="card p-3.5 flex items-center gap-3 cursor-pointer opacity-65">
-        <div class="w-[44px] h-[44px] rounded-[13px] bg-surface-2 flex items-center justify-center text-xl shrink-0">🌍</div>
-        <div class="flex-1">
-          <div class="text-[14.5px] font-bold">Geografia</div>
-          <div class="text-xs text-text-mid mt-px">Tudo em dia</div>
-        </div>
-      </div>
-
-      <button class="btn-ghost flex items-center justify-center gap-2 mt-1">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        Adicionar matéria
-      </button>
-    </div>
+    <div class="px-app flex flex-col gap-[9px] mt-4" id="subjects-list"></div>
   </section>
 
   <!-- ══════════════════════════════════════════════════
@@ -215,65 +202,21 @@
       <button class="icon-btn" onclick="goTo('materias')" aria-label="Voltar">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       </button>
-      <div class="text-center"><h1 class="!text-[17px]">Matemática</h1><div class="sub">prof. Renato</div></div>
+      <div class="text-center"><h1 class="!text-[17px]" id="subject-name">Matéria</h1><div class="sub" id="subject-teacher"></div></div>
       <button class="icon-btn" aria-label="Mais opções">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
       </button>
     </div>
 
-    <!-- Tabs -->
+    <div class="px-app" id="subject-desc"></div>
+
     <div class="px-app flex border-b border-border mt-1.5">
-      <div class="py-2.5 px-1 text-[13px] font-bold text-indigo border-b-[2.5px] border-indigo mb-[-1.5px] mr-[18px]">Unidades</div>
-      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid mr-[18px]">Materiais</div>
-      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid">Avisos</div>
+      <div class="py-2.5 px-1 text-[13px] font-bold text-indigo border-b-[2.5px] border-indigo mb-[-1.5px] mr-[18px] cursor-pointer" data-detail-tab="units" onclick="switchTab('units')">Unidades</div>
+      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid mr-[18px] cursor-pointer" data-detail-tab="materials" onclick="switchTab('materials')">Materiais</div>
+      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid cursor-pointer" data-detail-tab="avisos" onclick="switchTab('avisos')">Avisos</div>
     </div>
 
-    <div class="px-app flex flex-col gap-[9px] mt-4">
-      <!-- Unidade ativa -->
-      <div class="card p-[15px]">
-        <div class="flex justify-between items-center">
-          <div class="text-[14.5px] font-bold">📂 Unidade 3 — Funções</div>
-          <span class="text-[11.5px] text-text-mid font-semibold">2 / 3</span>
-        </div>
-        <div class="h-[5px] bg-surface-2 rounded-[3px] mt-2.5 overflow-hidden">
-          <div class="w-[66%] h-full bg-indigo rounded-[3px]"></div>
-        </div>
-
-        <div class="border-t border-border mt-[13px] pt-[11px] flex flex-col gap-2">
-          <div class="flex items-center gap-2.5">
-            <div class="w-[19px] h-[19px] rounded-md bg-teal shrink-0 flex items-center justify-center">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
-            </div>
-            <span class="text-[13px] line-through text-text-mid">Slides — Funções afins</span>
-          </div>
-          <div class="flex items-center gap-2.5">
-            <div class="w-[19px] h-[19px] rounded-md bg-teal shrink-0 flex items-center justify-center">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
-            </div>
-            <span class="text-[13px] line-through text-text-mid">Videoaula — Quadráticas</span>
-          </div>
-          <div class="flex items-center gap-2.5">
-            <div class="w-[19px] h-[19px] rounded-md border-2 border-border shrink-0"></div>
-            <span class="text-[13px] font-semibold">Lista de exercícios — Funções</span>
-            <span class="pill bg-orange-light text-orange ml-auto">hoje</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card p-3.5 opacity-70 cursor-pointer">
-        <div class="flex justify-between items-center">
-          <div class="text-sm font-bold">📂 Unidade 2 — Geometria</div>
-          <span class="text-xs text-teal font-bold">Concluída</span>
-        </div>
-      </div>
-
-      <div class="card p-3.5 opacity-70 cursor-pointer">
-        <div class="flex justify-between items-center">
-          <div class="text-sm font-bold">📂 Unidade 1 — Conjuntos</div>
-          <span class="text-xs text-teal font-bold">Concluída</span>
-        </div>
-      </div>
-    </div>
+    <div id="subject-body"></div>
   </section>
 
   <!-- ══════════════════════════════════════════════════
@@ -282,63 +225,39 @@
   <section class="screen" id="screen-tasks">
     <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
-      <div><h1>Tarefas</h1><div class="sub">4 pendentes</div></div>
+      <div><h1>Tarefas</h1><div class="sub" id="tasks-count">Carregando…</div></div>
       <button class="icon-btn" aria-label="Filtrar">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
       </button>
     </div>
 
     <div class="flex gap-2 pt-1 px-5 overflow-x-auto scrollbar-hidden">
-      <span class="pill bg-indigo text-white">Pendentes</span>
-      <span class="pill bg-surface text-text-mid border border-border">Concluídas</span>
-      <span class="pill bg-surface text-text-mid border border-border">Calendário</span>
+      <span class="pill bg-indigo text-white cursor-pointer" data-task-filter="PENDING" onclick="setTasksFilter('PENDING')">Pendentes</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-task-filter="COMPLETED" onclick="setTasksFilter('COMPLETED')">Concluídas</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="goTo('calendario')">Calendário</span>
     </div>
 
-    <div class="px-app flex flex-col gap-[9px] mt-[18px]">
-      <div class="section-label">Hoje</div>
+    <div class="px-app flex flex-col gap-[9px] mt-[18px]" id="tasks-list"></div>
 
-      <div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-l-orange border-t-0 border-r-0 border-b-0 border border-border">
-        <div onclick="completeTask(this)" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer"></div>
-        <div class="flex-1">
-          <div class="text-sm font-semibold">Lista de exercícios — Funções</div>
-          <div class="text-[11.5px] text-text-mid mt-0.5">Matemática · 23h59</div>
-        </div>
-        <button onclick="openDeleteModal('Lista de exercícios — Funções')" class="icon-btn !w-8 !h-8" aria-label="Excluir">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>
-        </button>
-      </div>
-
-      <div class="section-label mt-2.5">Amanhã</div>
-
-      <div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-l-teal border-t-0 border-r-0 border-b-0 border border-border">
-        <div onclick="completeTask(this)" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer"></div>
-        <div class="flex-1">
-          <div class="text-sm font-semibold">Entrega do protótipo — TCC</div>
-          <div class="text-[11.5px] text-text-mid mt-0.5">Proj. Integrador · 18h</div>
-        </div>
-        <button onclick="openDeleteModal('Entrega do protótipo — TCC')" class="icon-btn !w-8 !h-8" aria-label="Excluir">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>
-        </button>
-      </div>
-
-      <div class="section-label mt-2.5">Esta semana</div>
-
-      <div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-l-border border-t-0 border-r-0 border-b-0 border border-border">
-        <div onclick="completeTask(this)" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer"></div>
-        <div class="flex-1">
-          <div class="text-sm font-semibold">Trabalho em grupo — Sistemas</div>
-          <div class="text-[11.5px] text-text-mid mt-0.5">Des. de Sistemas · sexta</div>
-        </div>
-        <button onclick="openDeleteModal('Trabalho em grupo — Sistemas')" class="icon-btn !w-8 !h-8" aria-label="Excluir">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- FAB -->
-    <button class="fab" onclick="void(0)" aria-label="Nova tarefa">
+    <button class="fab" onclick="openTaskModal()" aria-label="Nova tarefa">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     </button>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       CALENDÁRIO
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-calendario">
+    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+    <div class="topbar">
+      <button class="icon-btn" onclick="goTo('tasks')" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h1 class="!text-[17px]">Calendário</h1>
+      <div class="w-[38px]"></div>
+    </div>
+
+    <div class="px-app mt-1" id="calendar-body"></div>
   </section>
 
   <!-- ══════════════════════════════════════════════════
@@ -358,48 +277,19 @@
       </button>
     </div>
 
-    <div class="px-app flex flex-col gap-[13px] mt-1.5 flex-1">
-      <!-- Mensagem do Kai -->
-      <div class="flex gap-2 max-w-[90%]">
-        <div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">🤖</div>
-        <div class="chat-bubble-kai">
-          <div class="text-[13px] leading-[1.55] text-text-hi">Oi, Júlia! Vi que sua lista de Funções vence hoje. Quer que eu monte um roteiro de estudo de 20 min com base nos slides da Unidade 3?</div>
-        </div>
-      </div>
+    <div class="px-app flex flex-col gap-[13px] mt-1.5 flex-1 overflow-y-auto max-h-[56vh]" id="kai-chat"></div>
 
-      <!-- Resposta do usuário -->
-      <div class="flex justify-end">
-        <div class="chat-bubble-user">
-          <div class="text-[13px] leading-[1.55] text-white">manda sim, e explica função quadrática rapidinho</div>
-        </div>
-      </div>
-
-      <!-- Resposta estruturada do Kai -->
-      <div class="flex gap-2 max-w-[92%]">
-        <div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">🤖</div>
-        <div class="chat-bubble-kai">
-          <div class="text-[13px] leading-[1.55] text-text-hi">Função quadrática tem grau 2: <strong>f(x) = ax² + bx + c</strong>. O gráfico é uma parábola — se "a" for positivo, abre pra cima.</div>
-          <div class="text-[13px] font-bold mt-2.5 text-text-hi">Roteiro de 20 min:</div>
-          <div class="text-[12.5px] mt-[5px] leading-[1.8] text-text-mid">1. Revisar slides 4–7 (8 min)<br>2. Refazer exercícios 1–3 da lista (10 min)<br>3. Conferir gabarito (2 min)</div>
-          <button class="btn-ghost !py-2.5 !text-[12.5px] mt-[11px]" onclick="goTo('materia-detalhe')">Abrir Unidade 3</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chips -->
     <div class="flex gap-2 pt-[10px] px-5 overflow-x-auto scrollbar-hidden">
-      <span class="pill bg-surface text-text-mid border border-border">📋 Lista da semana</span>
-      <span class="pill bg-surface text-text-mid border border-border">📊 Relatório de progresso</span>
-      <span class="pill bg-surface text-text-mid border border-border">🔔 Me lembra das provas</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="var i=document.getElementById('kai-input'); i.value='Monte um roteiro de estudos para hoje'; sendKai()">📋 Roteiro de hoje</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="var i=document.getElementById('kai-input'); i.value='Quais são minhas pendências?'; sendKai()">📊 Minhas pendências</span>
     </div>
 
-    <!-- Input + microfone -->
     <div class="px-app mt-2.5 flex gap-2">
       <div class="card flex-1 flex items-center py-1 pr-2 pl-[14px]">
-        <input type="text" placeholder="Pergunte ao Kai…" class="input-kai">
+        <input type="text" id="kai-input" placeholder="Pergunte ao Kai…" class="input-kai" autocomplete="off">
       </div>
-      <button class="w-[46px] h-[46px] rounded-[13px] bg-lilac border-none flex items-center justify-center cursor-pointer shrink-0" aria-label="Falar com o Kai">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+      <button id="kai-send" class="w-[46px] h-[46px] rounded-[13px] bg-lilac border-none flex items-center justify-center cursor-pointer shrink-0" aria-label="Enviar ao Kai">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
       </button>
     </div>
   </section>
@@ -412,40 +302,33 @@
     <div class="topbar"><h1>Perfil</h1></div>
 
     <div class="px-app flex flex-col items-center mt-2">
-      <div class="w-[84px] h-[84px] rounded-[24px] bg-gradient-to-br from-indigo to-lilac flex items-center justify-center text-[34px] shadow-[0_8px_22px_rgba(61,61,180,.18)]">🦊</div>
-      <div class="font-display text-lg font-bold mt-3">Júlia Cerqueira</div>
-      <div class="text-[12.5px] text-text-mid mt-0.5">Nível 6 · Exploradora · 1.240 XP</div>
+      <div class="w-[84px] h-[84px] rounded-[24px] bg-gradient-to-br from-indigo to-lilac flex items-center justify-center text-[34px] shadow-[0_8px_22px_rgba(61,61,180,.18)]" id="profile-initial">?</div>
+      <div class="font-display text-lg font-bold mt-3" id="profile-name">—</div>
+      <div class="text-[12.5px] text-text-mid mt-0.5 text-center" id="profile-sub">Carregando…</div>
 
       <div class="w-full h-1.5 bg-surface-2 rounded-[3px] mt-3.5 overflow-hidden">
-        <div class="w-[62%] h-full bg-gradient-to-r from-indigo to-lilac rounded-[3px]"></div>
+        <div class="w-0 h-full bg-gradient-to-r from-indigo to-lilac rounded-[3px]" id="profile-bar"></div>
       </div>
-      <div class="text-[11px] text-text-low mt-[5px]">260 XP para o Nível 7</div>
+      <div class="text-[11px] text-text-low mt-[5px]" id="profile-next"></div>
     </div>
 
-    <!-- Insígnias -->
     <div class="px-app mt-[26px]">
       <div class="section-label">Insígnias conquistadas</div>
-      <div class="grid grid-cols-4 gap-[9px] mt-0.5">
-        <div class="card aspect-square flex flex-col items-center justify-center gap-[5px]"><span class="text-xl">🔥</span><span class="text-[9px] text-text-mid font-bold">7 DIAS</span></div>
-        <div class="card aspect-square flex flex-col items-center justify-center gap-[5px]"><span class="text-xl">📐</span><span class="text-[9px] text-text-mid font-bold">MAT 100%</span></div>
-        <div class="card aspect-square flex flex-col items-center justify-center gap-[5px]"><span class="text-xl">🌙</span><span class="text-[9px] text-text-mid font-bold">NOTURNA</span></div>
-        <div class="card aspect-square flex flex-col items-center justify-center gap-[5px] opacity-[.28] border-dashed"><span class="text-xl">🔒</span><span class="text-[9px] text-text-low font-bold">BLOQUEADA</span></div>
-      </div>
+      <div class="grid grid-cols-4 gap-[9px] mt-0.5" id="badges-grid"></div>
     </div>
 
-    <!-- Menu -->
     <div class="px-app mt-[22px] flex flex-col gap-2">
       <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer" onclick="goTo('ia')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
         <span class="text-[13.5px] font-semibold">Personalizar o Kai</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto"><path d="m9 18 6-6-6-6"/></svg>
       </div>
-      <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer">
+      <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer" onclick="goTo('avisos')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 3 1 4 1 6H5c0-2 1-3 1-6"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
         <span class="text-[13.5px] font-semibold">Notificações</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto"><path d="m9 18 6-6-6-6"/></svg>
       </div>
-      <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer">
+      <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer" onclick="logoutAndGoLogin()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C0392B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
         <span class="text-[13.5px] font-semibold text-crimson">Sair</span>
       </div>
@@ -465,37 +348,149 @@
       <div class="w-[38px]"></div>
     </div>
 
-    <div class="px-app flex flex-col gap-[9px] mt-[10px]">
-      <div class="card p-3.5">
-        <div class="flex justify-between">
-          <span class="text-[11px] font-bold text-indigo tracking-wider">MATEMÁTICA</span>
-          <span class="text-[11px] text-text-low">há 2h</span>
-        </div>
-        <div class="text-sm font-bold mt-1.5">Prova remarcada para sexta-feira</div>
-        <div class="text-[12.5px] text-text-mid mt-[3px] leading-[1.5]">Prof. Renato avisou que a prova de Funções foi remarcada.</div>
-      </div>
-      <div class="card p-3.5">
-        <div class="flex justify-between">
-          <span class="text-[11px] font-bold text-orange tracking-wider">DES. DE SISTEMAS</span>
-          <span class="text-[11px] text-text-low">ontem</span>
-        </div>
-        <div class="text-sm font-bold mt-1.5">Material da Unidade 4 disponível</div>
-        <div class="text-[12.5px] text-text-mid mt-[3px] leading-[1.5]">Slides e exercícios já estão na pasta da matéria.</div>
-      </div>
-    </div>
+    <div class="px-app flex flex-col gap-[9px] mt-[10px]" id="announcements-list"></div>
   </section>
 
   <!-- ══════════════════════════════════════════════════
-       MODAL DE EXCLUSÃO
+       MODAL: EXCLUSÃO
        ══════════════════════════════════════════════════ -->
-  <div id="delete-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center" onclick="closeDeleteModal()">
+  <div id="delete-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop" onclick="closeDeleteModal()">
     <div class="card w-[310px] p-[22px] bg-surface" onclick="event.stopPropagation()">
-      <div class="text-base font-bold">Excluir esta tarefa?</div>
-      <div class="text-[13px] text-text-mid mt-2 leading-[1.5]">"<span id="delete-task-name"></span>" será removida e não poderá ser recuperada.</div>
+      <div class="text-base font-bold">Excluir?</div>
+      <div class="text-[13px] text-text-mid mt-2 leading-[1.5]" id="delete-kind-label">"..." será removida e não poderá ser recuperada.</div>
       <div class="flex gap-[9px] mt-[18px]">
-        <button class="btn-ghost !py-[11px] px-5" onclick="closeDeleteModal()">Cancelar</button>
-        <button class="flex-1 py-[11px] bg-crimson border-none rounded-md text-white font-bold text-sm cursor-pointer" onclick="closeDeleteModal()">Excluir</button>
+        <button class="btn-ghost !py-[11px] px-5 !w-auto" onclick="closeDeleteModal()">Cancelar</button>
+        <button class="flex-1 py-[11px] bg-crimson border-none rounded-md text-white font-bold text-sm cursor-pointer confirm-delete" onclick="confirmDelete()">Excluir</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       MODAL: MATÉRIA
+       ══════════════════════════════════════════════════ -->
+  <div id="subject-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop">
+    <div class="card w-[330px] p-[22px] bg-surface" onclick="event.stopPropagation()">
+      <div class="text-base font-bold" id="subject-modal-title">Nova matéria</div>
+      <form id="subject-form" class="flex flex-col gap-3 mt-4" novalidate>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">NOME</span>
+          <input type="text" name="name" required placeholder="Ex: Matemática"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">DESCRIÇÃO</span>
+          <input type="text" name="description" placeholder="Opcional"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <div class="flex gap-[9px] mt-1">
+          <button type="button" class="btn-ghost !py-[11px] px-5 !w-auto" onclick="closeModal('subject-modal')">Cancelar</button>
+          <button type="submit" class="flex-1 py-[11px] bg-indigo border-none rounded-md text-white font-bold text-sm cursor-pointer">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       MODAL: UNIDADE
+       ══════════════════════════════════════════════════ -->
+  <div id="unit-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop">
+    <div class="card w-[330px] p-[22px] bg-surface" onclick="event.stopPropagation()">
+      <div class="text-base font-bold" id="unit-modal-title">Nova unidade</div>
+      <form id="unit-form" class="flex flex-col gap-3 mt-4" novalidate>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">NOME</span>
+          <input type="text" name="name" required placeholder="Ex: Unidade 3 — Funções"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">DESCRIÇÃO</span>
+          <input type="text" name="description" placeholder="Opcional"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <div class="flex gap-[9px] mt-1">
+          <button type="button" class="btn-ghost !py-[11px] px-5 !w-auto" onclick="closeModal('unit-modal')">Cancelar</button>
+          <button type="submit" class="flex-1 py-[11px] bg-indigo border-none rounded-md text-white font-bold text-sm cursor-pointer">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       MODAL: MATERIAL
+       ══════════════════════════════════════════════════ -->
+  <div id="material-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop">
+    <div class="card w-[330px] p-[22px] bg-surface" onclick="event.stopPropagation()">
+      <div class="text-base font-bold" id="material-modal-title">Novo material</div>
+      <form id="material-form" class="flex flex-col gap-3 mt-4" novalidate>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">TÍTULO</span>
+          <input type="text" name="title" required placeholder="Ex: Slides — Funções afins"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">TIPO</span>
+          <select name="type" required
+                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo"></select>
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">URL</span>
+          <input type="url" name="url" placeholder="https://…"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">DESCRIÇÃO</span>
+          <input type="text" name="description" placeholder="Opcional"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <div class="flex gap-[9px] mt-1">
+          <button type="button" class="btn-ghost !py-[11px] px-5 !w-auto" onclick="closeModal('material-modal')">Cancelar</button>
+          <button type="submit" class="flex-1 py-[11px] bg-indigo border-none rounded-md text-white font-bold text-sm cursor-pointer">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       MODAL: TAREFA
+       ══════════════════════════════════════════════════ -->
+  <div id="task-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop">
+    <div class="card w-[330px] p-[22px] bg-surface max-h-[88vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <div class="text-base font-bold" id="task-modal-title">Nova tarefa</div>
+      <form id="task-form" class="flex flex-col gap-3 mt-4" novalidate>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">TÍTULO</span>
+          <input type="text" name="title" required placeholder="Ex: Lista de exercícios — Funções"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">DESCRIÇÃO</span>
+          <input type="text" name="description" placeholder="Opcional"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">MATÉRIA</span>
+          <select name="subjectId"
+                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo"></select>
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">VENCIMENTO</span>
+          <input type="datetime-local" name="dueDate"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">PRIORIDADE</span>
+          <select name="priority"
+                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+            <option value="LOW">Baixa</option>
+            <option value="MEDIUM">Média</option>
+            <option value="HIGH">Alta</option>
+          </select>
+        </label>
+        <div class="flex gap-[9px] mt-1">
+          <button type="button" class="btn-ghost !py-[11px] px-5 !w-auto" onclick="closeModal('task-modal')">Cancelar</button>
+          <button type="submit" class="flex-1 py-[11px] bg-indigo border-none rounded-md text-white font-bold text-sm cursor-pointer">Salvar</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -527,9 +522,22 @@
 
 </div>
 
+<script src="services/config.js"></script>
+<script src="services/state.js"></script>
+<script src="services/ui.js"></script>
+<script src="services/api.js"></script>
+<script src="services/auth.js"></script>
+<script src="services/dashboard.js"></script>
+<script src="services/subjects.js"></script>
+<script src="services/units.js"></script>
+<script src="services/materials.js"></script>
+<script src="services/tasks.js"></script>
+<script src="services/announcements.js"></script>
+<script src="services/calendar.js"></script>
+<script src="services/gamification.js"></script>
+<script src="services/kai.js"></script>
 <script src="services/app.js"></script>
 <script src="services/navigation.js"></script>
-<script src="services/tasks.js"></script>
 <script src="services/modal.js"></script>
 </body>
 </html>

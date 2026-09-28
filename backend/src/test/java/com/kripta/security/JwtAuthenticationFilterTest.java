@@ -51,7 +51,7 @@ class JwtAuthenticationFilterTest {
     void deveAutenticarComTokenValido() throws Exception {
         String token = jwtService.generateToken(usuario);
 
-        mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+        mockMvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(usuario.getId().intValue()))
                 .andExpect(jsonPath("$.nome").value("Joao Silva"))
@@ -61,14 +61,14 @@ class JwtAuthenticationFilterTest {
 
     @Test
     void deveRejeitarAcessoSemToken() throws Exception {
-        mockMvc.perform(get("/api/auth/me"))
+        mockMvc.perform(get("/api/users/me"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("NAO_AUTENTICADO"));
     }
 
     @Test
     void deveRejeitarTokenInvalido() throws Exception {
-        mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION, "Bearer token.invalido"))
+        mockMvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer token.invalido"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("NAO_AUTENTICADO"));
     }
@@ -77,13 +77,13 @@ class JwtAuthenticationFilterTest {
     void deveRejeitarTokenDeUsuarioInexistente() throws Exception {
         String token = jwtService.generateToken(new User("Fantasma", "fantasma@email.com", "x", User.UserType.USUARIO));
 
-        mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+        mockMvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void deveIgnorarHeaderSemPrefixoBearer() throws Exception {
-        mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION, jwtService.generateToken(usuario)))
+        mockMvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, jwtService.generateToken(usuario)))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -107,7 +107,7 @@ class JwtAuthenticationFilterTest {
 
         String token = com.jayway.jsonpath.JsonPath.read(resposta, "$.token");
 
-        mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+        mockMvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(EMAIL));
     }

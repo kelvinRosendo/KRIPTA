@@ -63,7 +63,14 @@ SELECT * FROM flyway_schema_history;
 | GET    | `/api/health`     | publico  | verifica se a API esta de pe |
 | POST   | `/api/auth/register` | publico | cria um usuario             |
 | POST   | `/api/auth/login`    | publico | retorna o token JWT        |
-| GET    | `/api/auth/me`       | token   | dados do usuario logado    |
+| GET    | `/api/users/me`      | token   | dados do usuario logado    |
+| PUT    | `/api/users/me`      | token   | atualiza nome e email      |
+| PUT    | `/api/users/me/senha`| token   | troca a senha              |
+| DELETE | `/api/users/me`      | token   | exclui a propria conta     |
+
+> O `subject` do JWT e o **id** do usuario (identificador estavel). Assim, trocar
+> o email nao invalida o token — o usuario continua logado sem precisar
+> reautenticar. O antigo `/api/auth/me` foi movido para `/api/users/me`.
 
 ### Exemplos
 
@@ -76,7 +83,20 @@ curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"joao@email.com","senha":"senha123"}'
 
-curl http://localhost:8080/api/auth/me \
+curl http://localhost:8080/api/users/me \
+  -H "Authorization: Bearer <token>"
+
+curl -X PUT http://localhost:8080/api/users/me \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Joao Silva","email":"joao@email.com"}'
+
+curl -X PUT http://localhost:8080/api/users/me/senha \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"senhaAtual":"senha123","novaSenha":"novaSenha456"}'
+
+curl -X DELETE http://localhost:8080/api/users/me \
   -H "Authorization: Bearer <token>"
 ```
 
@@ -94,10 +114,12 @@ curl http://localhost:8080/api/auth/me \
 | `error`               | HTTP | Quando                                 |
 |-----------------------|------|----------------------------------------|
 | `VALIDACAO`           | 400  | campos invalidos (lista em `errors`)    |
+| `SENHA_ATUAL_INCORRETA` | 400 | senha atual errada na troca de senha  |
 | `NAO_AUTENTICADO`     | 401  | token ausente, invalido ou expirado     |
 | `CREDENCIAIS_INVALIDAS` | 401 | email ou senha incorretos no login     |
 | `ACESSO_NEGADO`       | 403  | usuario sem permissao                   |
 | `EMAIL_JA_CADASTRADO` | 409  | email ja existe                        |
+| `USUARIO_NAO_ENCONTRADO` | 404 | usuario nao existe                    |
 
 ## Testes
 

@@ -175,11 +175,13 @@ backend/
 │   │   │           │
 │   │   │           ├── controller/
 │   │   │           │   ├── AuthController.java
-│   │   │           │   └── HealthController.java
+│   │   │           │   ├── HealthController.java
+│   │   │           │   └── UserController.java
 │   │   │           │
 │   │   │           ├── service/
 │   │   │           │   ├── AuthService.java
-│   │   │           │   └── CustomUserDetailsService.java
+│   │   │           │   ├── CustomUserDetailsService.java
+│   │   │           │   └── UserService.java
 │   │   │           │
 │   │   │           ├── repository/
 │   │   │           │   └── UserRepository.java
@@ -188,16 +190,21 @@ backend/
 │   │   │           │   └── User.java
 │   │   │           │
 │   │   │           ├── dto/
+│   │   │           │   ├── ChangePasswordRequest.java
 │   │   │           │   ├── LoginRequest.java
 │   │   │           │   ├── LoginResponse.java
 │   │   │           │   ├── RegisterRequest.java
-│   │   │           │   └── RegisterResponse.java
+│   │   │           │   ├── RegisterResponse.java
+│   │   │           │   ├── UpdateProfileRequest.java
+│   │   │           │   └── UserResponse.java
 │   │   │           │
 │   │   │           ├── exception/
 │   │   │           │   ├── ApiError.java
 │   │   │           │   ├── DuplicateEmailException.java
 │   │   │           │   ├── GlobalExceptionHandler.java
-│   │   │           │   └── InvalidCredentialsException.java
+│   │   │           │   ├── InvalidCredentialsException.java
+│   │   │           │   ├── InvalidCurrentPasswordException.java
+│   │   │           │   └── UserNotFoundException.java
 │   │   │           │
 │   │   │           ├── security/
 │   │   │           │   ├── JwtAuthenticationFilter.java
@@ -360,7 +367,7 @@ O KRIPTA encontra-se atualmente em fase de desenvolvimento.
 - [x] Configuração do Spring Boot
 - [x] Configuração do PostgreSQL
 - [x] Sistema de autenticação
-- [ ] Gerenciamento de usuários
+- [x] Gerenciamento de usuários
 - [ ] Sistema de disciplinas
 - [ ] Sistema de tarefas
 - [ ] Sistema de conteúdos

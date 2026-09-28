@@ -31,8 +31,8 @@ public class JwtService {
     public String generateToken(User user) {
         Instant now = Instant.now();
         return Jwts.builder()
-                .subject(user.getEmail())
-                .claim("id", user.getId())
+                .subject(String.valueOf(user.getId()))
+                .claim("email", user.getEmail())
                 .claim("nome", user.getNome())
                 .claim(CLAIM_TIPO, user.getTipo().name())
                 .issuedAt(Date.from(now))
@@ -41,12 +41,12 @@ public class JwtService {
                 .compact();
     }
 
-    public Optional<String> extractUsername(String token) {
+    public Optional<String> extractSubject(String token) {
         return extractClaims(token).map(Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, String username) {
-        return extractUsername(token).filter(username::equalsIgnoreCase).isPresent();
+    public boolean isTokenValid(String token, String subject) {
+        return extractSubject(token).filter(subject::equals).isPresent();
     }
 
     public long getExpirationMs() {

@@ -23,35 +23,35 @@ class JwtServiceTest {
     }
 
     @Test
-    void deveGerarTokenComEmailComoSubject() {
+    void deveGerarTokenComIdComoSubject() {
         String token = jwtService.generateToken(user);
 
         assertNotNull(token);
         assertEquals(3, token.split("\\.").length);
-        assertEquals("joao@email.com", jwtService.extractUsername(token).orElseThrow());
+        assertEquals("1", jwtService.extractSubject(token).orElseThrow());
     }
 
     @Test
     void deveConsiderarTokenValidoParaODonoDoToken() {
         String token = jwtService.generateToken(user);
 
-        assertTrue(jwtService.isTokenValid(token, "joao@email.com"));
-        assertTrue(jwtService.isTokenValid(token, "JOAO@EMAIL.COM"));
+        assertTrue(jwtService.isTokenValid(token, "1"));
+        assertTrue(jwtService.isTokenValid(token, String.valueOf(user.getId())));
     }
 
     @Test
     void deveRejeitarTokenDeOutroUsuario() {
         String token = jwtService.generateToken(user);
 
-        assertFalse(jwtService.isTokenValid(token, "maria@email.com"));
+        assertFalse(jwtService.isTokenValid(token, "2"));
     }
 
     @Test
     void deveRejeitarTokenAssinadoComOutraChave() {
         String tokenDeOutro = new JwtService(OUTRO_SECRET, 3600000L).generateToken(user);
 
-        assertTrue(jwtService.extractUsername(tokenDeOutro).isEmpty());
-        assertFalse(jwtService.isTokenValid(tokenDeOutro, "joao@email.com"));
+        assertTrue(jwtService.extractSubject(tokenDeOutro).isEmpty());
+        assertFalse(jwtService.isTokenValid(tokenDeOutro, "1"));
     }
 
     @Test
@@ -60,14 +60,14 @@ class JwtServiceTest {
 
         String token = expirado.generateToken(user);
 
-        assertTrue(expirado.extractUsername(token).isEmpty());
+        assertTrue(expirado.extractSubject(token).isEmpty());
     }
 
     @Test
     void deveRejeitarTokenInvalidoOuVazio() {
-        assertTrue(jwtService.extractUsername("token.invalido.aqui").isEmpty());
-        assertTrue(jwtService.extractUsername("").isEmpty());
-        assertFalse(jwtService.isTokenValid("token.invalido.aqui", "joao@email.com"));
+        assertTrue(jwtService.extractSubject("token.invalido.aqui").isEmpty());
+        assertTrue(jwtService.extractSubject("").isEmpty());
+        assertFalse(jwtService.isTokenValid("token.invalido.aqui", "1"));
     }
 
     @Test

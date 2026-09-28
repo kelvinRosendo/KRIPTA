@@ -82,6 +82,21 @@ async function healthCheck() {
   }
 
   if (statusEl) statusEl.textContent = 'Verificando conexão…';
+
+  /* Mock ligado (interruptor global DEV_MODE): o health check real não é
+     consultado, porque nenhum request real está indo para a API. O banner
+     deixa o estado explícito. */
+  if (DEV_MODE) {
+    apply(true, 'dev');
+    if (banner) {
+      banner.style.background = '#FFF3E0';
+      banner.style.color = '#B85C00';
+      banner.textContent = 'Modo dev — dados de demonstração, latência ' + (Number(DEV_LATENCY) || 0) + ' ms (?mock=off para a API real)';
+    }
+    console.warn('[KRIPTA] DEV_MODE ligado: devMock/devFallback ativos, latência ' + (Number(DEV_LATENCY) || 0) + ' ms. Nenhum request real é usado. Use ?mock=off para validar E2E.');
+    return;
+  }
+
   try {
     var res = await api.get('/health');
     apply(true, (res && res.status) + '');
@@ -918,8 +933,19 @@ async function submitLogin(form) {
 async function submitRegister(form) {
   var btn = form.querySelector('button[type="submit"]');
   var errEl = document.getElementById('register-error');
+  var name = form.elements['name'].value;
+  var email = form.elements['email'].value;
   var password = form.elements['password'].value;
   var confirm = form.elements['confirmPassword'] ? form.elements['confirmPassword'].value : null;
+
+  /* Entrada de dev: dispensa validações e vai direto para a Home */
+  if (isDevAccess({ name: name, email: email, password: password })) {
+    await registerUser({ name: name, email: email, password: password });
+    resolvePostAuth();
+    healthCheck();
+    return;
+  }
+
   if (confirm !== null && password !== confirm) {
     if (errEl) errEl.textContent = 'As senhas não coincidem.';
     toast('As senhas não coincidem.', 'error');
@@ -927,7 +953,7 @@ async function submitRegister(form) {
   }
   submitBtnLoading(btn);
   try {
-    await registerUser({ name: form.elements['name'].value, email: form.elements['email'].value, password: password });
+    await registerUser({ name: name, email: email, password: password });
     resolvePostAuth();
     healthCheck();
   } catch (e) {

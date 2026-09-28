@@ -30,6 +30,7 @@ ResumoGamificacaoDto _$ResumoGamificacaoDtoFromJson(
   xp: (json['xp'] as num?)?.toInt() ?? 0,
   level: (json['level'] as num?)?.toInt() ?? 1,
   streak: (json['streak'] as num?)?.toInt() ?? 0,
+  minutesToday: (json['minutesToday'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$ResumoGamificacaoDtoToJson(
@@ -38,6 +39,7 @@ Map<String, dynamic> _$ResumoGamificacaoDtoToJson(
   'xp': instance.xp,
   'level': instance.level,
   'streak': instance.streak,
+  'minutesToday': instance.minutesToday,
 };
 
 ConquistaDto _$ConquistaDtoFromJson(Map<String, dynamic> json) => ConquistaDto(

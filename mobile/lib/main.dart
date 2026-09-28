@@ -1,13 +1,15 @@
-/// Ponto de entrada do aplicativo KRIPTA Mobile.
+/// Ponto de entrada de produção do KRIPTA Mobile.
+///
+/// Conecta na API real. Para explorar o aplicativo sem backend, use
+/// `main_debug.dart` (veja `README.md`).
 library;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'app.dart';
 import 'core/di/providers.dart';
-import 'core/router/app_router.dart';
-import 'core/theme/app_theme.dart';
-import 'features/auth/application/auth_controller.dart';
+import 'core/utils/app_date_format.dart';
 
 /// Inicia o aplicativo.
 ///
@@ -16,63 +18,20 @@ import 'features/auth/application/auth_controller.dart';
 /// interceptor de autenticação precisa avisar o [AuthController] quando o
 /// servidor responde 401, e esse callback só pode ser registrado por
 /// `overrideWithValue` — que só existe no momento da criação do container.
-///
-/// A sessão é restaurada aqui, antes do primeiro `runApp`, para que a
-/// primeira tela já seja a correta. Sem isso, o `redirect` do
-/// `go_router` veria [StatusSessao.desconhecido] e mandaria para o login
-/// um usuário que já estava autenticado — o "flash" de login a cada
-/// abertura do app.
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // `late` permite que o callback capture a variável antes de ela
-  // receber o valor: ele só é executado após o 401, bem depois de
-  // `container` existir.
-  late final ProviderContainer container;
+  // Antes de qualquer `runApp`: sem os símbolos de `pt_BR` carregados, o
+  // primeiro `DateFormat` da Home derruba a tela inteira.
+  await AppDateFormat.inicializar();
 
-  container = ProviderContainer(
-    overrides: [
-      sessionExpiredBridgeProvider.overrideWithValue(() {
-        container.read(authControllerProvider.notifier).encerrarSessao();
-      }),
-    ],
+  final ponte = PonteDeSessaoExpirada();
+
+  final container = ProviderContainer(
+    overrides: [sessionExpiredBridgeProvider.overrideWithValue(ponte.chamar)],
   );
 
-  container.read(authControllerProvider.notifier).restaurarSessao();
+  conectarPonteDeSessao(container, ponte);
 
-  runApp(
-    UncontrolledProviderScope(container: container, child: const KriptaApp()),
-  );
-}
-
-/// Widget raiz do KRIPTA.
-///
-/// `UncontrolledProviderScope` já garante o [ProviderScope] (o
-/// [ProviderScope] explícito aqui duplicaria o container). O router é
-/// criado com o mesmo container do pai para que o `redirect` leia a
-/// sessão real e não uma cópia.
-class KriptaApp extends ConsumerStatefulWidget {
-  /// Cria o widget raiz.
-  const KriptaApp({super.key});
-
-  @override
-  ConsumerState<KriptaApp> createState() => _KriptaAppState();
-}
-
-class _KriptaAppState extends ConsumerState<KriptaApp> {
-  /// Cria uma vez por app: um router novo a cada `build` perderia a
-  /// pilha de navegação.
-  late final _router = criarRouter(
-    ProviderScope.containerOf(context, listen: false),
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'KRIPTA',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      routerConfig: _router,
-    );
-  }
+  iniciarApp(container);
 }

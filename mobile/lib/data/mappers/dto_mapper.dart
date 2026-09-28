@@ -192,6 +192,7 @@ abstract final class DtoMapper {
         xp: dto.xp,
         nivel: dto.level,
         sequenciaDias: dto.streak,
+        minutosHoje: dto.minutesToday,
       );
 
   /// Converte uma insígnia.

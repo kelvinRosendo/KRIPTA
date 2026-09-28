@@ -49,10 +49,24 @@ class EstatisticasGamificacaoDto {
 }
 
 /// Resumo compacto dos números exibidos nos cards da Home.
+///
+/// ```json
+/// { "xp": 1240, "level": 4, "streak": 7, "minutesToday": 7 }
+/// ```
+///
+/// [minutesToday] ainda não é devolvido pelo backend — foi levantado a
+/// partir da regra dos 10 min/dia do TCC (2.7) para alimentar o anel do
+/// "foguinho". O default 0 mantém o app funcionando antes de o campo
+/// existir. Ver RELATORIO.md.
 @JsonSerializable(fieldRename: FieldRename.none)
 class ResumoGamificacaoDto {
   /// Cria o resumo.
-  const ResumoGamificacaoDto({this.xp = 0, this.level = 1, this.streak = 0});
+  const ResumoGamificacaoDto({
+    this.xp = 0,
+    this.level = 1,
+    this.streak = 0,
+    this.minutesToday = 0,
+  });
 
   /// XP total.
   @JsonKey(name: 'xp', defaultValue: 0)
@@ -65,6 +79,10 @@ class ResumoGamificacaoDto {
   /// Sequência de dias de estudo (o "foguinho").
   @JsonKey(name: 'streak', defaultValue: 0)
   final int streak;
+
+  /// Minutos de uso já registrados hoje.
+  @JsonKey(name: 'minutesToday', defaultValue: 0)
+  final int minutesToday;
 
   /// Conversão a partir do JSON.
   factory ResumoGamificacaoDto.fromJson(Map<String, dynamic> json) =>

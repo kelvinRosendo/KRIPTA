@@ -7,8 +7,20 @@
 /// Observação de contrato: o backend guarda `Instant`/ISO-8601 com sufixo
 /// `Z` (ver `RegisterRequest`/`DevShiftDate` do frontend). Todas as
 /// conversões usam `toLocal()` antes de formatar.
+///
+/// ## Inicialização obrigatória
+///
+/// O `intl` só formata nomes de mês e dia da semana depois de carregar os
+/// símbolos daquele locale. Sem [AppDateFormat.inicializar] rodando, o
+/// primeiro `DateFormat('EEE', 'pt_BR')` estoura `LocaleDataException`
+/// dentro de um `build` — que é como o bug chegou ao usuário, derrubando a
+/// tela inteira da Home. Por isso todo entrypoint faz
+/// `await AppDateFormat.inicializar();` antes do `runApp`.
 library;
 
+import 'dart:ui' show Locale;
+
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 /// Formatação de datas do KRIPTA.
@@ -16,17 +28,69 @@ abstract final class AppDateFormat {
   /// Locale do app. O TCC é de São Paulo/SP, então o padrão é pt-BR.
   static const String locale = 'pt_BR';
 
-  /// Cache dos `DateFormat` — construí-los é caro e formatamos muito
+  /// O mesmo locale como [Locale], para o `MaterialApp`.
+  ///
+  /// Fica aqui para que o app inteiro tenha uma única fonte de verdade: se
+  /// um dia o app passar a oferecer outro idioma, muda-se só esta linha e
+  /// o `intl` acompanha.
+  static const Locale localePtBr = Locale('pt', 'BR');
+
+  /// Inicialização em andamento, para tolerar chamadas concorrentes.
+  static Future<void>? _inicializacao;
+
+  /// Carrega os símbolos de data do locale. Idempotente.
+  ///
+  /// Chame uma vez, no entrypoint, antes de `runApp`:
+  ///
+  /// ```dart
+  /// void main() async {
+  ///   await AppDateFormat.inicializar();
+  ///   runApp(const KriptaApp());
+  /// }
+  /// ```
+  static Future<void> inicializar() =>
+      _inicializacao ??= initializeDateFormatting(locale, null);
+
+  /// Falha cedo e com instrução, em vez de deixar o `intl` estourar.
+  static void _exigirInicializado() {
+    if (_inicializacao == null) {
+      throw StateError(
+        'AppDateFormat.inicializar() não foi chamado. Rode '
+        '`await AppDateFormat.inicializar();` antes de `runApp()` no '
+        'entrypoint (main.dart e main_debug.dart).',
+      );
+    }
+  }
+
+  /// Cria e memoiza um [DateFormat] do locale do app.
+  static DateFormat _formatado(String padrao) {
+    final existente = _cache[padrao];
+    if (existente != null) return existente;
+    _exigirInicializado();
+    return _cache[padrao] = DateFormat(padrao, locale);
+  }
+
+  /// Cache dos [DateFormat] — construí-los é caro e formatamos muito
   /// durante a construção de listas.
-  static final DateFormat _dayMonth = DateFormat('dd/MM', locale);
-  static final DateFormat _dayMonthYear = DateFormat("dd/MM 'de' yyyy", locale);
-  static final DateFormat _dayMonthTime = DateFormat('dd/MM, HH:mm', locale);
-  static final DateFormat _fullDate = DateFormat(
-    "EEEE, d 'de' MMMM 'de' yyyy",
-    locale,
-  );
-  static final DateFormat _weekdayShort = DateFormat('EEE', locale);
-  static final DateFormat _monthYear = DateFormat('MMMM yyyy', locale);
+  static final Map<String, DateFormat> _cache = <String, DateFormat>{};
+
+  /// `dd/MM` — listas de tarefas e calendário.
+  static DateFormat get _dayMonth => _formatado('dd/MM');
+
+  /// `dd/MM 'de' yyyy` — quando o ano importa.
+  static DateFormat get _dayMonthYear => _formatado("dd/MM 'de' yyyy");
+
+  /// `dd/MM, HH:mm` — prazos com hora.
+  static DateFormat get _dayMonthTime => _formatado('dd/MM, HH:mm');
+
+  /// Data por extenso, para a saudação da Home.
+  static DateFormat get _fullDate => _formatado("EEEE, d 'de' MMMM 'de' yyyy");
+
+  /// Dia da semana abreviado (`seg`, `ter`...).
+  static DateFormat get _weekdayShort => _formatado('EEE');
+
+  /// Mês e ano, para o cabeçalho do calendário.
+  static DateFormat get _monthYear => _formatado('MMMM yyyy');
 
   /// `dd/MM` — usado nas listas de tarefas e no calendário.
   static String shortDate(DateTime date) => _dayMonth.format(date.toLocal());
@@ -120,8 +184,14 @@ abstract final class AppDateFormat {
       DateTime(date.year, date.month + 1, 0);
 
   /// Nome do mês em maiúsculas, como no calendário do web (`SET`).
-  static String monthShortUpper(DateTime date) =>
-      _monthYear.format(date.toLocal()).split(' ').first.toUpperCase();
+  ///
+  /// Corta o nome inteiro em três letras em vez de usar o padrão `MMM` do
+  /// `intl`, que em pt-BR devolve `set.` — com ponto, e o cabeçalho do
+  /// calendário ficaria `SET.`.
+  static String monthShortUpper(DateTime date) {
+    final nome = _monthYear.format(date.toLocal()).split(' ').first;
+    return nome.substring(0, 3).toUpperCase();
+  }
 
   static String _capitalize(String value) =>
       value.isEmpty ? value : value[0].toUpperCase() + value.substring(1);

@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kripta_mobile/core/error/failure.dart';
+import 'package:kripta_mobile/core/utils/app_number_format.dart';
 import 'package:kripta_mobile/core/utils/result.dart';
 import 'package:kripta_mobile/domain/entities/entities.dart';
 
@@ -106,6 +107,79 @@ void main() {
       expect(const Success<int>(1).isFailure, isFalse);
       expect(falha.isFailure, isTrue);
       expect(falha.isSuccess, isFalse);
+    });
+  });
+
+  group('tituloDoNivel', () {
+    test('usa a escala do protótipo', () {
+      expect(tituloDoNivel(1), 'Iniciante');
+      expect(tituloDoNivel(4), 'Curioso');
+      expect(tituloDoNivel(6), 'Exploradora');
+      expect(tituloDoNivel(10), 'Lenda');
+    });
+
+    test('trava os extremos em vez de estourar a lista', () {
+      // Estudar demais não pode virar RangeError na tela.
+      expect(tituloDoNivel(0), 'Iniciante');
+      expect(tituloDoNivel(-3), 'Iniciante');
+      expect(tituloDoNivel(11), 'Lenda');
+      expect(tituloDoNivel(9999), 'Lenda');
+    });
+  });
+
+  group('ResumoGamificacao', () {
+    ResumoGamificacao comMinutos(int minutos) => ResumoGamificacao(
+      xp: 1240,
+      nivel: 4,
+      sequenciaDias: 7,
+      minutosHoje: minutos,
+    );
+
+    test('o anel mede o progresso contra a meta de 10 minutos', () {
+      expect(comMinutos(0).progressoHoje, 0);
+      expect(comMinutos(5).progressoHoje, 0.5);
+      expect(comMinutos(7).progressoHoje, closeTo(0.7, 0.001));
+      expect(comMinutos(10).progressoHoje, 1);
+    });
+
+    test('passar da meta não estoura o anel', () {
+      // O `CircularProgressIndicator` crasha com value > 1, então o clamp
+      // é o que protege a Home de um backend bem-intencionado demais.
+      expect(comMinutos(25).progressoHoje, 1);
+    });
+
+    test('minutos que faltam nunca ficam negativos', () {
+      expect(comMinutos(7).minutosRestantes, 3);
+      expect(comMinutos(10).minutosRestantes, 0);
+      expect(comMinutos(12).minutosRestantes, 0);
+    });
+
+    test('sabe dizer se a meta de hoje foi batida', () {
+      expect(comMinutos(7).metaBatida, isFalse);
+      expect(comMinutos(9).metaBatida, isFalse);
+      expect(comMinutos(10).metaBatida, isTrue);
+    });
+
+    test('sem o campo minutesToday o anel fica em zero, não quebrado', () {
+      // É o que o mapper entrega enquanto o backend não manda o campo.
+      const resumo = ResumoGamificacao(xp: 10, nivel: 1, sequenciaDias: 0);
+      expect(resumo.minutosHoje, 0);
+      expect(resumo.progressoHoje, 0);
+      expect(resumo.metaBatida, isFalse);
+    });
+  });
+
+  group('AppNumberFormat', () {
+    test('separa milhar com ponto, como no web', () {
+      expect(AppNumberFormat.milhar(1240), '1.240');
+      expect(AppNumberFormat.milhar(999), '999');
+      expect(AppNumberFormat.milhar(12500), '12.500');
+    });
+
+    test('a forma compacta arredonda em 10 mil', () {
+      expect(AppNumberFormat.compacto(999), '999');
+      expect(AppNumberFormat.compacto(1240), '1,2 mil');
+      expect(AppNumberFormat.compacto(12500), '13 mil');
     });
   });
 }

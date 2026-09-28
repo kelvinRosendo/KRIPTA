@@ -43,6 +43,11 @@ dependencies:
 
   # ── Apresentação ───────────────────────────────────────────────────
   intl: ^0.20.3
+  # Traduções dos widgets Material (date picker, menus, campos). Sem isso o
+  # app funciona, mas os diálogos nativos falam inglês. Já vem do SDK e
+  # exige `intl: ^0.20.3`, a mesma versão declarada acima.
+  flutter_localizations:
+    sdk: flutter
   google_fonts: ^9.0.0
   url_launcher: ^6.3.2
 

@@ -31,6 +31,68 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api
 O emulador **não** enxerga o `localhost` da máquina host — use `10.0.2.2`
 (AVD padrão) ou o IP da máquina na rede local para testar em aparelho físico.
 
+## Modo de desenvolvimento sem backend
+
+Enquanto o backend não implementa os endpoints, dá para rodar o aplicativo
+inteiro com dados locais:
+
+```bash
+flutter run -t lib/main_debug.dart
+```
+
+O app abre direto na Home, sem login. Três cenários, escolhidos por
+`--dart-define`:
+
+| Comando | O que ver |
+|---|---|
+| `flutter run -t lib/main_debug.dart` | Listas preenchidas, com mutações funcionando |
+| `flutter run -t lib/main_debug.dart --dart-define=CE_NARIO=vazio` | Estados `VazioView` |
+| `flutter run -t lib/main_debug.dart --dart-define=CE_NARIO=erro` | Estados `ErroView` e "Tentar novamente" |
+
+Para gerar o APK:
+
+```bash
+flutter build apk --debug -t lib/main_debug.dart
+```
+
+### Como funciona
+
+Burlar o token não seria suficiente: `AuthController.restaurarSessao` chama
+`GET /users/me`, e sem resposta o usuário volta para o login. O que o modo
+debug faz é **substituir os repositories por dublês em memória**
+(`lib/dev/`), de modo que controllers, telas, navegação e gamificação são
+exercitados de verdade — só a rede some.
+
+Alguns detalhes que não são óbvios:
+
+- O estado é **único e mutável**: concluir uma tarefa na aba Tarefas também
+  reduz o contador da Home, porque ambos leem a mesma lista.
+- As respostas têm **300 ms de atraso** (900 ms no Kai). Sem isso o
+  carregamento resolveria antes do primeiro `build` e os estados de
+  carregamento nunca seriam pintados.
+- As datas do seed são relativas a hoje, então o calendário já abre no mês
+  certo e a Home mostra tarefas vencidas, de hoje e de amanhã.
+- No cenário `erro` a **autenticação continua funcionando** de propósito: se
+  `usuarioAtual` falhasse, o `go_router` mandaria para o login e nunca
+  chegaríamos às telas que o cenário quer exercitar.
+- Sair da conta funciona de verdade, e o login seguinte aceita qualquer
+  credencial.
+
+Só `main_debug.dart` importa `lib/dev/`, então o alvo padrão não inclui
+nenhum dublê no APK. Isso **não** é coberto por teste automático: um teste
+unitário não enxerga o que o tree shaking do compilador eliminou. A
+conferência é manual, comparando o `kernel_blob.bin` dos dois builds:
+
+```sh
+flutter build apk --debug
+# o blob não pode conter nenhuma string do seed
+flutter build apk --debug -t lib/main_debug.dart
+# agora "Ana Souza" e "Leitor compulsivo" aparecem
+```
+
+Marcadores do seed para procurar no binário padrão: `Ana Souza`,
+`Leitor compulsivo`, `BancoFalso`, `modo de desenvolvimento`.
+
 ## Geração de código
 
 Os DTOs usam `json_serializable`. Depois de alterar qualquer arquivo em
@@ -49,6 +111,7 @@ dart run build_runner build
 flutter test
 flutter analyze lib test
 flutter build apk --debug
+flutter build apk --debug -t lib/main_debug.dart
 ```
 
 ## Arquitetura
@@ -60,7 +123,11 @@ lib/
 ├── core/            # infra-estrutura: config, rede, erros, tema, DI, router
 ├── domain/          # entidades e contratos (não conhece Flutter nem HTTP)
 ├── data/            # DTOs, mapeadores e implementações dos contratos
-└── features/        # uma pasta por feature, em application/ + presentation/
+├── features/        # uma pasta por feature, em application/ + presentation/
+├── dev/             # dublês de repository; só importado por main_debug.dart
+├── app.dart         # bootstrap compartilhado entre main.dart e main_debug.dart
+├── main.dart        # produção: API real
+└── main_debug.dart  # desenvolvimento: repositories em memória
 ```
 
 Regras que o projeto respeita:

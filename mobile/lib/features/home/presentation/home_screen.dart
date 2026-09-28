@@ -13,6 +13,7 @@ import '../../../core/error/failure.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/app_date_format.dart';
+import '../../../core/utils/app_number_format.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../domain/entities/entities.dart';
 import '../application/home_controller.dart';
@@ -79,7 +80,10 @@ class HomeScreen extends ConsumerWidget {
   ) {
     return <Widget>[
       SliverToBoxAdapter(
-        child: _CardGamificacao(gamificacao: dashboard.gamificacao),
+        child: _BlocoGamificacao(
+          gamificacao: dashboard.gamificacao,
+          totalConquistas: dashboard.totalConquistas,
+        ),
       ),
       const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
 
@@ -139,7 +143,10 @@ class HomeScreen extends ConsumerWidget {
   };
 }
 
-/// Cabeçalho com saudação e data.
+/// Cabeçalho com saudação, data e o atalho de avisos.
+///
+/// O sino vive no mesmo lugar do web (`screen-home`): à direita da
+/// saudação, no mesmo tamanho dos demais botões de ícone do app.
 class _Cabecalho extends StatelessWidget {
   const _Cabecalho({required this.primeiroNome});
 
@@ -151,20 +158,43 @@ class _Cabecalho extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.screenH,
         AppSpacing.lg,
-        AppSpacing.screenH,
+        AppSpacing.sm,
         AppSpacing.md,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text(
-            '${AppDateFormat.greeting()}, $primeiroNome',
-            style: AppTypography.screenTitle,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  '${AppDateFormat.greeting()}, $primeiroNome',
+                  style: AppTypography.screenTitle,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  AppDateFormat.fullDate(DateTime.now()),
+                  style: AppTypography.itemMeta,
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 2),
-          Text(
-            AppDateFormat.fullDate(DateTime.now()),
-            style: AppTypography.itemMeta,
+          IconButton(
+            onPressed: () => context.goNamed('avisos'),
+            icon: const Icon(Icons.notifications_none_rounded, size: 20),
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.surface,
+              foregroundColor: AppColors.textMid,
+              side: const BorderSide(color: AppColors.border),
+              fixedSize: const Size(
+                AppLayout.iconButtonSize,
+                AppLayout.iconButtonSize,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadii.sm),
+              ),
+            ),
           ),
         ],
       ),
@@ -172,67 +202,205 @@ class _Cabecalho extends StatelessWidget {
   }
 }
 
-/// Card de destaque com XP, nível e sequência de dias.
-class _CardGamificacao extends StatelessWidget {
-  const _CardGamificacao({required this.gamificacao});
+/// Bloco de gamificação da Home, espelhando `screen-home` do protótipo.
+///
+/// São três partes, na mesma ordem do web: o "foguinho" com o anel de
+/// progresso do dia e, abaixo, os cards de XP, nível e insígnias. Fica tudo
+/// em um único sliver para rolar junto com as tarefas.
+class _BlocoGamificacao extends StatelessWidget {
+  const _BlocoGamificacao({
+    required this.gamificacao,
+    required this.totalConquistas,
+  });
+
+  final ResumoGamificacao gamificacao;
+  final int totalConquistas;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
+      child: Column(
+        children: <Widget>[
+          _CardFoguinho(gamificacao: gamificacao),
+          const SizedBox(height: AppSpacing.listGap),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _CardNumero(
+                  valor: AppNumberFormat.milhar(gamificacao.xp),
+                  rotulo: 'XP TOTAL',
+                ),
+              ),
+              const SizedBox(width: AppSpacing.listGap),
+              Expanded(
+                child: _CardNumero(
+                  valor: 'NÍVEL ${gamificacao.nivel}',
+                  rotulo: gamificacao.tituloNivel.toUpperCase(),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.listGap),
+              Expanded(
+                child: _CardNumero(
+                  valor: '$totalConquistas',
+                  rotulo: 'INSÍGNIAS',
+                  descricao: 'Ver minhas insígnias',
+                  aoTocar: () => context.goNamed('perfil'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Card do "foguinho": anel de progresso do dia e a frase que convida a
+/// voltar amanhã.
+class _CardFoguinho extends StatelessWidget {
+  const _CardFoguinho({required this.gamificacao});
 
   final ResumoGamificacao gamificacao;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: <Color>[AppColors.indigo, AppColors.lilac],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppSpacing.lg),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        border: Border.all(color: AppColors.orange, width: 1.5),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          _Stat(valor: '${gamificacao.xp}', rotulo: 'XP'),
-          _Stat(valor: 'Nv ${gamificacao.nivel}', rotulo: 'Nível'),
-          _Stat(valor: '${gamificacao.sequenciaDias}', rotulo: 'Dias seguidos'),
+          _AnelFoguinho(gamificacao: gamificacao),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  '${gamificacao.sequenciaDias} '
+                  '${gamificacao.sequenciaDias == 1 ? 'dia seguido' : 'dias seguidos'}!',
+                  style: AppTypography.highlightTitle,
+                ),
+                const SizedBox(height: 2),
+                Text(_chamada(), style: AppTypography.itemMeta),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  /// O texto muda conforme a meta de hoje: ou falta um pouco, ou já foi
+  /// batida e o quebra-foguinho de amanhã é que conta.
+  String _chamada() {
+    if (gamificacao.metaBatida) {
+      return 'Foguinho mantido hoje! Volte amanhã para não perder a sequência.';
+    }
+    return 'Faltam ${gamificacao.minutosRestantes} min hoje '
+        'pra manter o foguinho';
+  }
+}
+
+/// Anel de progresso da meta diária, com o emoji no centro.
+class _AnelFoguinho extends StatelessWidget {
+  const _AnelFoguinho({required this.gamificacao});
+
+  final ResumoGamificacao gamificacao;
+
+  @override
+  Widget build(BuildContext context) {
+    final minutos = AppGamificacao.metaMinutosDiarios;
+
+    return Semantics(
+      label: gamificacao.metaBatida
+          ? 'Meta diária de $minutos minutos concluída'
+          : '${gamificacao.minutosHoje} de $minutos minutos de estudo hoje',
+      excludeSemantics: true,
+      child: SizedBox(
+        width: 58,
+        height: 58,
+        child: Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            CircularProgressIndicator(
+              // `value` nulo seria indeterminado; aqui é sempre 0 a 1, e o
+              // 0 mostra só o trilho, que é o estado honesto enquanto o
+              // backend não mandar `minutesToday`.
+              value: gamificacao.progressoHoje,
+              strokeWidth: 5,
+              strokeCap: StrokeCap.round,
+              color: AppColors.orange,
+              backgroundColor: AppColors.orangeLight,
+            ),
+            const Text('🔥', style: TextStyle(fontSize: 20)),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// Número em destaque com rótulo abaixo.
-class _Stat extends StatelessWidget {
-  const _Stat({required this.valor, required this.rotulo});
+/// Card de estatística: número grande e rótulo em caixa alta.
+class _CardNumero extends StatelessWidget {
+  const _CardNumero({
+    required this.valor,
+    required this.rotulo,
+    this.aoTocar,
+    this.descricao,
+  });
 
   final String valor;
   final String rotulo;
+  final VoidCallback? aoTocar;
+  final String? descricao;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Text(
-          valor,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(AppRadii.md),
+      child: InkWell(
+        onTap: aoTocar,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadii.md),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: AppSpacing.sm,
+              horizontal: AppSpacing.xs,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  valor,
+                  style: AppTypography.statValue,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  rotulo,
+                  style: AppTypography.statLabel,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ),
-        const SizedBox(height: 2),
-        Text(
-          rotulo,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.8,
-            color: Colors.white70,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -324,58 +492,141 @@ class _CardTarefa extends StatelessWidget {
         AppSpacing.screenH,
         AppSpacing.listGap,
       ),
-      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.md),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         border: Border.all(color: AppColors.border),
       ),
-      child: Row(
-        children: <Widget>[
-          // Marcador de situação. Tarefa concluída aparece riscada e
-          // esmaecida, sem sumir da lista — a Home mostra também o
-          // histórico do dia.
-          Icon(
-            tarefa.concluida
-                ? Icons.check_circle_rounded
-                : Icons.radio_button_unchecked_rounded,
-            color: tarefa.concluida ? AppColors.success : cor,
-            size: 20,
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  tarefa.titulo,
-                  style: AppTypography.itemTitle.copyWith(
-                    decoration: tarefa.concluida
-                        ? TextDecoration.lineThrough
-                        : null,
-                    color: tarefa.concluida ? AppColors.textLow : null,
-                  ),
+      child: IntrinsicHeight(
+        child: Row(
+          children: <Widget>[
+            // Faixa colorida na esquerda, como o `border-l-[3px]` do web.
+            // Fica dentro do `IntrinsicHeight` para acompanhar a altura do
+            // conteúdo, que muda entre uma linha e duas.
+            Container(
+              width: 3,
+              decoration: BoxDecoration(
+                color: tarefa.concluida ? AppColors.textLow : cor,
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(AppRadii.md),
                 ),
-                if (tarefa.disciplinaNome != null) ...<Widget>[
-                  const SizedBox(height: 2),
-                  Text(tarefa.disciplinaNome!, style: AppTypography.itemMeta),
-                ],
-              ],
+              ),
             ),
-          ),
-          if (tarefa.prazo case final DateTime prazo) ...<Widget>[
-            const SizedBox(width: AppSpacing.xs),
-            Text(
-              AppDateFormat.daysFromToday(prazo) == 0
-                  ? 'hoje'
-                  : AppDateFormat.shortDate(prazo),
-              style: AppTypography.itemMeta,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Row(
+                  children: <Widget>[
+                    // Marcador de situação. Tarefa concluída aparece riscada
+                    // e esmaecida, sem sumir da lista — a Home mostra também
+                    // o histórico do dia.
+                    Icon(
+                      tarefa.concluida
+                          ? Icons.check_circle_rounded
+                          : Icons.radio_button_unchecked_rounded,
+                      color: tarefa.concluida ? AppColors.success : cor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            tarefa.titulo,
+                            style: AppTypography.itemTitle.copyWith(
+                              decoration: tarefa.concluida
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              color: tarefa.concluida
+                                  ? AppColors.textLow
+                                  : null,
+                            ),
+                          ),
+                          if (_rodape != null) ...<Widget>[
+                            const SizedBox(height: 2),
+                            Text(_rodape!, style: AppTypography.itemMeta),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (_pill != null) ...<Widget>[
+                      const SizedBox(width: AppSpacing.xs),
+                      _Pill(rotulo: _pill!, cor: cor),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }
+
+  /// Rótulo do prazo, como no web: `hoje`, `amanhã`, `atrasada` ou a data.
+  ///
+  /// Não aparece em tarefa sem prazo — a pílula é o que dá o senso de
+  /// urgência, e uma pílula com a data repetida no metadado só duplicaria.
+  String? get _pill {
+    final prazo = tarefa.prazo;
+    if (prazo == null || tarefa.concluida) return null;
+    return switch (AppDateFormat.daysFromToday(prazo)) {
+      final int d when d < 0 => 'atrasada',
+      0 => 'hoje',
+      1 => 'amanhã',
+      _ => AppDateFormat.shortDate(prazo),
+    };
+  }
+
+  /// Linha de metadados: disciplina e horário, como `Matemática · 23h59`.
+  String? get _rodape {
+    final partes = <String>[
+      if (tarefa.disciplinaNome != null) tarefa.disciplinaNome!,
+      if (tarefa.prazo case final DateTime p) AppDateFormat.dateTime(p),
+    ];
+    return partes.isEmpty ? null : partes.join(' · ');
+  }
+}
+
+/// Pílula colorida com o rótulo do prazo (`hoje`, `amanhã`, `atrasada`).
+class _Pill extends StatelessWidget {
+  const _Pill({required this.rotulo, required this.cor});
+
+  final String rotulo;
+  final Color cor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xs,
+        vertical: 3,
+      ),
+      decoration: BoxDecoration(
+        // O web usa os tons claros do par (`bg-orange-light text-orange`).
+        // A cor da linha é a chave: quem manda no fundo é a família da cor,
+        // não a cor em si, o que mantém o mesmo visual para os três grupos.
+        color: _fundoClaro,
+        borderRadius: BorderRadius.circular(AppRadii.pill),
+      ),
+      child: Text(
+        rotulo,
+        style: AppTypography.pill.copyWith(color: cor, fontSize: 10.5),
+      ),
+    );
+  }
+
+  /// Versão clara da cor da linha, casada com o `*-Light` do design system.
+  Color get _fundoClaro => switch (cor) {
+    AppColors.orange => AppColors.orangeLight,
+    AppColors.teal => AppColors.tealLight,
+    AppColors.crimson => AppColors.crimsonLight,
+    AppColors.lilac => AppColors.lilacLight,
+    AppColors.indigo => AppColors.indigoLight,
+    _ => AppColors.surfaceAlt,
+  };
 }
 
 /// Atalhos para as outras abas.

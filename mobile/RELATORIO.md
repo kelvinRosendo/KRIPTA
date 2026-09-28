@@ -105,17 +105,27 @@ estimativa local não tem — `xpConquistado`, por exemplo.
 
 | Verificação | Resultado |
 |---|---|
-| `flutter analyze lib test` | **0 erros, 0 avisos** |
-| `flutter test` | **13 testes, todos passando** |
+| `flutter analyze lib test` | **0 erros, 0 avisos** (4 infos pré-existentes) |
+| `flutter test` | **53 testes, todos passando** |
 | `dart run build_runner build` | Sucesso, sem avisos |
 | `flutter build apk --debug` | **APK gerado** |
-| `dart fix --apply lib` | 28 correções aplicadas (const, initializing formals) |
+| `flutter build apk --debug -t lib/main_debug.dart` | **APK gerado** |
 
 Os testes cobrem as regras que quebram silenciosamente: comparação de prazo
 por dia inteiro (tarefa que vence às 23h não está atrasada às 10h), tarefa
 concluída nunca atrasada, `fromWire` tolerante a papéis e tipos de material
 desconhecidos, e o `Result` (`when`, `map` preservando falha, `isSuccess` /
 `isFailure`).
+
+**Regressão do crash de locale.** A Home formatava a data em pt-BR já no
+primeiro sliver, e o `intl` só aceita `DateFormat('EEE', 'pt_BR')` depois de
+`initializeDateFormatting` — sem isso, `LocaleDataException` subia pelo `build`
+e derrubava a tela inteira, gamificação junto. Hoje `AppDateFormat` tem
+`inicializar()` (chamado nos dois entrypoints) e uma guarda que transforma o
+`LocaleDataException` anônimo em um `StateError` dizendo o que fazer. A
+regressão é coberta em `test/app_date_format_test.dart` e
+`test/home_screen_test.dart` — este último é o primeiro teste de widget do
+projeto e monta a Home com o container mínimo que ela lê.
 
 ## 6. Pendências do backend
 
@@ -132,13 +142,38 @@ travar a navegação.
 | 5 | `GET /api/calendario?inicio=&fim=` | Agenda |
 | 6 | `GET /api/avisos` | Agenda |
 | 7 | `GET /api/dashboard` | Home |
-| 8 | `GET /api/progresso`, `/api/gamificacao/*` | Home |
+| 8 | `GET /api/progresso`, `/api/gamificacao/*` | Home, Perfil |
 | 9 | `POST /api/ai/chat` | Kai |
 
 Os itens 1 a 3 e 7 a 9 são **contratos propostos** — existem no TCC ou são
 consumidos pelo frontend web, mas não há implementação que os confirme. Precisam
 de validação antes de virar API real. O status de cada rota está registrado em
 `lib/core/config/api_endpoints.dart`.
+
+### Campo novo proposto: `minutesToday`
+
+A Home exibe um anel de progresso da meta diária de estudo ("foguinho"), como
+no protótipo web. O anel precisa saber quantos minutos o aluno já acumulou
+hoje, e **nenhum contrato existente carrega esse dado**: o `stats` do
+`/api/dashboard` traz só `xp`, `level` e `streak`. O texto do protótipo
+("Faltam 3 min hoje") era HTML fixo, sem lastro em dado nenhum.
+
+Proposta: `GET /api/dashboard` passa a devolver
+
+```json
+{ "stats": { "xp": 1240, "level": 4, "streak": 7, "minutesToday": 7 } }
+```
+
+A origem não é invenção: o TCC (2.7) define que a sequência de dias só se
+mantém com **pelo menos 10 minutos de uso por dia**, então o backend já tem
+como medir isso. O campo está pronto no mobile
+(`ResumoGamificacao.minutosHoje`, com default 0), então até o backend enviar
+o campo o app funciona — o anel simplesmente mostra a meta zerada, que é o
+estado honesto.
+
+A **meta de 10 minutos não vai no contrato**: é regra de produto fixa e mora
+em `AppGamificacao.metaMinutosDiarios`, no cliente. Só viraria campo da API se
+um dia a meta fosse configurável por turma.
 
 ## 7. Divergências e riscos
 

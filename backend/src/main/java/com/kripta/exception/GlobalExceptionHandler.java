@@ -32,6 +32,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("USUARIO_NAO_ENCONTRADO", ex.getMessage()));
     }
 
+    @ExceptionHandler(DisciplinaNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleDisciplinaNotFound(DisciplinaNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("DISCIPLINA_NAO_ENCONTRADA", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateDisciplinaException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateDisciplina(DuplicateDisciplinaException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("DISCIPLINA_JA_CADASTRADA", ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, Object> body = ApiError.of("VALIDACAO", "Dados inválidos");

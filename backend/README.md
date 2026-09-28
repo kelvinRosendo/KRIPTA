@@ -45,6 +45,7 @@ Na primeira execucao o Flyway roda as migrations de
 | Versao | Arquivo                                   | Descricao                  |
 |--------|-------------------------------------------|----------------------------|
 | V1     | `V1__criar_tabela_users.sql`              | tabela `users`             |
+| V2     | `V2__criar_tabela_disciplinas.sql`        | tabela `disciplinas`       |
 
 Para inspecionar o estado:
 
@@ -67,6 +68,15 @@ SELECT * FROM flyway_schema_history;
 | PUT    | `/api/users/me`      | token   | atualiza nome e email      |
 | PUT    | `/api/users/me/senha`| token   | troca a senha              |
 | DELETE | `/api/users/me`      | token   | exclui a propria conta     |
+| GET    | `/api/disciplinas`      | token | lista disciplinas do usuario        |
+| GET    | `/api/disciplinas/{id}` | token | busca uma disciplina                |
+| POST   | `/api/disciplinas`      | token | cria disciplina (nome + cor)        |
+| PUT    | `/api/disciplinas/{id}` | token | atualiza disciplina                 |
+| DELETE | `/api/disciplinas/{id}` | token | exclui disciplina                   |
+
+> As disciplinas sao **por usuario**: cada usuario ve apenas suas proprias
+> disciplinas. O nome e unico por usuario (comparacao sem diferenciar maiusculas
+> e minusculas).
 
 > O `subject` do JWT e o **id** do usuario (identificador estavel). Assim, trocar
 > o email nao invalida o token — o usuario continua logado sem precisar
@@ -98,6 +108,14 @@ curl -X PUT http://localhost:8080/api/users/me/senha \
 
 curl -X DELETE http://localhost:8080/api/users/me \
   -H "Authorization: Bearer <token>"
+
+curl -X POST http://localhost:8080/api/disciplinas \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Matematica","cor":"#FF5733"}'
+
+curl http://localhost:8080/api/disciplinas \
+  -H "Authorization: Bearer <token>"
 ```
 
 ## Formato de erro
@@ -118,8 +136,10 @@ curl -X DELETE http://localhost:8080/api/users/me \
 | `NAO_AUTENTICADO`     | 401  | token ausente, invalido ou expirado     |
 | `CREDENCIAIS_INVALIDAS` | 401 | email ou senha incorretos no login     |
 | `ACESSO_NEGADO`       | 403  | usuario sem permissao                   |
-| `EMAIL_JA_CADASTRADO` | 409  | email ja existe                        |
-| `USUARIO_NAO_ENCONTRADO` | 404 | usuario nao existe                    |
+| `EMAIL_JA_CADASTRADO`        | 409  | email ja existe           |
+| `USUARIO_NAO_ENCONTRADO`     | 404  | usuario nao existe        |
+| `DISCIPLINA_NAO_ENCONTRADA`  | 404  | disciplina nao existe (ou de outro usuario) |
+| `DISCIPLINA_JA_CADASTRADA`   | 409  | ja existe disciplina com esse nome |
 
 ## Testes
 

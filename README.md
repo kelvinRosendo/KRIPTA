@@ -175,22 +175,28 @@ backend/
 │   │   │           │
 │   │   │           ├── controller/
 │   │   │           │   ├── AuthController.java
+│   │   │           │   ├── DisciplinaController.java
 │   │   │           │   ├── HealthController.java
 │   │   │           │   └── UserController.java
 │   │   │           │
 │   │   │           ├── service/
 │   │   │           │   ├── AuthService.java
 │   │   │           │   ├── CustomUserDetailsService.java
+│   │   │           │   ├── DisciplinaService.java
 │   │   │           │   └── UserService.java
 │   │   │           │
 │   │   │           ├── repository/
+│   │   │           │   ├── DisciplinaRepository.java
 │   │   │           │   └── UserRepository.java
 │   │   │           │
 │   │   │           ├── model/
+│   │   │           │   ├── Disciplina.java
 │   │   │           │   └── User.java
 │   │   │           │
 │   │   │           ├── dto/
 │   │   │           │   ├── ChangePasswordRequest.java
+│   │   │           │   ├── DisciplinaRequest.java
+│   │   │           │   ├── DisciplinaResponse.java
 │   │   │           │   ├── LoginRequest.java
 │   │   │           │   ├── LoginResponse.java
 │   │   │           │   ├── RegisterRequest.java
@@ -200,6 +206,8 @@ backend/
 │   │   │           │
 │   │   │           ├── exception/
 │   │   │           │   ├── ApiError.java
+│   │   │           │   ├── DisciplinaNotFoundException.java
+│   │   │           │   ├── DuplicateDisciplinaException.java
 │   │   │           │   ├── DuplicateEmailException.java
 │   │   │           │   ├── GlobalExceptionHandler.java
 │   │   │           │   ├── InvalidCredentialsException.java
@@ -368,7 +376,7 @@ O KRIPTA encontra-se atualmente em fase de desenvolvimento.
 - [x] Configuração do PostgreSQL
 - [x] Sistema de autenticação
 - [x] Gerenciamento de usuários
-- [ ] Sistema de disciplinas
+- [x] Sistema de disciplinas
 - [ ] Sistema de tarefas
 - [ ] Sistema de conteúdos
 - [ ] Acompanhamento de progresso

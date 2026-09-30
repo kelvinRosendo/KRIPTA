@@ -315,7 +315,10 @@ Projeto desenvolvido por estudantes como parte de um Trabalho de Conclusão de C
 | 👨‍💻 Pedro Manoel Gimenes | Desenvolvimento |
 | 👨‍💻 Murylo | Design e desenvolvimento |
 | 👩‍💻 Julia Cerqueira | Pesquisa, documentação e desenvolvimento |
-| 👨‍💻 Integrante | Desenvolvimento |
+| 👨‍💻 Pedro Bernardes | Desenvolvimento mobile e documentação |
+| 👨‍💻 Vinicius Augusto | QA e Design |
+| 👨‍💻 Paulo dos Santos | QA |
+
 
 > As responsabilidades podem ser atualizadas conforme a evolução do projeto.
 

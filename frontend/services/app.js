@@ -269,9 +269,9 @@ function applySubjectFilter(subjects) {
   empty(list);
   if (!filtered.length) {
     list.innerHTML = emptyState('Nenhuma matéria aqui', 'Toque em "Adicionar matéria" para começar.');
-    return;
+  } else {
+    filtered.forEach(function (s) { list.insertAdjacentHTML('beforeend', subjectCardHTML(s)); });
   }
-  filtered.forEach(function (s) { list.insertAdjacentHTML('beforeend', subjectCardHTML(s)); });
   list.insertAdjacentHTML('beforeend',
     '<button type="button" class="btn-ghost flex items-center justify-center gap-2 mt-1" onclick="openSubjectModal()">' +
     '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Adicionar matéria</button>');

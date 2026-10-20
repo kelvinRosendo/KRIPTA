@@ -41,31 +41,37 @@ function devTodayKey() {
 }
 
 function devSeed() {
-  var subjectA = { id: 1, name: 'Algoritmos e Estruturas de Dados', teacher: 'Prof. Camila Nunes', icon: '📐', description: 'Lógica de programação, complexidade e estruturas lineares.', pendingCount: 2, hasExam: true, isProject: true, isFavorite: true };
-  var subjectB = { id: 2, name: 'Banco de Dados', teacher: 'Prof. Ricardo Lima', icon: '🗄️', description: 'Modelagem relacional, SQL e normalização.', pendingCount: 2, hasExam: true, isProject: false, isFavorite: false };
-  var subjectC = { id: 3, name: 'Redes de Computadores', teacher: 'Prof. Marina Alves', icon: '🌐', description: 'Camadas do modelo OSI, protocolos e segurança.', pendingCount: 2, hasExam: false, isProject: true, isFavorite: true };
+  var subjectA = { id: 1, name: 'IPSSI', teacher: 'Prof. Camila Nunes', icon: '🌐', description: 'Infraestrutura, protocolos e segurança de sistemas.', pendingCount: 2, hasExam: true, isProject: true, isFavorite: true, group: 'CURSO' };
+  var subjectB = { id: 2, name: 'Banco de Dados', teacher: 'Prof. Ricardo Lima', icon: '🗄️', description: 'Modelagem relacional, SQL e normalização.', pendingCount: 2, hasExam: true, isProject: false, isFavorite: false, group: 'CURSO' };
+  var subjectC = { id: 3, name: 'Português', teacher: 'Prof. Helena Prado', icon: '📘', description: 'Leitura, interpretação e produção de textos.', pendingCount: 1, hasExam: false, isProject: false, isFavorite: false, group: 'BASE' };
+  var subjectD = { id: 4, name: 'Matemática', teacher: 'Prof. André Costa', icon: '📕', description: 'Funções, álgebra e geometria.', pendingCount: 1, hasExam: true, isProject: false, isFavorite: false, group: 'BASE' };
+  var subjectE = { id: 5, name: 'Biologia', teacher: 'Prof. Renata Melo', icon: '📗', description: 'Citologia, genética e ecologia.', pendingCount: 0, hasExam: false, isProject: false, isFavorite: false, group: 'BASE' };
 
-  var unitA1 = { id: 11, subjectId: 1, name: 'Unidade 1 — Revisão e análise de algoritmos', description: 'Complexidade assintótica e notação Big-O.', materialsCount: 3 };
-  var unitA2 = { id: 12, subjectId: 1, name: 'Unidade 2 — Listas e pilhas', description: 'Estruturas lineares e operações básicas.', materialsCount: 2 };
+  var unitA1 = { id: 11, subjectId: 1, name: 'Unidade 1 — Fundamentos de infraestrutura', description: 'Camadas, protocolos e serviços.', materialsCount: 3 };
+  var unitA2 = { id: 12, subjectId: 1, name: 'Unidade 2 — Segurança de sistemas', description: 'Ameaças, criptografia e boas práticas.', materialsCount: 2 };
   var unitB1 = { id: 21, subjectId: 2, name: 'Unidade 1 — Modelo relacional', description: 'Chaves, relacionamentos e cardinalidade.', materialsCount: 2 };
-  var unitC1 = { id: 31, subjectId: 3, name: 'Unidade 1 — Camadas do modelo OSI', description: 'Protocolos de cada camada.', materialsCount: 1 };
+  var unitC1 = { id: 31, subjectId: 3, name: 'Unidade 1 — Gêneros textuais', description: 'Leitura e interpretação.', materialsCount: 1 };
+  var unitD1 = { id: 41, subjectId: 4, name: 'Unidade 1 — Funções', description: 'Domínio, imagem e gráficos.', materialsCount: 1 };
+  var unitE1 = { id: 51, subjectId: 5, name: 'Unidade 1 — Citologia', description: 'Células e organelas.', materialsCount: 1 };
 
   var materialList = [
-    { id: 101, unitId: 11, title: 'Slides — Introdução à análise de algoritmos', type: 'PDF', url: 'https://example.com/slides-big-o', description: 'Aula 1', completed: true },
+    { id: 101, unitId: 11, title: 'Slides — Fundamentos de infraestrutura', type: 'PDF', url: 'https://example.com/slides-ipssi', description: 'Aula 1', completed: true },
     { id: 102, unitId: 11, title: 'Lista 1 de exercícios', type: 'DOCUMENT', url: 'https://example.com/lista1', description: 'Entrega na próxima semana', completed: false },
-    { id: 103, unitId: 11, title: 'Vídeo-aula — Big-O na prática', type: 'VIDEO', url: 'https://example.com/video', description: null, completed: false },
-    { id: 104, unitId: 12, title: 'Anotações — Pilhas e filas', type: 'NOTE', url: null, description: 'Resumo das estruturas lineares.', completed: false },
+    { id: 103, unitId: 11, title: 'Vídeo-aula — Protocolos na prática', type: 'VIDEO', url: 'https://example.com/video', description: null, completed: false },
+    { id: 104, unitId: 12, title: 'Anotações — Criptografia', type: 'NOTE', url: null, description: 'Resumo das boas práticas.', completed: false },
     { id: 105, unitId: 12, title: 'Exercícios resolvidos — L1', type: 'PDF', url: 'https://example.com/exercicios-l1', description: null, completed: true },
     { id: 201, unitId: 21, title: 'Apostila — SQL básico', type: 'PDF', url: 'https://example.com/sql', description: null, completed: false },
     { id: 202, unitId: 21, title: 'Script de criação do banco', type: 'DOCUMENT', url: 'https://example.com/script', description: 'Schema do trabalho', completed: false },
-    { id: 301, unitId: 31, title: 'Mapa das 7 camadas', type: 'LINK', url: 'https://example.com/osi', description: null, completed: false },
+    { id: 301, unitId: 31, title: 'Roteiro de leitura', type: 'PDF', url: 'https://example.com/leitura', description: null, completed: false },
+    { id: 401, unitId: 41, title: 'Lista — Funções', type: 'PDF', url: 'https://example.com/funcoes', description: null, completed: false },
+    { id: 501, unitId: 51, title: 'Mapa mental — Célula', type: 'DOCUMENT', url: 'https://example.com/celula', description: null, completed: false },
   ];
 
   var taskList = [
-    { id: 201, title: 'Revisar exercício 4 da Lista 1', description: 'Ordenação por contagem', dueDate: devShiftDate(0, 20), priority: 'HIGH', completed: false, subjectId: 1 },
+    { id: 201, title: 'Revisar exercício 4 da Lista 1', description: 'Redes e protocolos', dueDate: devShiftDate(0, 20), priority: 'HIGH', completed: false, subjectId: 1 },
     { id: 202, title: 'Entregar resumo da Unidade 1', description: 'Até 20h', dueDate: devShiftDate(0, 23), priority: 'MEDIUM', completed: false, subjectId: 2 },
-    { id: 203, title: 'Ler capítulo 3 — Protocolos', description: null, dueDate: devShiftDate(1, 9), priority: 'MEDIUM', completed: false, subjectId: 3 },
-    { id: 204, title: 'Implementar pilha com array', description: 'Projeto da disciplina', dueDate: devShiftDate(3, 21), priority: 'HIGH', completed: false, subjectId: 1 },
+    { id: 203, title: 'Ler capítulo 3 — Interpretação de texto', description: null, dueDate: devShiftDate(1, 9), priority: 'MEDIUM', completed: false, subjectId: 3 },
+    { id: 204, title: 'Implementar serviço seguro', description: 'Projeto da disciplina', dueDate: devShiftDate(3, 21), priority: 'HIGH', completed: false, subjectId: 1 },
     { id: 205, title: 'Exercícios de normalização', description: null, dueDate: devShiftDate(-2, 19), priority: 'LOW', completed: false, subjectId: 2 },
     { id: 206, title: 'Apresentação do seminário', description: 'Grupo 3', dueDate: devShiftDate(5, 10), priority: 'HIGH', completed: false, subjectId: 3 },
     { id: 207, title: 'Assistir à aula de gossip', description: null, dueDate: devShiftDate(-1, 18), priority: 'LOW', completed: true, subjectId: 1 },
@@ -74,8 +80,8 @@ function devSeed() {
 
   var announcementList = [
     { id: 301, title: 'Prova da Unidade 1 agendada', message: 'A prova de Banco de Dados acontece na próxima quarta-feira, às 19h.', createdAt: devShiftDate(-1, 12), subject: { id: 2, name: 'Banco de Dados' } },
-    { id: 302, title: 'Material novo disponível', message: 'Slides da aula de hoje já estão na unidade correspondente.', createdAt: devShiftDate(-3, 9), subject: { id: 1, name: 'Algoritmos e Estruturas de Dados' } },
-    { id: 303, title: 'Mudança de sala', message: 'O seminário de Redes passa para a sala 204.', createdAt: devShiftDate(-6, 15), subject: { id: 3, name: 'Redes de Computadores' } },
+    { id: 302, title: 'Material novo disponível', message: 'Slides da aula de hoje já estão na unidade correspondente.', createdAt: devShiftDate(-3, 9), subject: { id: 1, name: 'IPSSI' } },
+    { id: 303, title: 'Trabalho de redação', message: 'A entrega da redação de Português passa para a sala 204.', createdAt: devShiftDate(-6, 15), subject: { id: 3, name: 'Português' } },
   ];
 
   var achievementList = [
@@ -87,16 +93,16 @@ function devSeed() {
 
   /* Conteúdo acadêmico submetido por professores (RF03/RF04, RN04) */
   var contentList = [
-    { id: 501, subjectId: 1, unitId: 11, title: 'Apostila — Complexidade de algoritmos', type: 'PDF', url: 'https://example.com/apostila-big-o', description: 'Material oficial da Unidade 1', status: 'APROVADO', authorId: 900, authorName: 'Prof. Camila Nunes', createdAt: devShiftDate(-12, 10), reviewedBy: 'Prof. Ricardo Lima', reviewedAt: devShiftDate(-10, 14), rejectReason: null },
+    { id: 501, subjectId: 1, unitId: 11, title: 'Apostila — Fundamentos de infraestrutura', type: 'PDF', url: 'https://example.com/apostila-ipssi', description: 'Material oficial da Unidade 1', status: 'APROVADO', authorId: 900, authorName: 'Prof. Camila Nunes', createdAt: devShiftDate(-12, 10), reviewedBy: 'Prof. Ricardo Lima', reviewedAt: devShiftDate(-10, 14), rejectReason: null },
     { id: 502, subjectId: 2, unitId: 21, title: 'Roteiro de laboratório — SQL', type: 'DOCUMENT', url: 'https://example.com/roteiro-sql', description: 'Passo a passo do encontro prático', status: 'APROVADO', authorId: 900, authorName: 'Prof. Ricardo Lima', createdAt: devShiftDate(-8, 9), reviewedBy: 'Prof. Ricardo Lima', reviewedAt: devShiftDate(-7, 11), rejectReason: null },
-    { id: 503, subjectId: 1, unitId: 12, title: 'Vídeo complementar — Pilhas', type: 'VIDEO', url: 'https://example.com/video-pilhas', description: 'Aula gravada', status: 'PENDENTE', authorId: 900, authorName: 'Prof. Camila Nunes', createdAt: devShiftDate(-2, 16), reviewedBy: null, reviewedAt: null, rejectReason: null },
-    { id: 504, subjectId: 3, unitId: 31, title: 'Slides — Segurança de redes', type: 'PDF', url: 'https://example.com/slides-redes', description: null, status: 'PENDENTE', authorId: 901, authorName: 'Prof. Marina Alves', createdAt: devShiftDate(-1, 15), reviewedBy: null, reviewedAt: null, rejectReason: null },
+    { id: 503, subjectId: 1, unitId: 12, title: 'Vídeo complementar — Criptografia', type: 'VIDEO', url: 'https://example.com/video-cripto', description: 'Aula gravada', status: 'PENDENTE', authorId: 900, authorName: 'Prof. Camila Nunes', createdAt: devShiftDate(-2, 16), reviewedBy: null, reviewedAt: null, rejectReason: null },
+    { id: 504, subjectId: 3, unitId: 31, title: 'Slides — Produção textual', type: 'PDF', url: 'https://example.com/slides-texto', description: null, status: 'PENDENTE', authorId: 901, authorName: 'Prof. Helena Prado', createdAt: devShiftDate(-1, 15), reviewedBy: null, reviewedAt: null, rejectReason: null },
   ];
 
   /* Eventos pessoais do calendário do aluno (RF06 — calendário pessoal) */
   var personalEventList = [
     { id: 601, title: 'Grupo de estudo — BD', date: devShiftDate(2, 14).slice(0, 10), scope: 'PESSOAL', note: 'Biblioteca' },
-    { id: 602, title: 'Revisão pessoal de algoritmos', date: devShiftDate(4, 9).slice(0, 10), scope: 'PESSOAL', note: null },
+    { id: 602, title: 'Revisão pessoal de IPSSI', date: devShiftDate(4, 9).slice(0, 10), scope: 'PESSOAL', note: null },
   ];
 
   return {
@@ -106,7 +112,7 @@ function devSeed() {
     streak: 7,
     completedCount: 1,
     usage: { date: devTodayKey(), seconds: 0, advanced: false },
-    subjects: [subjectA, subjectB, subjectC],
+    subjects: [subjectA, subjectB, subjectC, subjectD, subjectE],
     units: [unitA1, unitA2, unitB1, unitC1],
     materials: materialList,
     tasks: taskList,
@@ -191,8 +197,8 @@ function devCalendarEvents() {
       return { date: String(t.dueDate).slice(0, 10), title: t.title, type: 'TASK', scope: 'ESCOLAR', subjectId: t.subjectId };
     });
   events.push({ date: devShiftDate(2, 19).slice(0, 10), title: 'Prova — Banco de Dados', type: 'EXAM', scope: 'ESCOLAR', subjectId: 2 });
-  events.push({ date: devShiftDate(6, 10).slice(0, 10), title: 'Seminário de Redes', type: 'EVENT', scope: 'ESCOLAR', subjectId: 3 });
-  events.push({ date: devShiftDate(9, 8).slice(0, 10), title: 'Prova — Algoritmos', type: 'EXAM', scope: 'ESCOLAR', subjectId: 1 });
+  events.push({ date: devShiftDate(6, 10).slice(0, 10), title: 'Trabalho de Português', type: 'EVENT', scope: 'ESCOLAR', subjectId: 3 });
+  events.push({ date: devShiftDate(9, 8).slice(0, 10), title: 'Prova — IPSSI', type: 'EXAM', scope: 'ESCOLAR', subjectId: 1 });
   return events;
 }
 

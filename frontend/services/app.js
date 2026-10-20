@@ -219,6 +219,10 @@ function fillHomeTasks(dash) {
 /* ══════════════════════ MATÉRIAS (Etapa 5) ══════════════════════ */
 var SUBJECT_COLORS = ['bg-indigo-light', 'bg-teal-light', 'bg-orange-light', 'bg-lilac-light', 'bg-surface-2'];
 
+function subjectGroupHTML(label) {
+  return '<div class="subject-group-label text-[11px] font-bold uppercase tracking-wide text-text-low mt-2 mb-0.5 px-0.5">' + esc(label) + '</div>';
+}
+
 function subjectCardHTML(s) {
   var c = SUBJECT_COLORS[Math.abs(s.id || 1) % SUBJECT_COLORS.length];
   var icon = s.icon || '📚';
@@ -270,7 +274,24 @@ function applySubjectFilter(subjects) {
   if (!filtered.length) {
     list.innerHTML = emptyState('Nenhuma matéria aqui', 'Toque em "Adicionar matéria" para começar.');
   } else {
-    filtered.forEach(function (s) { list.insertAdjacentHTML('beforeend', subjectCardHTML(s)); });
+    var GROUPS = [
+      { key: 'CURSO', label: 'Matérias do curso' },
+      { key: 'BASE', label: 'Matérias da Base Comum Curricular' },
+    ];
+    var byGroup = { CURSO: [], BASE: [], OUTROS: [] };
+    filtered.forEach(function (s) {
+      var g = (s.group === 'CURSO' || s.group === 'BASE') ? s.group : 'OUTROS';
+      byGroup[g].push(s);
+    });
+    GROUPS.forEach(function (group) {
+      if (!byGroup[group.key].length) return;
+      list.insertAdjacentHTML('beforeend', subjectGroupHTML(group.label));
+      byGroup[group.key].forEach(function (s) { list.insertAdjacentHTML('beforeend', subjectCardHTML(s)); });
+    });
+    if (byGroup.OUTROS.length) {
+      list.insertAdjacentHTML('beforeend', subjectGroupHTML('Outras matérias'));
+      byGroup.OUTROS.forEach(function (s) { list.insertAdjacentHTML('beforeend', subjectCardHTML(s)); });
+    }
   }
   list.insertAdjacentHTML('beforeend',
     '<button type="button" class="btn-ghost flex items-center justify-center gap-2 mt-1" onclick="openSubjectModal()">' +

@@ -49,6 +49,9 @@ function toast(message, type) {
   if (existing) existing.remove();
   var t = el('div', 'fixed bottom-[120px] left-1/2 -translate-x-1/2 z-[200] rounded-md px-4 py-3 text-[12.5px] font-bold text-white shadow-lg');
   t.id = 'toast';
+  /* RNF03: leitores de tela anunciam mudanças de estado. */
+  t.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  t.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
   t.style.background = type === 'error' ? '#C0392B' : type === 'warn' ? '#FF6B35' : '#3D3DB4';
   t.textContent = message;
   document.body.appendChild(t);

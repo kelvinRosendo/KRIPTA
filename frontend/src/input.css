@@ -341,3 +341,153 @@
     max-width: 1200px;
   }
 }
+
+/* -- Avatar do usuário no statusbar -- */
+.statusbar-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin: -5px 0;
+  border: none;
+  border-radius: 9999px;
+  background: #EEEEF9;
+  color: #3D3DB4;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+/* -- Drawer de perfil -- */
+.profile-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.profile-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(16, 17, 30, 0.45);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  cursor: pointer;
+}
+.profile-drawer-panel {
+  position: relative;
+  width: 88%;
+  max-width: 400px;
+  height: 100%;
+  padding: 24px 20px;
+  background: #FFFFFF;
+  overflow-y: auto;
+  transform: translateX(-105%);
+  transition: transform 0.28s ease;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.18);
+}
+.profile-drawer.open { pointer-events: auto; }
+.profile-drawer.open .profile-drawer-backdrop { opacity: 1; }
+.profile-drawer.open .profile-drawer-panel { transform: translateX(0); }
+
+.drawer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #E2E4F0;
+  border-radius: 12px;
+  background: #F6F7FB;
+  color: #1B1C2E;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.drawer-settings {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 10px;
+}
+.drawer-settings.open { display: flex; }
+.drawer-settings .drawer-row { background: #FFFFFF; }
+.drawer-chevron { transition: transform 0.2s ease; }
+[aria-expanded="true"] .drawer-chevron { transform: rotate(90deg); }
+
+/* -- Switch (toggle) -- */
+input.toggle {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 24px;
+  border: none;
+  border-radius: 9999px;
+  background: #D5D8E8;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+input.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #FFFFFF;
+  transition: transform 0.2s ease;
+}
+input.toggle:checked { background: #3D3DB4; }
+input.toggle:checked::after { transform: translateX(18px); }
+
+/* -- Calendário: grid dia/semana/mês -- */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+.cal-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 40px;
+  padding: 4px 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #1B1C2E;
+  font: inherit;
+  cursor: pointer;
+}
+.cal-cell:hover { background: #F6F7FB; }
+.cal-cell.other { color: #C3C6D4; }
+.cal-cell.today { box-shadow: inset 0 0 0 1.5px #A78BFA; }
+.cal-cell.selected { background: #3D3DB4; color: #FFFFFF; box-shadow: none; }
+.cal-daynum { font-size: 12px; font-weight: 600; line-height: 1; }
+.cal-weekday { font-size: 9px; font-weight: 700; color: #A8ABBD; }
+.cal-cell.selected .cal-weekday { color: #D9D9F3; }
+.cal-dots { display: flex; align-items: center; gap: 2px; height: 4px; }
+.cal-dot { width: 4px; height: 4px; border-radius: 9999px; background: #3D3DB4; }
+.cal-cell.selected .cal-dot { background: #FFFFFF; }
+
+/* -- Modo acessibilidade (preferência do usuário) -- */
+.a11y-mode .text-text-mid { color: #4A4D66 !important; }
+.a11y-mode .text-text-low { color: #6B6F8E !important; }
+.a11y-mode *,
+.a11y-mode *::before,
+.a11y-mode *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+.a11y-mode .card { border-width: 2px; border-color: #C9CCE0; }
+.a11y-mode .screen { animation: none; }
+.a11y-mode .loader-overlay { display: none !important; }

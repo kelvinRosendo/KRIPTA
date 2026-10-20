@@ -7,11 +7,37 @@
 
 var DEV_STORE = null;
 
+/* Perfil de dev persistido: o mock reinicia a cada reload, mas o usuário
+   autenticado (com papel e RM) precisa sobreviver para a sessão continuar. */
+var DEV_USER_KEY = 'kripta_dev_user';
+
+function devPersistUser(user) {
+  try { localStorage.setItem(DEV_USER_KEY, JSON.stringify(user)); } catch (e) { /* ignore */ }
+}
+
+function devRestoreUser() {
+  try {
+    var saved = JSON.parse(localStorage.getItem(DEV_USER_KEY));
+    if (saved && (saved.name === 'Dev' || saved.name === 'Dev Aluno')) saved.name = 'Aluno';
+    return saved;
+  } catch (e) { return null; }
+}
+
+function devClearUser() {
+  try { localStorage.removeItem(DEV_USER_KEY); } catch (e) { /* ignore */ }
+}
+
 function devShiftDate(days, hour) {
   var d = new Date();
   d.setDate(d.getDate() + days);
   d.setHours(hour === undefined ? 18 : hour, 0, 0, 0);
   return d.toISOString();
+}
+
+function devTodayKey() {
+  var d = new Date();
+  function p(n) { return n < 10 ? '0' + n : n; }
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
 }
 
 function devSeed() {
@@ -59,18 +85,35 @@ function devSeed() {
     { id: 404, icon: '🌟', title: 'Rota completa', description: 'Finalizou todas as unidades', earned: false },
   ];
 
+  /* Conteúdo acadêmico submetido por professores (RF03/RF04, RN04) */
+  var contentList = [
+    { id: 501, subjectId: 1, unitId: 11, title: 'Apostila — Complexidade de algoritmos', type: 'PDF', url: 'https://example.com/apostila-big-o', description: 'Material oficial da Unidade 1', status: 'APROVADO', authorId: 900, authorName: 'Prof. Camila Nunes', createdAt: devShiftDate(-12, 10), reviewedBy: 'Prof. Ricardo Lima', reviewedAt: devShiftDate(-10, 14), rejectReason: null },
+    { id: 502, subjectId: 2, unitId: 21, title: 'Roteiro de laboratório — SQL', type: 'DOCUMENT', url: 'https://example.com/roteiro-sql', description: 'Passo a passo do encontro prático', status: 'APROVADO', authorId: 900, authorName: 'Prof. Ricardo Lima', createdAt: devShiftDate(-8, 9), reviewedBy: 'Prof. Ricardo Lima', reviewedAt: devShiftDate(-7, 11), rejectReason: null },
+    { id: 503, subjectId: 1, unitId: 12, title: 'Vídeo complementar — Pilhas', type: 'VIDEO', url: 'https://example.com/video-pilhas', description: 'Aula gravada', status: 'PENDENTE', authorId: 900, authorName: 'Prof. Camila Nunes', createdAt: devShiftDate(-2, 16), reviewedBy: null, reviewedAt: null, rejectReason: null },
+    { id: 504, subjectId: 3, unitId: 31, title: 'Slides — Segurança de redes', type: 'PDF', url: 'https://example.com/slides-redes', description: null, status: 'PENDENTE', authorId: 901, authorName: 'Prof. Marina Alves', createdAt: devShiftDate(-1, 15), reviewedBy: null, reviewedAt: null, rejectReason: null },
+  ];
+
+  /* Eventos pessoais do calendário do aluno (RF06 — calendário pessoal) */
+  var personalEventList = [
+    { id: 601, title: 'Grupo de estudo — BD', date: devShiftDate(2, 14).slice(0, 10), scope: 'PESSOAL', note: 'Biblioteca' },
+    { id: 602, title: 'Revisão pessoal de algoritmos', date: devShiftDate(4, 9).slice(0, 10), scope: 'PESSOAL', note: null },
+  ];
+
   return {
-    user: { id: 0, name: 'Dev', email: 'kripta08', dev: true },
+    user: devRestoreUser() || { id: 0, name: 'Aluno', email: 'kripta08', role: 'ALUNO', rm: '000000', authorized: false, dev: true },
     xp: 1240,
     level: 4,
     streak: 7,
     completedCount: 1,
+    usage: { date: devTodayKey(), seconds: 0, advanced: false },
     subjects: [subjectA, subjectB, subjectC],
     units: [unitA1, unitA2, unitB1, unitC1],
     materials: materialList,
     tasks: taskList,
     announcements: announcementList,
     achievements: achievementList,
+    contents: contentList,
+    personalEvents: personalEventList,
   };
 }
 
@@ -145,12 +188,55 @@ function devCalendarEvents() {
   var events = s.tasks
     .filter(function (t) { return !t.completed && t.dueDate; })
     .map(function (t) {
-      return { date: String(t.dueDate).slice(0, 10), title: t.title, type: 'TASK' };
+      return { date: String(t.dueDate).slice(0, 10), title: t.title, type: 'TASK', scope: 'ESCOLAR', subjectId: t.subjectId };
     });
-  events.push({ date: devShiftDate(2, 19).slice(0, 10), title: 'Prova — Banco de Dados', type: 'EXAM' });
-  events.push({ date: devShiftDate(6, 10).slice(0, 10), title: 'Seminário de Redes', type: 'EVENT' });
-  events.push({ date: devShiftDate(9, 8).slice(0, 10), title: 'Prova — Algoritmos', type: 'EXAM' });
+  events.push({ date: devShiftDate(2, 19).slice(0, 10), title: 'Prova — Banco de Dados', type: 'EXAM', scope: 'ESCOLAR', subjectId: 2 });
+  events.push({ date: devShiftDate(6, 10).slice(0, 10), title: 'Seminário de Redes', type: 'EVENT', scope: 'ESCOLAR', subjectId: 3 });
+  events.push({ date: devShiftDate(9, 8).slice(0, 10), title: 'Prova — Algoritmos', type: 'EXAM', scope: 'ESCOLAR', subjectId: 1 });
   return events;
+}
+
+/* Usuário de dev montado a partir do formulário de cadastro/login (mock). */
+function devBuildUser(data, existing) {
+  var raw = data || {};
+  var prev = existing && existing.dev ? existing : null;
+  var role = String(raw.role || (prev && prev.role) || 'ALUNO').toUpperCase();
+  if (role !== 'PROFESSOR') role = 'ALUNO';
+  var email = String(raw.email || (prev && prev.email) || '').trim();
+  return {
+    id: role === 'PROFESSOR' ? 900 : 0,
+    name: String(raw.name || (prev && prev.name) || (role === 'PROFESSOR' ? 'Professor' : 'Aluno')).trim(),
+    email: email,
+    role: role,
+    rm: role === 'ALUNO' ? String(raw.rm || (prev && prev.rm) || '').trim() : null,
+    authorized: role === 'PROFESSOR'
+      ? Boolean(raw.authorized !== undefined ? raw.authorized : (prev && prev.role === 'PROFESSOR' ? prev.authorized : true))
+      : false,
+    dev: true,
+  };
+}
+
+function devStreakThreshold() {
+  return typeof STREAK_MIN_SECONDS !== 'undefined' ? Number(STREAK_MIN_SECONDS) : 600;
+}
+
+/* Notificações derivadas dos eventos do calendário (RF07 / RN05). */
+function devNotifications() {
+  var out = [];
+  devCalendarEvents().concat(devStore().personalEvents || []).forEach(function (e, i) {
+    var type = e.type || (e.scope === 'PESSOAL' ? 'EVENT' : 'EVENT');
+    var label = type === 'EXAM' ? 'Prova' : type === 'TASK' ? 'Prazo de tarefa' : 'Evento';
+    out.push({
+      id: 700 + i,
+      title: e.title,
+      message: label + ' · ' + (e.scope === 'PESSOAL' ? 'Agenda pessoal' : 'Calendário escolar'),
+      date: e.date,
+      type: type,
+      scope: e.scope || 'ESCOLAR',
+    });
+  });
+  out.sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+  return out;
 }
 
 /* Responde ao mock da rota pedida. Devolve undefined quando não há mock. */
@@ -164,6 +250,84 @@ function devMock(method, path, body) {
 
   /* Usuário */
   if (verb === 'GET' && route === '/users/me') return s.user;
+
+  /* Autenticação (mock: sem backend, o cadastro/login é aceito e persistido) */
+  if (verb === 'POST' && (route === '/auth/register' || route === '/auth/login')) {
+    var authUser = devBuildUser(data, route === '/auth/register' ? s.user : (s.user && s.user.dev ? s.user : null));
+    s.user = authUser;
+    devPersistUser(authUser);
+    return { token: 'dev-token', user: authUser };
+  }
+
+  /* Conteúdo acadêmico — professor cadastra (RF03/UC05) */
+  if (route === '/contents' || route.indexOf('/contents') === 0) {
+    var requester = s.user || {};
+    var requesterProfessor = String(requester.role || 'ALUNO').toUpperCase() === 'PROFESSOR';
+    var requesterAuthorized = requesterProfessor && requester.authorized === true;
+
+    if (verb === 'GET' && route === '/contents/mine') {
+      if (!requesterProfessor) return [];
+      return s.contents.filter(function (c) { return c.authorId === requester.id; });
+    }
+    /* RN04/UC06: fila de aprovação restrita a professor autorizado. */
+    if (verb === 'GET' && route === '/contents/pending') {
+      if (!requesterAuthorized) return [];
+      return s.contents.filter(function (c) { return c.status === 'PENDENTE'; });
+    }
+    if (verb === 'GET' && route === '/contents') {
+      /* RN04/UC03: aluno só consulta conteúdos aprovados. */
+      var onlyApproved = !requesterProfessor;
+      return s.contents.filter(function (c) {
+        if (onlyApproved && c.status !== 'APROVADO') return false;
+        if (query.subjectId && Number(c.subjectId) !== Number(query.subjectId)) return false;
+        if (query.status && c.status !== query.status) return false;
+        return true;
+      });
+    }
+    /* UC05: cadastro de conteúdo é ação do professor. */
+    if (verb === 'POST' && route === '/contents') {
+      if (!requesterProfessor) return undefined;
+      var author = requester;
+      var newContent = {
+        id: devNextId(s.contents),
+        subjectId: Number(data.subjectId) || null,
+        unitId: data.unitId ? Number(data.unitId) : null,
+        title: data.title || 'Novo conteúdo',
+        type: data.type || 'OTHER',
+        url: data.url || null,
+        description: data.description || null,
+        status: 'PENDENTE',
+        authorId: author.id,
+        authorName: author.name || 'Professor',
+        createdAt: new Date().toISOString(),
+        reviewedBy: null,
+        reviewedAt: null,
+        rejectReason: null,
+      };
+      s.contents.push(newContent);
+      return newContent;
+    }
+    if ((id = devMatch(route, /^\/contents\/(\d+)\/approve$/)) && verb === 'PATCH') {
+      var toApprove = s.contents.filter(function (c) { return c.id === Number(id); })[0];
+      if (toApprove && requesterAuthorized) {
+        toApprove.status = 'APROVADO';
+        toApprove.reviewedBy = (s.user && s.user.name) || 'Professor autorizado';
+        toApprove.reviewedAt = new Date().toISOString();
+        toApprove.rejectReason = null;
+      }
+      return toApprove;
+    }
+    if ((id = devMatch(route, /^\/contents\/(\d+)\/reject$/)) && verb === 'PATCH') {
+      var toReject = s.contents.filter(function (c) { return c.id === Number(id); })[0];
+      if (toReject && requesterAuthorized) {
+        toReject.status = 'REJEITADO';
+        toReject.reviewedBy = (s.user && s.user.name) || 'Professor autorizado';
+        toReject.reviewedAt = new Date().toISOString();
+        toReject.rejectReason = data.reason || null;
+      }
+      return toReject;
+    }
+  }
 
   /* Dashboard */
   if (verb === 'GET' && route === '/dashboard') {
@@ -312,13 +476,57 @@ function devMock(method, path, body) {
   /* Avisos */
   if (verb === 'GET' && route === '/announcements') return s.announcements;
 
-  /* Calendário */
+  /* Calendário (escolar + pessoal) — RF06 */
   if (verb === 'GET' && route === '/calendar') {
-    return devCalendarEvents().filter(function (e) {
+    var allEvents = devCalendarEvents().concat(s.personalEvents || []);
+    return allEvents.filter(function (e) {
+      if (query.scope && e.scope !== query.scope) return false;
       if (query.startDate && e.date < query.startDate) return false;
       if (query.endDate && e.date > query.endDate) return false;
       return true;
     });
+  }
+  if (verb === 'GET' && route === '/calendar/events') {
+    return s.personalEvents || [];
+  }
+  if (verb === 'POST' && route === '/calendar/events') {
+    var personal = {
+      id: devNextId(s.personalEvents || []),
+      title: data.title || 'Evento pessoal',
+      date: data.date || devTodayKey(),
+      scope: 'PESSOAL',
+      note: data.note || null,
+    };
+    s.personalEvents.push(personal);
+    return personal;
+  }
+
+  /* Notificações derivadas do calendário (RF07 / RN05) */
+  if (verb === 'GET' && route === '/notifications') {
+    return devNotifications();
+  }
+
+  /* Registro de tempo de uso autenticado para o streak (RF09 / RN07) */
+  if (verb === 'POST' && route === '/usage/heartbeat') {
+    var today = devTodayKey();
+    if (!s.usage || s.usage.date !== today) s.usage = { date: today, seconds: 0, advanced: false };
+    s.usage.seconds += Math.max(0, Number(data.seconds) || 0);
+    var threshold = devStreakThreshold();
+    var advancedNow = false;
+    if (s.usage.seconds >= threshold && !s.usage.advanced) {
+      s.usage.advanced = true;
+      s.streak += 1;
+      advancedNow = true;
+    }
+    return {
+      date: s.usage.date,
+      seconds: s.usage.seconds,
+      threshold: threshold,
+      progress: Math.min(100, Math.round((s.usage.seconds / threshold) * 100)),
+      advanced: s.usage.advanced,
+      advancedNow: advancedNow,
+      streak: s.streak,
+    };
   }
 
   /* Gamificação */
@@ -351,11 +559,13 @@ function devToggleTask(id) {
   if (!task) return undefined;
   task.completed = !task.completed;
   var earned = 0;
-  if (task.completed) {
-    s.completedCount += 1;
+  /* RN08: a mesma atividade não gera XP mais de uma vez para o mesmo aluno. */
+  if (task.completed && !task.xpAwarded) {
+    task.xpAwarded = true;
     devAddXP(20);
     earned = 20;
   }
+  s.completedCount = s.tasks.filter(function (t) { return t.completed; }).length;
   devRecountSubject(task.subjectId);
   var result = devDecorateTask(task);
   result.gamification = { xpEarned: earned };

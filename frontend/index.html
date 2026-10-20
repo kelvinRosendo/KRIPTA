@@ -10,7 +10,7 @@
   <link rel="shortcut icon" href="assets/KriptaLogoNw.png" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles/output.css">
+  <link rel="stylesheet" href="styles/output.css?v=20261019">
 </head>
 <body>
 
@@ -35,6 +35,14 @@
       </div>
 
       <form id="login-form" class="flex flex-col gap-3 mt-8" novalidate>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">PERFIL</span>
+          <select name="role" id="login-role" required
+                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+            <option value="ALUNO">Aluno</option>
+            <option value="PROFESSOR">Professor</option>
+          </select>
+        </label>
         <label class="flex flex-col gap-1">
           <span class="text-xs font-bold text-text-mid tracking-wide">E-MAIL</span>
           <input type="email" name="email" required autocomplete="email" placeholder="voce@email.com"
@@ -73,8 +81,21 @@
 
       <form id="register-form" class="flex flex-col gap-3 mt-6" novalidate>
         <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">PERFIL</span>
+          <select name="role" id="register-role"
+                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+            <option value="ALUNO">Aluno</option>
+            <option value="PROFESSOR">Professor</option>
+          </select>
+        </label>
+        <label class="flex flex-col gap-1">
           <span class="text-xs font-bold text-text-mid tracking-wide">NOME</span>
           <input type="text" name="name" required autocomplete="name" placeholder="Seu nome"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1" id="register-rm-wrap">
+          <span class="text-xs font-bold text-text-mid tracking-wide">RM (REGISTRO DE MATRÍCULA)</span>
+          <input type="text" name="rm" inputmode="numeric" placeholder="Ex: 12345"
                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
         </label>
         <label class="flex flex-col gap-1">
@@ -91,6 +112,10 @@
           <span class="text-xs font-bold text-text-mid tracking-wide">CONFIRMAR SENHA</span>
           <input type="password" name="confirmPassword" required autocomplete="new-password" placeholder="Repita a senha"
                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex items-start gap-2.5 cursor-pointer" id="register-auth-wrap" style="display:none">
+          <input type="checkbox" name="authorized" class="mt-0.5 w-4 h-4 accent-indigo">
+          <span class="text-[12px] text-text-mid leading-snug">Professor responsável — autorizado a aprovar conteúdos acadêmicos</span>
         </label>
         <div id="register-error" class="text-[12px] text-crimson font-semibold min-h-[16px]"></div>
         <button type="submit" class="btn-primary">Cadastrar</button>
@@ -123,8 +148,9 @@
         <div class="relative w-[58px] h-[58px] shrink-0">
           <svg width="58" height="58" viewBox="0 0 58 58" class="-rotate-90">
             <circle cx="29" cy="29" r="23" stroke="#FFF0EB" stroke-width="5" fill="none"/>
-            <circle cx="29" cy="29" r="23" stroke="#FF6B35" stroke-width="5" fill="none"
-              stroke-dasharray="144.5" stroke-dashoffset="41" stroke-linecap="round"/>
+            <circle id="home-streak-ring" cx="29" cy="29" r="23" stroke="#FF6B35" stroke-width="5" fill="none"
+              stroke-dasharray="144.5" stroke-dashoffset="144.5" stroke-linecap="round"
+              style="transition: stroke-dashoffset .5s ease"/>
           </svg>
           <div class="absolute inset-0 flex items-center justify-center text-xl">🔥</div>
         </div>
@@ -143,7 +169,7 @@
           <div class="font-display text-[17px] font-bold" id="home-stat-level">—</div>
           <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">NÍVEL</div>
         </div>
-        <div class="card flex-1 p-3 text-center cursor-pointer" onclick="goTo('perfil')">
+        <div class="card flex-1 p-3 text-center cursor-pointer" onclick="openProfileDrawer()">
           <div class="font-display text-[17px] font-bold" id="home-stat-badges">—</div>
           <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">INSÍGNIAS</div>
         </div>
@@ -210,10 +236,11 @@
 
     <div class="px-app" id="subject-desc"></div>
 
-    <div class="px-app flex border-b border-border mt-1.5">
-      <div class="py-2.5 px-1 text-[13px] font-bold text-indigo border-b-[2.5px] border-indigo mb-[-1.5px] mr-[18px] cursor-pointer" data-detail-tab="units" onclick="switchTab('units')">Unidades</div>
-      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid mr-[18px] cursor-pointer" data-detail-tab="materials" onclick="switchTab('materials')">Materiais</div>
-      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid cursor-pointer" data-detail-tab="avisos" onclick="switchTab('avisos')">Avisos</div>
+    <div class="px-app flex border-b border-border mt-1.5 overflow-x-auto scrollbar-hidden">
+      <div class="py-2.5 px-1 text-[13px] font-bold text-indigo border-b-[2.5px] border-indigo mb-[-1.5px] mr-[18px] cursor-pointer shrink-0" data-detail-tab="units" onclick="switchTab('units')">Unidades</div>
+      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid mr-[18px] cursor-pointer shrink-0" data-detail-tab="contents" onclick="switchTab('contents')">Conteúdos</div>
+      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid mr-[18px] cursor-pointer shrink-0" data-detail-tab="materials" onclick="switchTab('materials')">Materiais</div>
+      <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid cursor-pointer shrink-0" data-detail-tab="avisos" onclick="switchTab('avisos')">Avisos</div>
     </div>
 
     <div id="subject-body"></div>
@@ -234,7 +261,6 @@
     <div class="flex gap-2 pt-1 px-5 overflow-x-auto scrollbar-hidden">
       <span class="pill bg-indigo text-white cursor-pointer" data-task-filter="PENDING" onclick="setTasksFilter('PENDING')">Pendentes</span>
       <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-task-filter="COMPLETED" onclick="setTasksFilter('COMPLETED')">Concluídas</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="goTo('calendario')">Calendário</span>
     </div>
 
     <div class="px-app flex flex-col gap-[9px] mt-[18px]" id="tasks-list"></div>
@@ -250,14 +276,26 @@
   <section class="screen" id="screen-calendario">
     <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
-      <button class="icon-btn" onclick="goTo('tasks')" aria-label="Voltar">
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <div><h1>Calendário</h1><div class="sub">Sua agenda escolar e pessoal</div></div>
+      <button class="icon-btn" onclick="openPersonalEventModal()" aria-label="Novo evento pessoal">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-      <h1 class="!text-[17px]">Calendário</h1>
-      <div class="w-[38px]"></div>
     </div>
 
-    <div class="px-app mt-1" id="calendar-body"></div>
+    <div class="flex gap-2 pt-1 px-5 overflow-x-auto scrollbar-hidden">
+      <span class="pill bg-indigo text-white cursor-pointer" data-cal-scope="ESCOLAR" onclick="setCalendarScope('ESCOLAR')">Escolar</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-cal-scope="PESSOAL" onclick="setCalendarScope('PESSOAL')">Pessoal</span>
+    </div>
+
+    <div class="px-app mt-3">
+      <div class="flex gap-1 p-1 bg-surface-2 rounded-md" role="tablist" aria-label="Visão do calendário">
+        <button type="button" class="flex-1 py-1.5 rounded-sm bg-transparent text-text-mid font-semibold text-[12px] border-none cursor-pointer" data-cal-view="day" onclick="setCalendarView('day')">Dia</button>
+        <button type="button" class="flex-1 py-1.5 rounded-sm bg-transparent text-text-mid font-semibold text-[12px] border-none cursor-pointer" data-cal-view="week" onclick="setCalendarView('week')">Semana</button>
+        <button type="button" class="flex-1 py-1.5 rounded-sm bg-white text-indigo font-bold text-[12px] shadow-sm border-none cursor-pointer" data-cal-view="month" onclick="setCalendarView('month')">Mês</button>
+      </div>
+    </div>
+
+    <div class="px-app mt-3" id="calendar-body"></div>
   </section>
 
   <!-- ══════════════════════════════════════════════════
@@ -299,26 +337,32 @@
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-perfil">
     <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
-    <div class="topbar"><h1>Perfil</h1></div>
+    <div class="topbar">
+      <button class="icon-btn" onclick="goTo('home')" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h1 class="!text-[17px]">Perfil</h1>
+      <div class="w-[38px]"></div>
+    </div>
 
     <div class="px-app flex flex-col items-center mt-2">
       <div class="w-[84px] h-[84px] rounded-[24px] bg-gradient-to-br from-indigo to-lilac flex items-center justify-center text-[34px] shadow-[0_8px_22px_rgba(61,61,180,.18)]" id="profile-initial">?</div>
       <div class="font-display text-lg font-bold mt-3" id="profile-name">—</div>
       <div class="text-[12.5px] text-text-mid mt-0.5 text-center" id="profile-sub">Carregando…</div>
 
-      <div class="w-full h-1.5 bg-surface-2 rounded-[3px] mt-3.5 overflow-hidden">
+      <div class="w-full h-1.5 bg-surface-2 rounded-[3px] mt-3.5 overflow-hidden" id="profile-bar-wrap">
         <div class="w-0 h-full bg-gradient-to-r from-indigo to-lilac rounded-[3px]" id="profile-bar"></div>
       </div>
       <div class="text-[11px] text-text-low mt-[5px]" id="profile-next"></div>
     </div>
 
-    <div class="px-app mt-[26px]">
+    <div class="px-app mt-[26px]" id="profile-badges-section">
       <div class="section-label">Insígnias conquistadas</div>
       <div class="grid grid-cols-4 gap-[9px] mt-0.5" id="badges-grid"></div>
     </div>
 
     <div class="px-app mt-[22px] flex flex-col gap-2">
-      <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer" onclick="goTo('ia')">
+      <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer" id="profile-kai-row" onclick="goTo('ia')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
         <span class="text-[13.5px] font-semibold">Personalizar o Kai</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto"><path d="m9 18 6-6-6-6"/></svg>
@@ -348,8 +392,133 @@
       <div class="w-[38px]"></div>
     </div>
 
-    <div class="px-app flex flex-col gap-[9px] mt-[10px]" id="announcements-list"></div>
+    <div class="px-app mt-4" id="notifications-section">
+      <div class="section-label">Notificações do calendário</div>
+      <div class="flex flex-col gap-[9px]" id="notifications-list"></div>
+    </div>
+
+    <div class="px-app mt-5">
+      <div class="section-label">Comunicados</div>
+      <div class="flex flex-col gap-[9px]" id="announcements-list"></div>
+    </div>
   </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PROFESSOR — PAINEL (RF03 / UC05)
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-professor">
+    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+    <div class="topbar">
+      <div><h1>Painel do professor</h1><div class="sub" id="professor-sub">Gerencie os conteúdos que você cadastra</div></div>
+      <button class="icon-btn" onclick="goTo('aprovacoes')" aria-label="Aprovações pendentes">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </button>
+    </div>
+
+    <div class="px-app flex flex-col gap-[9px] mt-1">
+      <button type="button" class="btn-primary flex items-center justify-center gap-2" onclick="openContentModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Cadastrar conteúdo
+      </button>
+    </div>
+
+    <div class="px-app mt-5">
+      <div class="section-label">Meus conteúdos cadastrados</div>
+      <div class="flex flex-col gap-[9px]" id="professor-contents"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PROFESSOR — APROVAÇÃO (RF04 / UC06 / RN04)
+       ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-aprovacoes">
+    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
+    <div class="topbar">
+      <button class="icon-btn" onclick="goTo('professor')" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="text-center"><h1 class="!text-[17px]">Aprovações</h1><div class="sub" id="approvals-sub">Aguardando aprovação</div></div>
+      <div class="w-[38px]"></div>
+    </div>
+
+    <div class="px-app mt-1" id="approvals-list"></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       MODAL: NOVO CONTEÚDO (PROFESSOR)
+       ══════════════════════════════════════════════════ -->
+  <div id="content-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop">
+    <div class="card w-[330px] p-[22px] bg-surface max-h-[88vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <div class="text-base font-bold">Cadastrar conteúdo acadêmico</div>
+      <form id="content-form" class="flex flex-col gap-3 mt-4" novalidate>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">COMPONENTE CURRICULAR</span>
+          <select name="subjectId" required
+                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo"></select>
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">UNIDADE (OPCIONAL)</span>
+          <select name="unitId"
+                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo"></select>
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">TÍTULO</span>
+          <input type="text" name="title" required placeholder="Ex: Apostila — Funções"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">TIPO</span>
+          <select name="type" required
+                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo"></select>
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">URL</span>
+          <input type="url" name="url" placeholder="https://…"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">DESCRIÇÃO</span>
+          <input type="text" name="description" placeholder="Opcional"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <div class="text-[11px] text-text-mid leading-snug">O conteúdo será registrado como “Aguardando aprovação” até ser analisado por um professor responsável.</div>
+        <div class="flex gap-[9px] mt-1">
+          <button type="button" class="btn-ghost !py-[11px] px-5 !w-auto" onclick="closeModal('content-modal')">Cancelar</button>
+          <button type="submit" class="flex-1 py-[11px] bg-indigo border-none rounded-md text-white font-bold text-sm cursor-pointer">Enviar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       MODAL: EVENTO PESSOAL (CALENDÁRIO)
+       ══════════════════════════════════════════════════ -->
+  <div id="personal-event-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop">
+    <div class="card w-[330px] p-[22px] bg-surface" onclick="event.stopPropagation()">
+      <div class="text-base font-bold">Novo evento pessoal</div>
+      <form id="personal-event-form" class="flex flex-col gap-3 mt-4" novalidate>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">TÍTULO</span>
+          <input type="text" name="title" required placeholder="Ex: Grupo de estudo"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">DATA</span>
+          <input type="date" name="date" required
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-mid tracking-wide">OBSERVAÇÃO</span>
+          <input type="text" name="note" placeholder="Opcional"
+                 class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
+        </label>
+        <div class="flex gap-[9px] mt-1">
+          <button type="button" class="btn-ghost !py-[11px] px-5 !w-auto" onclick="closeModal('personal-event-modal')">Cancelar</button>
+          <button type="submit" class="flex-1 py-[11px] bg-indigo border-none rounded-md text-white font-bold text-sm cursor-pointer">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════════════════════════
        MODAL: EXCLUSÃO
@@ -497,7 +666,7 @@
   <!-- ══════════════════════════════════════════════════
        BOTTOM NAV
        ══════════════════════════════════════════════════ -->
-  <nav class="bottomnav" id="bottomnav" style="display:none;">
+  <nav class="bottomnav" id="bottomnav" aria-label="Navegação principal" style="display:none;">
     <button class="navitem" data-screen="home" onclick="goTo('home')">
       <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
       <span>Início</span>
@@ -505,6 +674,10 @@
     <button class="navitem" data-screen="tasks" onclick="goTo('tasks')">
       <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 2.5 2.5L16 9"/></svg>
       <span>Tarefas</span>
+    </button>
+    <button class="navitem" data-screen="calendario" onclick="goTo('calendario')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+      <span>Agenda</span>
     </button>
     <button class="navitem" data-screen="materias" onclick="goTo('materias')">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4.5A2.5 2.5 0 0 0 17.5 2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20"/></svg>
@@ -514,17 +687,92 @@
       <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
       <span>Kai</span>
     </button>
-    <button class="navitem" data-screen="perfil" onclick="goTo('perfil')">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      <span>Perfil</span>
+    <button class="navitem" data-screen="professor" onclick="goTo('professor')" style="display:none;">
+      <svg viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg>
+      <span>Painel</span>
+    </button>
+    <button class="navitem" data-screen="aprovacoes" onclick="goTo('aprovacoes')" style="display:none;">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>Aprovar</span>
     </button>
   </nav>
+
+  <!-- ══════════════════════════════════════════════════
+       PERFIL — DRAWER LATERAL
+       ══════════════════════════════════════════════════ -->
+  <div id="profile-drawer" class="profile-drawer" aria-hidden="true" style="display:none;">
+    <button type="button" class="profile-drawer-backdrop" onclick="closeProfileDrawer()" aria-label="Fechar perfil"></button>
+    <div class="profile-drawer-panel" role="dialog" aria-modal="true" aria-label="Perfil">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-indigo-light text-indigo font-display font-bold text-lg flex items-center justify-center" id="drawer-avatar">A</div>
+        <div class="flex-1 min-w-0">
+          <div class="font-display font-bold text-[15px] truncate" id="drawer-name">Aluno</div>
+          <div class="text-[11.5px] text-text-mid truncate" id="drawer-sub"></div>
+        </div>
+        <button type="button" class="icon-btn !w-8 !h-8" onclick="closeProfileDrawer()" aria-label="Fechar">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-2 mt-5">
+        <button type="button" class="drawer-row" id="drawer-progress-row" onclick="openProfileFromDrawer()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
+          <span class="text-[13.5px] font-semibold">Meu progresso</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+
+        <button type="button" class="drawer-row" onclick="toggleDrawerSettings()" aria-expanded="false" aria-controls="drawer-settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+          <span class="text-[13.5px] font-semibold">Configurações</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto drawer-chevron"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+
+        <div id="drawer-settings" class="drawer-settings">
+          <label class="drawer-row cursor-pointer">
+            <span class="flex-1">
+              <span class="block text-[13px] font-semibold">Acessibilidade</span>
+              <span class="block text-[11px] text-text-mid mt-0.5">Mais contraste e sem animações</span>
+            </span>
+            <input type="checkbox" class="toggle" id="pref-a11y" onchange="setPref('a11y', this.checked)">
+          </label>
+          <label class="drawer-row cursor-pointer">
+            <span class="flex-1">
+              <span class="block text-[13px] font-semibold">Notificações</span>
+              <span class="block text-[11px] text-text-mid mt-0.5">Exibir avisos do calendário</span>
+            </span>
+            <input type="checkbox" class="toggle" id="pref-notifications" onchange="setPref('notifications', this.checked)">
+          </label>
+        </div>
+
+        <button type="button" class="drawer-row" onclick="logoutAndGoLogin()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C0392B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          <span class="text-[13.5px] font-semibold text-crimson">Sair</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       LOADER DE TRANSIÇÃO
+       ══════════════════════════════════════════════════ -->
+  <div id="loader-overlay" class="loader-overlay hidden" aria-hidden="true">
+    <div class="loader-wrapper">
+      <div class="kripta-logo">
+        <div class="piece piece-indigo" data-piece="indigo"></div>
+        <div class="piece piece-purple" data-piece="purple"></div>
+        <div class="piece piece-teal" data-piece="teal"></div>
+        <div class="piece piece-orange" data-piece="orange"></div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
 <script src="services/config.js"></script>
 <script src="services/state.js"></script>
+<script src="services/prefs.js"></script>
 <script src="services/ui.js"></script>
+<script src="services/loader.js"></script>
 <script src="services/api.js"></script>
 <script src="services/auth.js"></script>
 <script src="services/dev-data.js"></script>
@@ -536,6 +784,9 @@
 <script src="services/announcements.js"></script>
 <script src="services/calendar.js"></script>
 <script src="services/gamification.js"></script>
+<script src="services/content.js"></script>
+<script src="services/notifications.js"></script>
+<script src="services/streak.js"></script>
 <script src="services/kai.js"></script>
 <script src="services/app.js"></script>
 <script src="services/navigation.js"></script>

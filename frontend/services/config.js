@@ -26,9 +26,9 @@ const CONFIG = {
     /* Entrada de dev: chave liberada em e-mail OU senha (vazio = desativado) */
     DEV_ACCESS_KEY: 'kripta08',
     /* Interruptor do mock. true = demonstração; false = API real. */
-    DEV_MODE: false,
+    DEV_MODE: true,
     /* Piso de latência do mock, em ms. Simula o servidor para o skeleton aparecer. */
-    DEV_LATENCY: 400,
+    DEV_LATENCY: 150,
   },
   prod: {
     API_URL: 'https://api.kripta.app/api',

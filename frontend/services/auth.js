@@ -65,15 +65,26 @@ function enterDevMode(data) {
   var raw = data || {};
   var typedEmail = String(raw.email === undefined || raw.email === null ? '' : raw.email).trim();
   var isKeyAsEmail = normalizeDevKey(typedEmail) === normalizeDevKey(DEV_ACCESS_KEY);
+  /* Login (sem papel explícito) reaproveita o último perfil de dev persistido. */
+  var saved = typeof devRestoreUser === 'function' ? devRestoreUser() : null;
+  if (saved && !raw.role && !raw.name) raw = { email: raw.email, password: raw.password, role: saved.role, name: saved.name, rm: saved.rm, authorized: saved.authorized };
+  var role = String(raw.role || 'ALUNO').toUpperCase();
+  if (role !== 'PROFESSOR') role = 'ALUNO';
   var user = {
-    id: 0,
-    name: (raw.name && String(raw.name).trim()) || 'Dev',
+    id: role === 'PROFESSOR' ? 900 : 0,
+    name: (raw.name && String(raw.name).trim()) || (role === 'PROFESSOR' ? 'Professor' : 'Aluno'),
     email: (!typedEmail || isKeyAsEmail) ? DEV_ACCESS_KEY : typedEmail,
+    role: role,
+    rm: role === 'ALUNO' ? String(raw.rm || '').trim() || null : null,
+    authorized: role === 'PROFESSOR'
+      ? Boolean(raw.authorized !== undefined ? raw.authorized : (saved && saved.role === 'PROFESSOR' ? saved.authorized : true))
+      : false,
     dev: true,
   };
   var res = { token: 'dev-bypass-token', user: user, dev: true };
 
   if (typeof devReset === 'function') devReset();
+  if (typeof devPersistUser === 'function') devPersistUser(user);
   storeAuth(res);
   if (typeof toast === 'function') toast('Modo dev ativado — dados de demonstração', 'warn');
   return res;

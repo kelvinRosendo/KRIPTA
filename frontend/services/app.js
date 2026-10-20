@@ -6,14 +6,20 @@ function init() {
   updateTopbarDate();
   bindGlobalEvents();
   bindSubjectFilter();
+  mountStatusbarAvatars();
+  updateStatusbarAvatar();
+  applyPrefs();
+
+  bindRegisterRole();
 
   if (isAuthenticated()) {
     if (State.user) {
-      goTo('home');
+      goTo(defaultScreenForRole());
+      startStreakTracking();
     } else {
       fetchMe()
-        .then(function () { goTo('home'); })
-        .catch(function () { goTo('home'); });
+        .then(function () { updateStatusbarAvatar(); goTo(defaultScreenForRole()); startStreakTracking(); })
+        .catch(function () { goTo('login'); });
     }
   } else {
     goTo('login');
@@ -55,6 +61,8 @@ function renderScreen(screenName) {
       case 'calendario': renderCalendar(); break;
       case 'perfil': renderProfile(); break;
       case 'avisos': renderAnnouncements(); break;
+      case 'professor': renderProfessor(); break;
+      case 'aprovacoes': renderApprovals(); break;
       case 'ia': initKai(); break;
     }
   } catch (e) {
@@ -115,6 +123,8 @@ function bindGlobalEvents() {
     else if (form.id === 'unit-form') { e.preventDefault(); submitUnitForm(form); }
     else if (form.id === 'material-form') { e.preventDefault(); submitMaterialForm(form); }
     else if (form.id === 'task-form') { e.preventDefault(); submitTaskForm(form); }
+    else if (form.id === 'content-form') { e.preventDefault(); submitContentForm(form); }
+    else if (form.id === 'personal-event-form') { e.preventDefault(); submitPersonalEventForm(form); }
   });
 
   document.addEventListener('click', function (e) {
@@ -129,6 +139,8 @@ function bindGlobalEvents() {
       else if (action === 'delete' && kind === 'subject') { e.preventDefault(); openDeleteModal(btn.getAttribute('data-name'), 'subject', id); }
       else if (action === 'delete' && kind === 'unit') { e.preventDefault(); openDeleteModal(btn.getAttribute('data-name'), 'unit', id); }
       else if (action === 'delete' && kind === 'material') { e.preventDefault(); openDeleteModal(btn.getAttribute('data-name'), 'material', id); }
+      else if (action === 'approve-content') { e.preventDefault(); doApproveContent(id, btn); }
+      else if (action === 'reject-content') { e.preventDefault(); doRejectContent(id, btn); }
       return;
     }
 
@@ -140,6 +152,10 @@ function bindGlobalEvents() {
 
     var subjectCard = e.target.closest('[data-open-subject]');
     if (subjectCard) { e.preventDefault(); openSubject(subjectCard.getAttribute('data-open-subject')); return; }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeProfileDrawer();
   });
 }
 
@@ -348,8 +364,27 @@ function switchTab(tab) {
   });
   var body = document.getElementById('subject-body');
   if (tab === 'units') renderUnits(0);
+  else if (tab === 'contents') renderSubjectContents();
   else if (tab === 'materials') renderAllMaterials();
   else renderSubjectAvisos();
+}
+
+/* Conteúdos aprovados do componente curricular (RF05 — consulta do aluno) */
+async function renderSubjectContents() {
+  var body = document.getElementById('subject-body');
+  var subject = State.currentSubject;
+  showLoading(body);
+  try {
+    var list = await getApprovedContents(subject.id);
+    var arr = Array.isArray(list) ? list : (list && list.content ? list.content : []);
+    empty(body);
+    if (!arr.length) { body.innerHTML = emptyState('Sem conteúdos', 'Conteúdos aprovados deste componente aparecem aqui.'); return; }
+    var wrap = el('div', 'px-app flex flex-col gap-[9px] mt-4');
+    arr.forEach(function (c) { wrap.insertAdjacentHTML('beforeend', contentCardHTML(c)); });
+    body.appendChild(wrap);
+  } catch (e) {
+    body.innerHTML = errorView(e && e.message);
+  }
 }
 
 async function renderUnits(openUnitId) {
@@ -707,52 +742,36 @@ async function doCompleteTask(id, btn) {
   }
 }
 
-/* ══════════════════════ CALENDÁRIO (Etapa 9) ══════════════════════ */
-var CAL_MONTH = new Date();
-var CAL_EVENTS = [];
-
-async function renderCalendar() {
-  var body = document.getElementById('calendar-body');
-  showLoading(body);
-  try {
-    var start = new Date(CAL_MONTH.getFullYear(), CAL_MONTH.getMonth(), 1);
-    var end = new Date(CAL_MONTH.getFullYear(), CAL_MONTH.getMonth() + 1, 0);
-    CAL_EVENTS = await getCalendar(toLocalDateStr(start), toLocalDateStr(end));
-    empty(body);
-    body.innerHTML = calendarGrid(CAL_EVENTS, CAL_MONTH);
-    bindCalendarNav();
-    empty(document.getElementById('cal-day-events'));
-  } catch (e) {
-    body.innerHTML = errorView(e && e.message);
-  }
+/* ══════════════════════ CALENDÁRIO (Etapa 9) ══════════════════════
+   Estado e renderização (dia/semana/mês) ficam em services/calendar.js. */
+function openPersonalEventModal() {
+  var form = document.getElementById('personal-event-form');
+  form.reset();
+  form.elements['date'].value = toLocalDateStr(new Date());
+  document.getElementById('personal-event-modal').classList.remove('hidden');
+  document.getElementById('personal-event-modal').classList.add('flex');
 }
 
-function bindCalendarNav() {
-  document.querySelector('[data-cal-prev]').addEventListener('click', function () {
-    CAL_MONTH = new Date(CAL_MONTH.getFullYear(), CAL_MONTH.getMonth() - 1, 1);
-    renderCalendar();
-  });
-  document.querySelector('[data-cal-next]').addEventListener('click', function () {
-    CAL_MONTH = new Date(CAL_MONTH.getFullYear(), CAL_MONTH.getMonth() + 1, 1);
-    renderCalendar();
-  });
-  document.querySelectorAll('[data-day]').forEach(function (cell) {
-    cell.addEventListener('click', function () {
-      var key = cell.getAttribute('data-day');
-      var events = CAL_EVENTS.filter(function (e) { return e.date && String(e.date).slice(0, 10) === key; });
-      var container = document.getElementById('cal-day-events');
-      empty(container);
-      if (!events.length) { container.innerHTML = emptyState('Nada neste dia', 'Eventos e tarefas marcados aqui aparecem no calendário.'); return; }
-      events.forEach(function (e) {
-        var pillColor = e.type === 'EXAM' ? 'bg-crimson-light text-crimson' : e.type === 'TASK' ? 'bg-indigo-light text-indigo' : 'bg-lilac-light text-lilac';
-        container.insertAdjacentHTML('beforeend',
-          '<div class="card py-[13px] px-4 flex items-center gap-[11px] mt-2">' +
-          '<span class="pill ' + pillColor + '">' + esc(e.type || 'EVENTO') + '</span>' +
-          '<div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate">' + esc(e.title) + '</div>' +
-          (e.date ? '<div class="text-[11.5px] text-text-mid mt-0.5">' + formatDate(e.date) + '</div>' : '') + '</div></div>');
-      });
+async function submitPersonalEventForm(form) {
+  var btn = form.querySelector('button[type="submit"]');
+  submitBtnLoading(btn);
+  try {
+    await createPersonalEvent({
+      title: form.elements['title'].value,
+      date: form.elements['date'].value,
+      note: form.elements['note'].value || null,
     });
-  });
+    toast('Evento pessoal salvo');
+    closeModal('personal-event-modal');
+    CAL_SELECTED = calParseDay(form.elements['date'].value);
+    CAL_CURSOR = new Date(CAL_SELECTED);
+    if (CAL_SCOPE !== 'PESSOAL') setCalendarScope('PESSOAL');
+    else renderCalendar();
+  } catch (e) {
+    toast(cleanError(e), 'error');
+  } finally {
+    submitBtnReset(btn);
+  }
 }
 
 /* ══════════════════════ PERFIL (Etapa 10) ══════════════════════ */
@@ -762,12 +781,28 @@ async function renderProfile() {
   var nextEl = document.getElementById('profile-next');
   var initialEl = document.getElementById('profile-initial');
   var badgesEl = document.getElementById('badges-grid');
+  var prof = typeof isProfessor === 'function' && isProfessor();
 
-  showLoading(badgesEl);
+  /* Professor não participa de gamificação: sem insígnias, nível ou Kai. */
+  var barWrap = document.getElementById('profile-bar-wrap');
+  var badgesSection = document.getElementById('profile-badges-section');
+  var kaiRow = document.getElementById('profile-kai-row');
+  if (barWrap) barWrap.style.display = prof ? 'none' : '';
+  if (nextEl) nextEl.style.display = prof ? 'none' : '';
+  if (badgesSection) badgesSection.style.display = prof ? 'none' : '';
+  if (kaiRow) kaiRow.style.display = prof ? 'none' : '';
+
+  if (!prof) showLoading(badgesEl);
   try {
     var user = State.user || await fetchMe();
     if (nameEl) nameEl.textContent = user.name;
     if (initialEl) initialEl.textContent = (user.name || '?').trim().charAt(0).toUpperCase();
+
+    if (prof) {
+      if (subEl) subEl.textContent = ['Professor' + (user.authorized ? ' responsável' : ''), user.email].filter(Boolean).join(' · ');
+      empty(badgesEl);
+      return;
+    }
 
     var g = null, p = null;
     try { g = await getGamificationStats(); } catch (e) {}
@@ -775,8 +810,13 @@ async function renderProfile() {
 
     if (subEl) {
       var parts = [];
-      if (g && g.level) parts.push('Nível ' + g.level + ' · ' + levelTitle(g.level));
-      if (g && g.xp !== undefined) parts.push(g.xp + ' XP');
+      if (isProfessor()) {
+        parts.push('Professor' + (user.authorized ? ' responsável' : ''));
+      } else {
+        if (g && g.level) parts.push('Nível ' + g.level + ' · ' + levelTitle(g.level));
+        if (g && g.xp !== undefined) parts.push(g.xp + ' XP');
+        if (user.rm) parts.push('RM ' + user.rm);
+      }
       subEl.textContent = parts.join(' · ') || user.email;
     }
     if (nextEl) {
@@ -813,9 +853,92 @@ async function renderProfile() {
 }
 
 function logoutAndGoLogin() {
+  stopStreakTracking();
   logout();
+  closeProfileDrawer();
   goTo('login');
   toast('Você saiu da sua conta.');
+}
+
+/* ── Avatar do usuário no statusbar (abre o drawer de perfil) ── */
+function mountStatusbarAvatars() {
+  document.querySelectorAll('.statusbar').forEach(function (bar) {
+    if (bar.querySelector('.statusbar-avatar')) return;
+    var first = bar.querySelector('span');
+    if (!first) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'statusbar-avatar';
+    btn.setAttribute('aria-label', 'Abrir perfil');
+    btn.innerHTML = '<span class="statusbar-avatar-initial">A</span>';
+    btn.addEventListener('click', openProfileDrawer);
+    bar.replaceChild(btn, first);
+  });
+}
+
+function updateStatusbarAvatar() {
+  var user = State.user;
+  var initial = user && user.name ? String(user.name).charAt(0).toUpperCase() : 'A';
+  document.querySelectorAll('.statusbar-avatar-initial').forEach(function (el) {
+    el.textContent = initial;
+  });
+}
+
+/* ── Drawer de perfil + configurações ── */
+var PROFILE_DRAWER_TIMER = null;
+
+function openProfileDrawer() {
+  renderProfileDrawer();
+  updateStatusbarAvatar();
+  var drawer = document.getElementById('profile-drawer');
+  if (!drawer) return;
+  if (PROFILE_DRAWER_TIMER) { clearTimeout(PROFILE_DRAWER_TIMER); PROFILE_DRAWER_TIMER = null; }
+  drawer.style.display = 'flex';
+  requestAnimationFrame(function () { drawer.classList.add('open'); });
+  drawer.setAttribute('aria-hidden', 'false');
+}
+
+function closeProfileDrawer() {
+  var drawer = document.getElementById('profile-drawer');
+  if (!drawer) return;
+  drawer.classList.remove('open');
+  drawer.setAttribute('aria-hidden', 'true');
+  if (PROFILE_DRAWER_TIMER) clearTimeout(PROFILE_DRAWER_TIMER);
+  PROFILE_DRAWER_TIMER = setTimeout(function () {
+    if (!drawer.classList.contains('open')) drawer.style.display = 'none';
+  }, 300);
+}
+
+function toggleDrawerSettings() {
+  var panel = document.getElementById('drawer-settings');
+  var trigger = document.querySelector('[aria-controls="drawer-settings"]');
+  if (!panel) return;
+  var open = panel.classList.toggle('open');
+  if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+function renderProfileDrawer() {
+  var user = State.user || {};
+  var name = user.name || 'Aluno';
+  var isTeacher = (user.role || '').toUpperCase() === 'PROFESSOR';
+  var sub = isTeacher
+    ? (user.authorized === false ? 'Professor — aprovação pendente' : 'Professor autorizado')
+    : ('RM ' + (user.rm || '—') + (user.email ? ' · ' + user.email : ''));
+  var avatar = document.getElementById('drawer-avatar');
+  var nameEl = document.getElementById('drawer-name');
+  var subEl = document.getElementById('drawer-sub');
+  var progressRow = document.getElementById('drawer-progress-row');
+  if (avatar) avatar.textContent = String(name).charAt(0).toUpperCase();
+  if (nameEl) nameEl.textContent = name;
+  if (subEl) subEl.textContent = sub;
+  if (progressRow) progressRow.style.display = isTeacher ? 'none' : '';
+  applyPrefs();
+}
+
+/* UC08/RF12: perfil com nível, XP, conquistas e insígnias. */
+function openProfileFromDrawer() {
+  closeProfileDrawer();
+  goTo('perfil');
 }
 
 /* ══════════════════════ AVISOS (Etapa 9) ══════════════════════ */
@@ -837,17 +960,173 @@ function announcementCardHTML(a) {
 async function renderAnnouncements() {
   var container = document.getElementById('announcements-list');
   showLoading(container);
+  renderNotifications();
   try {
     var list = await getAnnouncements();
     var arr = Array.isArray(list) ? list : (list && list.content ? list.content : []);
     empty(container);
     if (!arr.length) {
       container.innerHTML = emptyState('Nenhum aviso ainda', 'Avisos das matérias aparecem aqui.');
-      return;
+    } else {
+      arr.forEach(function (a) { container.insertAdjacentHTML('beforeend', announcementCardHTML(a)); });
     }
-    arr.forEach(function (a) { container.insertAdjacentHTML('beforeend', announcementCardHTML(a)); });
   } catch (e) {
     container.innerHTML = errorView(e && e.message);
+  }
+}
+
+/* Notificações derivadas do calendário (RF07 / RN05) */
+async function renderNotifications() {
+  var container = document.getElementById('notifications-list');
+  if (!container) return;
+  showLoading(container);
+  try {
+    var list = await getNotifications();
+    var arr = Array.isArray(list) ? list : (list && list.content ? list.content : []);
+    empty(container);
+    if (!arr.length) {
+      container.innerHTML = '<div class="text-[12.5px] text-text-mid py-2">Sem notificações no momento.</div>';
+      return;
+    }
+    arr.forEach(function (n) { container.insertAdjacentHTML('beforeend', notificationCardHTML(n)); });
+  } catch (e) {
+    container.innerHTML = errorView(e && e.message);
+  }
+}
+
+/* ══════════════════════ PROFESSOR (RF03/RF04 — UC05/UC06) ══════════════════════ */
+async function renderProfessor() {
+  var subEl = document.getElementById('professor-sub');
+  var container = document.getElementById('professor-contents');
+  if (subEl && State.user) subEl.textContent = (State.user.name || 'Professor') + (State.user.authorized ? ' · autorizado a aprovar' : ' · sem permissão de aprovação');
+  showLoading(container);
+  try {
+    var list = await getMyContents();
+    var arr = Array.isArray(list) ? list : (list && list.content ? list.content : []);
+    empty(container);
+    if (!arr.length) {
+      container.innerHTML = emptyState('Nenhum conteúdo cadastrado', 'Use "Cadastrar conteúdo" para enviar material ao seu componente curricular.');
+      return;
+    }
+    arr.forEach(function (c) { container.insertAdjacentHTML('beforeend', professorContentCardHTML(c, false)); });
+  } catch (e) {
+    container.innerHTML = errorView(e && e.message);
+  }
+}
+
+async function renderApprovals() {
+  var subEl = document.getElementById('approvals-sub');
+  var container = document.getElementById('approvals-list');
+  if (subEl) subEl.textContent = isAuthorizedTeacher() ? 'Aguardando sua revisão' : 'Somente professores responsáveis podem aprovar';
+  showLoading(container);
+  if (!isAuthorizedTeacher()) {
+    empty(container);
+    container.innerHTML = emptyState('Acesso restrito', 'Apenas professores autorizados podem aprovar ou rejeitar conteúdos (RN04).');
+    return;
+  }
+  try {
+    var list = await getPendingContents();
+    var arr = Array.isArray(list) ? list : (list && list.content ? list.content : []);
+    empty(container);
+    if (!arr.length) {
+      container.innerHTML = emptyState('Nada para aprovar', 'Novos conteúdos enviados por professores aparecem aqui.');
+      return;
+    }
+    var wrap = el('div', 'flex flex-col gap-[9px]');
+    arr.forEach(function (c) { wrap.insertAdjacentHTML('beforeend', professorContentCardHTML(c, true)); });
+    container.appendChild(wrap);
+  } catch (e) {
+    container.innerHTML = errorView(e && e.message);
+  }
+}
+
+async function doApproveContent(id, btn) {
+  if (!isAuthorizedTeacher()) { toast('Apenas professores autorizados podem aprovar conteúdos.', 'error'); return; }
+  if (btn) submitBtnLoading(btn, 'Aprovando…');
+  try {
+    await approveContent(id);
+    toast('Conteúdo aprovado');
+    renderApprovals();
+  } catch (e) {
+    toast(cleanError(e), 'error');
+    if (btn) submitBtnReset(btn);
+  }
+}
+
+async function doRejectContent(id, btn) {
+  if (!isAuthorizedTeacher()) { toast('Apenas professores autorizados podem rejeitar conteúdos.', 'error'); return; }
+  var reason = window.prompt('Motivo da rejeição (opcional):') || null;
+  if (btn) submitBtnLoading(btn, 'Rejeitando…');
+  try {
+    await rejectContent(id, reason);
+    toast('Conteúdo rejeitado');
+    renderApprovals();
+  } catch (e) {
+    toast(cleanError(e), 'error');
+    if (btn) submitBtnReset(btn);
+  }
+}
+
+/* ── Modal de cadastro de conteúdo ── */
+var CONTENT_TYPES = ['PDF', 'VIDEO', 'LINK', 'DOCUMENT', 'SLIDE', 'OTHER'];
+
+async function openContentModal() {
+  var form = document.getElementById('content-form');
+  form.reset();
+  var subjectSel = form.elements['subjectId'];
+  var unitSel = form.elements['unitId'];
+  var typeSel = form.elements['type'];
+  subjectSel.innerHTML = '';
+  typeSel.innerHTML = '';
+  unitSel.innerHTML = '';
+  CONTENT_TYPES.forEach(function (t) { var o = el('option', null, t); o.value = t; typeSel.appendChild(o); });
+  var noUnit = el('option', null, 'Sem unidade'); noUnit.value = ''; unitSel.appendChild(noUnit);
+  try {
+    var subjects = await getSubjects();
+    var arr = Array.isArray(subjects) ? subjects : (subjects && subjects.content ? subjects.content : []);
+    arr.forEach(function (s) { var o = el('option', null, s.name); o.value = s.id; subjectSel.appendChild(o); });
+    subjectSel.addEventListener('change', function () { fillContentUnits(subjectSel.value); });
+    if (arr.length && State.currentSubject) subjectSel.value = State.currentSubject.id;
+  } catch (e) { /* sem matérias */ }
+  fillContentUnits(subjectSel.value);
+  document.getElementById('content-modal').classList.remove('hidden');
+  document.getElementById('content-modal').classList.add('flex');
+}
+
+async function fillContentUnits(subjectId) {
+  var form = document.getElementById('content-form');
+  var unitSel = form.elements['unitId'];
+  unitSel.innerHTML = '';
+  var noUnit = el('option', null, 'Sem unidade'); noUnit.value = ''; unitSel.appendChild(noUnit);
+  if (!subjectId) return;
+  try {
+    var units = await getUnits(subjectId);
+    var arr = Array.isArray(units) ? units : (units && units.content ? units.content : []);
+    arr.forEach(function (u) { var o = el('option', null, u.name); o.value = u.id; unitSel.appendChild(o); });
+  } catch (e) { /* sem unidades */ }
+}
+
+async function submitContentForm(form) {
+  var btn = form.querySelector('button[type="submit"]');
+  submitBtnLoading(btn);
+  var data = {
+    subjectId: form.elements['subjectId'].value,
+    unitId: form.elements['unitId'].value || null,
+    title: form.elements['title'].value,
+    type: form.elements['type'].value,
+    url: form.elements['url'].value || null,
+    description: form.elements['description'].value || null,
+  };
+  if (!data.subjectId) { toast('Selecione o componente curricular', 'error'); submitBtnReset(btn); return; }
+  try {
+    await createContent(data);
+    toast('Conteúdo enviado para aprovação');
+    closeModal('content-modal');
+    renderProfessor();
+  } catch (e) {
+    toast(cleanError(e), 'error');
+  } finally {
+    submitBtnReset(btn);
   }
 }
 
@@ -919,8 +1198,13 @@ async function submitLogin(form) {
   var errEl = document.getElementById('login-error');
   submitBtnLoading(btn);
   try {
-    await loginUser({ email: form.elements['email'].value, password: form.elements['password'].value });
+    await loginUser({
+      email: form.elements['email'].value,
+      password: form.elements['password'].value,
+      role: form.elements['role'] ? form.elements['role'].value : 'ALUNO',
+    });
     resolvePostAuth();
+    startStreakTracking();
     healthCheck();
   } catch (e) {
     if (errEl) errEl.textContent = cleanError(e);
@@ -930,18 +1214,57 @@ async function submitLogin(form) {
   }
 }
 
+/* Mostra RM para aluno e autorização para professor (RN01/RN02). */
+function bindRegisterRole() {
+  var sel = document.getElementById('register-role');
+  if (!sel) return;
+  var apply = function () {
+    var prof = sel.value === 'PROFESSOR';
+    var rmWrap = document.getElementById('register-rm-wrap');
+    var authWrap = document.getElementById('register-auth-wrap');
+    var rmInput = document.querySelector('#register-form [name="rm"]');
+    if (rmWrap) rmWrap.style.display = prof ? 'none' : '';
+    if (authWrap) authWrap.style.display = prof ? '' : 'none';
+    if (rmInput) rmInput.required = !prof;
+  };
+  sel.addEventListener('change', apply);
+  apply();
+}
+
+function registerPayload(form) {
+  var role = (form.elements['role'] && form.elements['role'].value) || 'ALUNO';
+  return {
+    name: form.elements['name'].value,
+    email: form.elements['email'].value,
+    password: form.elements['password'].value,
+    role: role,
+    rm: form.elements['rm'] ? form.elements['rm'].value : null,
+    authorized: form.elements['authorized'] ? form.elements['authorized'].checked : false,
+  };
+}
+
 async function submitRegister(form) {
   var btn = form.querySelector('button[type="submit"]');
   var errEl = document.getElementById('register-error');
-  var name = form.elements['name'].value;
-  var email = form.elements['email'].value;
-  var password = form.elements['password'].value;
+  var payload = registerPayload(form);
+  var name = payload.name;
+  var email = payload.email;
+  var password = payload.password;
   var confirm = form.elements['confirmPassword'] ? form.elements['confirmPassword'].value : null;
 
+  /* RN01: o aluno precisa do RM para ser identificado pela instituição. */
+  if (!isDevAccess(payload) && payload.role === 'ALUNO' && !String(payload.rm || '').trim()) {
+    var rmMsg = 'Informe o RM (registro de matrícula) para cadastro de aluno.';
+    if (errEl) errEl.textContent = rmMsg;
+    toast(rmMsg, 'error');
+    return;
+  }
+
   /* Entrada de dev: dispensa validações e vai direto para a Home */
-  if (isDevAccess({ name: name, email: email, password: password })) {
-    await registerUser({ name: name, email: email, password: password });
+  if (isDevAccess(payload)) {
+    await registerUser(payload);
     resolvePostAuth();
+    startStreakTracking();
     healthCheck();
     return;
   }
@@ -953,8 +1276,9 @@ async function submitRegister(form) {
   }
   submitBtnLoading(btn);
   try {
-    await registerUser({ name: name, email: email, password: password });
+    await registerUser(payload);
     resolvePostAuth();
+    startStreakTracking();
     healthCheck();
   } catch (e) {
     if (errEl) errEl.textContent = cleanError(e);

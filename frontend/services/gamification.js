@@ -1,4 +1,8 @@
 /* ── Progresso e Gamificação (Sprints 12 e 13) ── */
+
+/* RN07: streak avança com pelo menos 10 minutos de uso autenticado no dia. */
+var STREAK_MIN_SECONDS = 600;
+
 async function getProgress() {
   return api.get('/progress');
 }

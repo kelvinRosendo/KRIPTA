@@ -78,28 +78,30 @@ function handleSessionExpired() {
 
 /* ── Health check (Sprint 2) ── */
 async function healthCheck() {
-  var banner = document.getElementById('conn-banner');
+  var pill = document.getElementById('conn-banner');
   var statusEl = document.getElementById('conn-status');
 
   function apply(ok, message) {
-    if (!banner) { if (statusEl) statusEl.textContent = message; return; }
-    banner.classList.remove('hidden');
-    banner.style.background = ok ? '#E6F9F8' : '#FDECEA';
-    banner.style.color = ok ? '#0E7A72' : '#C0392B';
-    banner.textContent = ok ? 'Backend conectado' : (message || 'Backend offline — dados podem não carregar.');
+    if (!pill) { if (statusEl) statusEl.textContent = message; return; }
+    pill.classList.remove('hidden');
+    pill.style.background = ok ? '#E6F9F8' : '#FDECEA';
+    pill.style.color = ok ? '#0E7A72' : '#C0392B';
+    pill.textContent = message || (ok ? 'Online' : 'Offline');
+    pill.title = message || '';
   }
 
   if (statusEl) statusEl.textContent = 'Verificando conexão…';
 
   /* Mock ligado (interruptor global DEV_MODE): o health check real não é
-     consultado, porque nenhum request real está indo para a API. O banner
-     deixa o estado explícito. */
+     consultado, porque nenhum request real está indo para a API. A pill
+     no canto superior direito deixa o estado explícito. */
   if (DEV_MODE) {
-    apply(true, 'dev');
-    if (banner) {
-      banner.style.background = '#FFF3E0';
-      banner.style.color = '#B85C00';
-      banner.textContent = 'Modo dev — dados de demonstração, latência ' + (Number(DEV_LATENCY) || 0) + ' ms (?mock=off para a API real)';
+    if (pill) {
+      pill.classList.remove('hidden');
+      pill.style.background = '#FFF3E0';
+      pill.style.color = '#B85C00';
+      pill.textContent = 'dev';
+      pill.title = 'Modo dev — dados de demonstração, latência ' + (Number(DEV_LATENCY) || 0) + ' ms (?mock=off para a API real)';
     }
     console.warn('[KRIPTA] DEV_MODE ligado: devMock/devFallback ativos, latência ' + (Number(DEV_LATENCY) || 0) + ' ms. Nenhum request real é usado. Use ?mock=off para validar E2E.');
     return;
@@ -107,9 +109,9 @@ async function healthCheck() {
 
   try {
     var res = await api.get('/health');
-    apply(true, (res && res.status) + '');
+    apply(true, (res && res.status) ? String(res.status) : 'Online');
   } catch (e) {
-    apply(false, e.message);
+    apply(false, 'Offline');
   }
 }
 

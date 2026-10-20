@@ -779,6 +779,21 @@ body {
 
 /* ── Pill ── */
 
+.\!pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+  border-radius: 9999px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-family: Nunito, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .pill {
   display: inline-flex;
   align-items: center;
@@ -1064,11 +1079,6 @@ body {
   inset: 0px;
 }
 
-.inset-x-0 {
-  left: 0px;
-  right: 0px;
-}
-
 .bottom-\[120px\] {
   bottom: 120px;
 }
@@ -1077,8 +1087,12 @@ body {
   left: 50%;
 }
 
-.top-0 {
-  top: 0px;
+.right-2 {
+  right: 0.5rem;
+}
+
+.top-2 {
+  top: 0.5rem;
 }
 
 .z-\[100\] {
@@ -1432,10 +1446,6 @@ body {
 
 .max-w-\[240px\] {
   max-width: 240px;
-}
-
-.max-w-\[480px\] {
-  max-width: 480px;
 }
 
 .max-w-\[90\%\] {
@@ -1841,6 +1851,11 @@ body {
   padding-right: 0.25rem;
 }
 
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
 .px-3\.5 {
   padding-left: 0.875rem;
   padding-right: 0.875rem;
@@ -1949,6 +1964,10 @@ body {
 .text-3xl {
   font-size: 1.875rem;
   line-height: 2.25rem;
+}
+
+.text-\[10\.5px\] {
+  font-size: 10.5px;
 }
 
 .text-\[10px\] {

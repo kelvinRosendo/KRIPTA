@@ -1,0 +1,23 @@
+# ─────────────────────────────────────────────────────────────
+# Normalização de finais de linha
+#
+# O repositório sempre guarda LF, independente do sistema
+# operacional de cada integrante. Isso evita diffs espúrios e
+# conflitos de merge — especialmente no styles/output.css, que
+# é gerado pelo Tailwind (sempre LF) e versionado no Git.
+# ─────────────────────────────────────────────────────────────
+* text=auto eol=lf
+
+# ─────────────────────────────────────────────────────────────
+# Arquivos binários (não devem ter finais de linha convertidos)
+# ─────────────────────────────────────────────────────────────
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.woff  binary
+*.woff2 binary
+*.pdf   binary
+*.jar   binary

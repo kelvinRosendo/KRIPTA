@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "tailwindcss -i ./src/input.css -o ./styles/output.css --watch",
     "build": "tailwindcss -i ./src/input.css -o ./styles/output.css",
-    "serve": "start index.html"
+    "build:min": "tailwindcss -i ./src/input.css -o ./styles/output.css --minify",
+    "postinstall": "node scripts/build-css.js",
+    "serve": "node scripts/serve.js"
   },
   "keywords": [],
   "author": "",

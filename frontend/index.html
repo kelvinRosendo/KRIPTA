@@ -10,7 +10,29 @@
   <link rel="shortcut icon" href="assets/KriptaLogoNw.png" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles/output.css?v=20261019">
+  <script>
+    /* Rede de segurança: se styles/output.css não carregar (ex.: clone novo
+       sem `npm install`), avisa o desenvolvedor como corrigir. */
+    window.kriptaCssError = function () {
+      var show = function () {
+        var box = document.createElement('div');
+        box.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;' +
+          'background:#C0392B;color:#fff;font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;padding:12px 16px;';
+        box.innerHTML = '<strong>CSS n&atilde;o carregado.</strong> ' +
+          'O arquivo <code>styles/output.css</code> &eacute; gerado pelo Tailwind. ' +
+          'Rode <code>npm install</code> (ou <code>npm run build</code>) dentro da pasta <code>frontend</code> ' +
+          'e recarregue a p&aacute;gina.';
+        document.body.appendChild(box);
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', show);
+      } else {
+        show();
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="styles/output.css?v=20261019" onerror="window.kriptaCssError && window.kriptaCssError()">
 </head>
 <body>
 

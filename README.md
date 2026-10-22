@@ -211,6 +211,15 @@ backend/
 | 🔐 Spring Security | Segurança e autenticação |
 | 🎟️ JWT | Autenticação baseada em tokens |
 
+## Frontend
+
+| Tecnologia | Utilização |
+|---|---|
+| 🌐 HTML5 | Estrutura das telas |
+| 🎨 Tailwind CSS | Estilos e design system |
+| 🧩 JavaScript | Navegação, tarefas, modais e integração com a API |
+| ⚙️ Node.js | Build do CSS e servidor local |
+
 ## Desenvolvimento
 
 | Ferramenta | Utilização |
@@ -219,6 +228,25 @@ backend/
 | 🐙 GitHub | Colaboração e hospedagem |
 | 🤖 OpenCode | Auxílio no desenvolvimento |
 | 🧪 JUnit | Testes |
+
+---
+
+# 🖥️ Rodando o frontend
+
+O protótipo fica em `frontend/`. Para clonar e rodar:
+
+```bash
+cd frontend
+npm install
+npm run serve
+```
+
+Abra **http://localhost:5173**.
+
+O `npm install` já compila o CSS automaticamente. Durante o desenvolvimento,
+use `npm run dev` em outro terminal para recompilar a cada alteração.
+
+> Detalhes, tokens de cor e lista de scripts em [`frontend/README.md`](frontend/README.md).
 
 ---
 

@@ -13,6 +13,11 @@ import java.time.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 @SpringBootTest @ActiveProfiles("test") @Transactional class GamificationFlowTest {
+ @org.springframework.test.context.DynamicPropertySource
+ static void isolatedH2(org.springframework.test.context.DynamicPropertyRegistry registry) {
+  if (System.getProperty("spring.datasource.url") == null) registry.add("spring.datasource.url", () -> "jdbc:h2:mem:GamificationFlowTest;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false");
+ }
+
  @Autowired GamificacaoService service; @Autowired UserRepository users; @Autowired TarefaRepository tasks; @Autowired HistoricoXPRepository history;
  @MockitoBean Clock clock;
  UserPrincipal student; Instant now;

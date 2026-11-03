@@ -12,6 +12,11 @@ import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest @ActiveProfiles({"test","concurrency"}) @DirtiesContext(classMode=DirtiesContext.ClassMode.AFTER_CLASS)
 class GamificationConcurrencyTest {
+ @org.springframework.test.context.DynamicPropertySource
+ static void isolatedH2(org.springframework.test.context.DynamicPropertyRegistry registry) {
+  if (System.getProperty("spring.datasource.url") == null) registry.add("spring.datasource.url", () -> "jdbc:h2:mem:GamificationConcurrencyTest;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false");
+ }
+
  @Autowired GamificacaoService service; @Autowired UserRepository users; @Autowired TarefaRepository tasks; @Autowired HistoricoXPRepository history;
  @Test void conclusoesSimultaneasNaoDuplicamXP()throws Exception {
  var user=users.save(new User("Aluno","concurrent-"+java.util.UUID.randomUUID()+"@example.com","hash",User.UserType.USUARIO));

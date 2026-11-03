@@ -1,5 +1,7 @@
 # 🎓 KRIPTA
 
+Versão integrada: consulte [como executar e testar](docs/EXECUTAR_E_TESTAR.md) e a [revisão das etapas 7 e 8](docs/ETAPAS07_08.md). O Kai possui arquitetura de provedores, mas segue desativado até conectar um serviço real.
+
 <p align="center">
   <strong>Organize. Estude. Evolua.</strong>
 </p>

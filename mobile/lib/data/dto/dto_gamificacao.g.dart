@@ -61,9 +61,8 @@ Map<String, dynamic> _$ConquistaDtoToJson(ConquistaDto instance) =>
       'unlockedAt': instance.unlockedAt,
     };
 
-ProgressoDto _$ProgressoDtoFromJson(Map<String, dynamic> json) => ProgressoDto(
-  overallProgress: (json['overallProgress'] as num?)?.toInt() ?? 0,
-);
+ProgressoDto _$ProgressoDtoFromJson(Map<String, dynamic> json) =>
+    ProgressoDto(overallProgress: (json['progress'] as num?)?.toInt() ?? 0);
 
 Map<String, dynamic> _$ProgressoDtoToJson(ProgressoDto instance) =>
-    <String, dynamic>{'overallProgress': instance.overallProgress};
+    <String, dynamic>{'progress': instance.overallProgress};

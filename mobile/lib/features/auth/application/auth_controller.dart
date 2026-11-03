@@ -142,6 +142,7 @@ class AuthController extends Notifier<EstadoSessao> {
 
     return switch (resultado) {
       Success<Usuario>(:final value) => () {
+        ref.read(authInterceptorProvider).invalidateTokenCache();
         state = EstadoSessao(status: StatusSessao.autenticado, usuario: value);
         return true;
       }(),
@@ -155,6 +156,7 @@ class AuthController extends Notifier<EstadoSessao> {
   /// Cria a conta e já abre sessão.
   Future<bool> cadastrar({
     required String nome,
+    required String rm,
     required String email,
     required String senha,
   }) async {
@@ -167,12 +169,14 @@ class AuthController extends Notifier<EstadoSessao> {
       // O app não expõe escolha de perfil: quem se cadastra pelo KRIPTA
       // é aluno. Ver `RELATORIO.md` sobre a divergência ADMIN/USUARIO do
       // TCC (Aluno/Professor).
-      perfil: PerfilUsuario.usuario,
+      perfil: PerfilUsuario.aluno,
+      rm: rm,
     );
     if (!ref.mounted) return false;
 
     return switch (resultado) {
       Success<Usuario>(:final value) => () {
+        ref.read(authInterceptorProvider).invalidateTokenCache();
         state = EstadoSessao(status: StatusSessao.autenticado, usuario: value);
         return true;
       }(),
@@ -203,13 +207,14 @@ class AuthController extends Notifier<EstadoSessao> {
   /// A [UnauthorizedFailure] vira a mensagem do login, então o aluno
   /// entende por que foi deslogado em vez de ver a tela recarregar.
   void encerrarSessao() {
+    _repository.sair();
     // Ignora se já está anônima: evita reconstruir o estado — e portanto
     // disparar um redirect do router — a cada 401 subsequente.
     if (state.status == StatusSessao.anonimo) return;
 
-    state = EstadoSessao(
+    state = const EstadoSessao(
       status: StatusSessao.anonimo,
-      falha: const UnauthorizedFailure(
+      falha: UnauthorizedFailure(
         message: 'Sua sessão expirou. Entre novamente.',
       ),
     );

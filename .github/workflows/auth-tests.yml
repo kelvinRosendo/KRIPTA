@@ -1,4 +1,4 @@
-name: Authentication tests
+name: KRIPTA acceptance tests
 on:
   pull_request:
   workflow_dispatch:
@@ -7,7 +7,7 @@ permissions:
 jobs:
   auth:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     services:
       postgres:
         image: postgres:16
@@ -43,6 +43,17 @@ jobs:
           npm ci --ignore-scripts
           node --test tests/*.test.cjs
           npm run build
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: stable
+          cache: true
+      - name: Flutter analysis and tests
+        working-directory: mobile
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test
       - name: Academic flow with PostgreSQL migrations
         working-directory: backend
         run: >-
@@ -66,6 +77,15 @@ jobs:
           java -jar backend/target/kripta-backend-0.1.0-SNAPSHOT.jar >> backend/target/server.log 2>&1 &
           pid=$!
           node scripts/test-auth-http.cjs --existing
+          cd mobile
+          flutter test test/api_integration_test.dart --dart-define=TEST_API_URL=http://localhost:8080/api/
+      - name: Build Android debug APK
+        working-directory: mobile
+        run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kripta-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:

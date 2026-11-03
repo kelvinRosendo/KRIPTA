@@ -43,11 +43,13 @@ class _CadastroScreenState extends ConsumerState<CadastroScreen> {
   final TextEditingController _senhaController = TextEditingController();
   final TextEditingController _confirmarController = TextEditingController();
 
+  final _rmController = TextEditingController();
   bool _senhaVisivel = false;
   bool _enviando = false;
 
   @override
   void dispose() {
+    _rmController.dispose();
     _nomeController.dispose();
     _emailController.dispose();
     _senhaController.dispose();
@@ -65,6 +67,7 @@ class _CadastroScreenState extends ConsumerState<CadastroScreen> {
         .read(authControllerProvider.notifier)
         .cadastrar(
           nome: _nomeController.text,
+          rm: _rmController.text.trim(),
           email: _emailController.text,
           senha: _senhaController.text,
         );
@@ -139,6 +142,13 @@ class _CadastroScreenState extends ConsumerState<CadastroScreen> {
                     ),
                     const SizedBox(height: AppSpacing.fieldGap),
 
+                    TextFormField(
+                      controller: _rmController,
+                      maxLength: 30,
+                      decoration: const InputDecoration(labelText: 'RM'),
+                      validator: (v) => AppValidators.required(v, 'o RM'),
+                    ),
+                    const SizedBox(height: AppSpacing.fieldGap),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,

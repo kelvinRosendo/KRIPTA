@@ -13,9 +13,7 @@
      · 401, 404, 500 e falha de rede chegam ao fluxo de erro real
      · é este estado que permite validar E2E contra o Spring Boot
 
-   Precedência:
-     1) ?mock=on | ?mock=off na URL  (temporário, só nesta aba)
-     2) DEV_MODE abaixo             (permanente, manual)
+   O modo final não aceita ativação de mocks pela URL.
    ─────────────────────────────────────────────────────────────
 */
 const ENV = 'dev';
@@ -39,19 +37,6 @@ const CONFIG = {
 };
 
 function resolveDevMode() {
-  var override = null;
-  try {
-    var pairs = String(window.location.search || '').replace(/^\?/, '').toLowerCase().split('&');
-    for (var i = 0; i < pairs.length; i++) {
-      var kv = pairs[i].split('=');
-      if (kv[0] !== 'mock') continue;
-      if (kv[1] === 'on' || kv[1] === 'true' || kv[1] === '1') override = true;
-      if (kv[1] === 'off' || kv[1] === 'false' || kv[1] === '0') override = false;
-    }
-  } catch (e) {
-    override = null;
-  }
-  if (override !== null) return override;
   return Boolean(CONFIG[ENV].DEV_MODE);
 }
 

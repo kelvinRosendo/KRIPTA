@@ -43,11 +43,11 @@ class ApiClient {
       dio.interceptors.add(
         LogInterceptor(
           request: true,
-          requestHeader: true,
-          requestBody: true,
+          requestHeader: false,
+          requestBody: false,
           responseHeader: false,
-          responseBody: true,
-          error: true,
+          responseBody: false,
+          error: false,
           logPrint: (Object? object) =>
               AppLogger('http').debug(object.toString()),
         ),

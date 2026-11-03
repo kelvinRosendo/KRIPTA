@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/error/failure.dart';
+import '../../../core/di/providers.dart';
+import '../../../core/widgets/create_item_dialog.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/state_views.dart';
@@ -38,6 +40,26 @@ class _CalendarioScreenState extends ConsumerState<CalendarioScreen> {
     final eventos = ref.watch(calendarioProvider(chave));
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Criar evento no dia selecionado',
+        child: const Icon(Icons.add),
+        onPressed: () async {
+          final saved = await showDialog<bool>(
+            context: context,
+            builder: (_) => CreateItemDialog(
+              title:
+                  'Evento pessoal: ${_diaSelecionado.toIso8601String().substring(0, 10)}',
+              save: (title) => ref
+                  .read(academicRepositoryProvider)
+                  .createEvent(title, _diaSelecionado),
+            ),
+          );
+          if (saved == true && mounted) {
+            ref.invalidate(calendarioProvider);
+            ref.invalidate(avisosProvider);
+          }
+        },
+      ),
       appBar: AppBar(
         title: const Text('Agenda', style: AppTypography.screenTitle),
         backgroundColor: AppColors.background,
@@ -53,11 +75,10 @@ class _CalendarioScreenState extends ConsumerState<CalendarioScreen> {
             children: <Widget>[
               _NavegacaoMes(
                 mes: _mes,
-                aoAnterior: () => setState(
-                  () => _mes = _mes.subtract(const Duration(days: 30)),
-                ),
+                aoAnterior: () =>
+                    setState(() => _mes = DateTime(_mes.year, _mes.month - 1)),
                 aoProximo: () =>
-                    setState(() => _mes = _mes.add(const Duration(days: 30))),
+                    setState(() => _mes = DateTime(_mes.year, _mes.month + 1)),
                 aoHoje: () => setState(() {
                   _mes = mesCorrente();
                   _diaSelecionado = DateTime.now();

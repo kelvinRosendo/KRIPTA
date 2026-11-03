@@ -35,6 +35,7 @@ enum AppEnvironment {
 /// Configuração imutável resolvida em tempo de build.
 @immutable
 class AppConfig {
+  /// Configura o cliente HTTP e o ambiente.
   const AppConfig({
     required this.environment,
     required this.apiBaseUrl,
@@ -90,7 +91,7 @@ class AppConfig {
     );
     const rawReceive = String.fromEnvironment(
       'RECEIVE_TIMEOUT_SECONDS',
-      defaultValue: '20',
+      defaultValue: '70',
     );
     const rawSend = String.fromEnvironment(
       'SEND_TIMEOUT_SECONDS',
@@ -112,7 +113,7 @@ class AppConfig {
       // `api_endpoints.dart`.
       apiBaseUrl: rawBaseUrl.endsWith('/') ? rawBaseUrl : '$rawBaseUrl/',
       connectTimeout: Duration(seconds: int.tryParse(rawConnect) ?? 15),
-      receiveTimeout: Duration(seconds: int.tryParse(rawReceive) ?? 20),
+      receiveTimeout: Duration(seconds: int.tryParse(rawReceive) ?? 70),
       sendTimeout: Duration(seconds: int.tryParse(rawSend) ?? 20),
       enableNetworkLog: rawLog && kDebugMode,
       kaiSpeechLocaleId: rawLocale.isEmpty ? null : rawLocale,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/error/failure.dart';
+import '../../../core/di/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/state_views.dart';
@@ -145,7 +146,7 @@ class _ListaAgrupada extends StatelessWidget {
 }
 
 /// Card de um aviso.
-class _CardAviso extends StatelessWidget {
+class _CardAviso extends ConsumerWidget {
   /// Cria o card.
   const _CardAviso({required this.aviso});
 
@@ -153,7 +154,7 @@ class _CardAviso extends StatelessWidget {
   final Aviso aviso;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -181,6 +182,23 @@ class _CardAviso extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(aviso.mensagem, style: AppTypography.body),
+          TextButton(
+            onPressed: aviso.lido
+                ? null
+                : () async {
+                    final result = await ref
+                        .read(academicRepositoryProvider)
+                        .readNotice(aviso.id);
+                    if (result.isSuccess) {
+                      ref.invalidate(avisosProvider);
+                    } else if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(result.failureOrNull!.message)),
+                      );
+                    }
+                  },
+            child: Text(aviso.lido ? 'Lido' : 'Marcar como lido'),
+          ),
           if (aviso.disciplinaNome != null) ...<Widget>[
             const SizedBox(height: AppSpacing.xs),
             Row(

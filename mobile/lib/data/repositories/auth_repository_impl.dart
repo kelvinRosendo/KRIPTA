@@ -46,6 +46,7 @@ class AuthRepositoryImpl extends ApiRepositoryBase implements AuthRepository {
     required String email,
     required String senha,
     required PerfilUsuario perfil,
+    String? rm,
   }) async {
     // Passo 1 — cria a conta.
     final cadastro = await guard<void>(() async {
@@ -56,6 +57,7 @@ class AuthRepositoryImpl extends ApiRepositoryBase implements AuthRepository {
           email: email,
           senha: senha,
           tipo: perfil.wire,
+          rm: rm,
         ).toJson(),
       );
       // Valida o formato da resposta: se o backend mudar o

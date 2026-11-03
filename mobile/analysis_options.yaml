@@ -44,7 +44,6 @@ linter:
     prefer_final_fields: true
     prefer_single_quotes: true
     throw_in_finally: true
-    unnecessary_await_in_return: true
     unnecessary_breaks: true
     unnecessary_parenthesis: true
     unnecessary_statements: true

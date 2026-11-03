@@ -4,6 +4,7 @@ library;
 import 'package:dio/dio.dart';
 
 import '../../core/config/api_endpoints.dart';
+import '../../core/utils/app_date_format.dart';
 import '../../core/error/failure.dart';
 import '../../core/logging/app_logger.dart';
 import '../../core/utils/result.dart';
@@ -36,9 +37,23 @@ class GamificacaoRepositoryImpl extends ApiRepositoryBase
   Future<Result<List<Conquista>>> conquistas() {
     return guard<List<Conquista>>(() async {
       final resposta = await dio.get<Object>(ApiEndpoints.achievements);
-      return DtoMapper.conquistas(
-        decodificarLista(resposta, ConquistaDto.fromJson),
-      );
+      return corpoLista(resposta)
+          .map(
+            (j) => Conquista(
+              id: const [
+                'FIRST_TASK',
+                'TEN_TASKS',
+                'FIRST_STREAK',
+                'WEEK_STREAK',
+              ].indexOf(j['code'] as String),
+              icone: j['icon'] as String,
+              titulo: j['name'] as String,
+              descricao: '',
+              conquistada: j['earned'] == true,
+              conquistadaEm: AppDateFormat.tryParse(j['earnedAt'] as String?),
+            ),
+          )
+          .toList();
     });
   }
 
@@ -63,8 +78,46 @@ class DashboardRepositoryImpl extends ApiRepositoryBase
   @override
   Future<Result<Dashboard>> carregar() {
     return guard<Dashboard>(() async {
-      final resposta = await dio.get<Object>(ApiEndpoints.dashboard);
-      return DtoMapper.dashboard(DashboardDto.fromJson(corpoJson(resposta)));
+      final responses = await Future.wait([
+        dio.get<Object>(ApiEndpoints.progress),
+        dio.get<Object>(ApiEndpoints.achievements),
+        dio.get<Object>(ApiEndpoints.tasks),
+      ]);
+      final stats = corpoJson(responses[0]);
+      final tasks = corpoLista(responses[2])
+          .map((j) => DtoMapper.tarefa(TarefaResponseDto.fromJson(j)))
+          .where((t) => !t.concluida)
+          .toList();
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final tomorrow = DateTime(now.year, now.month, now.day + 1);
+      List<TarefaRef> select(bool Function(DateTime) filter) => tasks
+          .where(
+            (t) =>
+                t.prazo != null &&
+                filter(DateTime(t.prazo!.year, t.prazo!.month, t.prazo!.day)),
+          )
+          .map(
+            (t) => TarefaRef(
+              id: t.id,
+              titulo: t.titulo,
+              prazo: t.prazo,
+              prioridade: t.prioridade.wire,
+            ),
+          )
+          .toList();
+      return Dashboard(
+        gamificacao: ResumoGamificacao(
+          xp: stats['xp'] as int,
+          nivel: stats['level'] as int,
+          sequenciaDias: stats['streak'] as int,
+          minutosHoje: (stats['seconds'] as int) ~/ 60,
+        ),
+        totalConquistas: corpoLista(responses[1]).length,
+        tarefasHoje: select((d) => d == today),
+        tarefasAmanha: select((d) => d == tomorrow),
+        tarefasAtrasadas: select((d) => d.isBefore(today)),
+      );
     });
   }
 }

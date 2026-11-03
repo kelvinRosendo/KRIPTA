@@ -11,6 +11,7 @@ CadastroRequestDto _$CadastroRequestDtoFromJson(Map<String, dynamic> json) =>
       nome: json['nome'] as String,
       email: json['email'] as String,
       senha: json['senha'] as String,
+      rm: json['rm'] as String?,
       tipo: json['tipo'] as String,
     );
 
@@ -20,6 +21,7 @@ Map<String, dynamic> _$CadastroRequestDtoToJson(CadastroRequestDto instance) =>
       'email': instance.email,
       'senha': instance.senha,
       'tipo': instance.tipo,
+      'rm': instance.rm,
     };
 
 CadastroResponseDto _$CadastroResponseDtoFromJson(Map<String, dynamic> json) =>

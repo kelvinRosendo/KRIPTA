@@ -35,6 +35,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/application/auth_controller.dart';
+import '../../features/conteudos/conteudos_screen.dart';
 import '../../features/auth/presentation/screens/cadastro_screen.dart';
 import '../../features/auth/presentation/screens/entrar_screen.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
@@ -68,6 +69,10 @@ abstract final class Routes {
   static const String home = '/home';
 
   /// Grade de disciplinas.
+  /// Catálogo de publicações aprovadas.
+  static const String conteudos = '/conteudos';
+
+  /// Grade de disciplinas pessoais.
   static const String materias = '/materias';
 
   /// Lista de tarefas.
@@ -105,7 +110,8 @@ abstract final class Routes {
   /// Inclui o detalhe de unidades, que fica sob `/materias/` mas é uma
   /// rota filha, e por isso não aparece em [_rotasPrivadas].
   static bool ehPrivada(String local) =>
-      _rotasPrivadas.contains(local) || local.startsWith(unidadesPrefixoReal);
+      (local == Routes.conteudos || _rotasPrivadas.contains(local)) ||
+      local.startsWith(unidadesPrefixoReal);
 }
 
 /// Telas que exigem sessão.
@@ -132,6 +138,10 @@ GoRouter criarRouter(ProviderContainer container) {
     refreshListenable: _SessaoListenable(container),
     debugLogDiagnostics: false,
     routes: <RouteBase>[
+      GoRoute(
+        path: Routes.conteudos,
+        builder: (context, state) => const ConteudosScreen(),
+      ),
       GoRoute(
         path: Routes.splash,
         name: 'splash',
@@ -182,7 +192,7 @@ GoRouter criarRouter(ProviderContainer container) {
                     const MateriasScreen(),
                 routes: <RouteBase>[
                   GoRoute(
-                    path: Routes.unidadesPrefixo,
+                    path: ':disciplinaId/unidades/:unidadeId',
                     name: 'unidades',
                     builder: (BuildContext context, GoRouterState state) {
                       final disciplinaId =

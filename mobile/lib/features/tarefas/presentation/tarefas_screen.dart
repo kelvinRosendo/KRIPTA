@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/error/failure.dart';
+import '../../../core/di/providers.dart';
+import '../../../core/widgets/create_item_dialog.dart';
+import '../../home/application/home_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/state_views.dart';
@@ -36,6 +39,27 @@ class _TarefasScreenState extends ConsumerState<TarefasScreen> {
     final tarefas = ref.watch(tarefasProvider);
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Criar tarefa',
+        child: const Icon(Icons.add),
+        onPressed: () async {
+          final saved = await showDialog<bool>(
+            context: context,
+            builder: (_) => CreateItemDialog(
+              title: 'Nova tarefa',
+              save: (title) async =>
+                  (await ref
+                          .read(tarefaRepositoryProvider)
+                          .criar(titulo: title))
+                      .map<void>((_) {}),
+            ),
+          );
+          if (saved == true && mounted) {
+            ref.invalidate(tarefasProvider);
+            ref.invalidate(homeProvider);
+          }
+        },
+      ),
       appBar: AppBar(
         title: const Text('Tarefas', style: AppTypography.screenTitle),
         backgroundColor: AppColors.background,
@@ -79,9 +103,19 @@ class _TarefasScreenState extends ConsumerState<TarefasScreen> {
                     ),
                   AsyncData<List<Tarefa>>(:final value) => _Lista(
                     tarefas: _filtrar(value),
-                    aoAlternar: (int id) => ref
-                        .read(tarefasProvider.notifier)
-                        .alternarConclusao(id),
+                    aoAlternar: (int id) async {
+                      try {
+                        await ref
+                            .read(tarefasProvider.notifier)
+                            .alternarConclusao(id);
+                      } on Failure catch (error) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(error.message)),
+                          );
+                        }
+                      }
+                    },
                   ),
                   _ => const CarregandoView(),
                 },
@@ -259,7 +293,7 @@ class _CardTarefa extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => aoAlternar(tarefa.id),
+          onTap: tarefa.concluida ? null : () => aoAlternar(tarefa.id),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
@@ -268,7 +302,9 @@ class _CardTarefa extends StatelessWidget {
               children: <Widget>[
                 Checkbox(
                   value: tarefa.concluida,
-                  onChanged: (_) => aoAlternar(tarefa.id),
+                  onChanged: tarefa.concluida
+                      ? null
+                      : (_) => aoAlternar(tarefa.id),
                   activeColor: AppColors.success,
                   visualDensity: VisualDensity.compact,
                 ),

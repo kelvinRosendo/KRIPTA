@@ -11,6 +11,11 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String,Object>> handleIntegrity(Exception ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("CONFLITO_DADOS", "A operação conflita com registros existentes ou vinculados. Revise os dados antes de tentar novamente."));
+    }
+
     @ExceptionHandler(com.kripta.ai.KaiException.class)
     public ResponseEntity<Map<String,Object>> handleKai(com.kripta.ai.KaiException ex) {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ApiError.of("IA_INDISPONIVEL", ex.getMessage()));

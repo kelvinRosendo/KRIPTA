@@ -29,6 +29,7 @@ import 'package:flutter/foundation.dart' show VoidCallback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/repositories/repositories.dart';
+import '../../data/repositories/academic_repository.dart';
 import '../../domain/repositories/repositories.dart';
 import '../config/app_config.dart';
 import '../network/api_client.dart';
@@ -176,4 +177,9 @@ final Provider<DashboardRepository> dashboardRepositoryProvider =
 final Provider<KaiRepository> kaiRepositoryProvider = Provider<KaiRepository>(
   (Ref ref) => KaiRepositoryImpl(dio: ref.watch(apiClientProvider).dio),
   name: 'kaiRepository',
+);
+
+/// Conteúdo publicado, eventos e leitura de notificações.
+final academicRepositoryProvider = Provider(
+  (ref) => AcademicRepository(dio: ref.watch(apiClientProvider).dio),
 );

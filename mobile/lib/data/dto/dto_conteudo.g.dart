@@ -172,8 +172,9 @@ AvisoResponseDto _$AvisoResponseDtoFromJson(Map<String, dynamic> json) =>
     AvisoResponseDto(
       id: (json['id'] as num).toInt(),
       title: json['title'] as String,
-      message: json['message'] as String,
-      createdAt: json['createdAt'] as String,
+      message: json['message'] as String? ?? '',
+      createdAt: json['date'] as String,
+      read: json['read'] as bool? ?? false,
       subject: json['subject'] as Map<String, dynamic>?,
     );
 
@@ -182,7 +183,8 @@ Map<String, dynamic> _$AvisoResponseDtoToJson(AvisoResponseDto instance) =>
       'id': instance.id,
       'title': instance.title,
       'message': instance.message,
-      'createdAt': instance.createdAt,
+      'date': instance.createdAt,
+      'read': instance.read,
       'subject': instance.subject,
     };
 

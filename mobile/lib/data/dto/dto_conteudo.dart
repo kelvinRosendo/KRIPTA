@@ -380,6 +380,7 @@ class AvisoResponseDto {
     required this.title,
     required this.message,
     required this.createdAt,
+    this.read = false,
     this.subject,
   });
 
@@ -389,12 +390,16 @@ class AvisoResponseDto {
   /// Assunto do comunicado.
   final String title;
 
-  /// Corpo do comunicado.
+  /// Descrição opcional do evento; ausência é exibida sem texto.
+  @JsonKey(defaultValue: '')
   final String message;
 
   /// Momento de publicação, em ISO-8601 UTC.
-  @JsonKey(name: 'createdAt')
+  @JsonKey(name: 'date')
   final String createdAt;
+
+  /// Leitura persistida por usuário.
+  final bool read;
 
   /// Disciplina relacionada, quando houver.
   final Map<String, dynamic>? subject;

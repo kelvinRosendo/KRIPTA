@@ -863,7 +863,7 @@ async function renderProfile() {
     empty(badgesEl);
     if (achievements && Array.isArray(achievements) && achievements.length) {
       var open = achievements.filter(function (a) { return a.earned !== false; });
-      (open.length ? open : achievements).forEach(function (a) {
+      open.forEach(function (a) {
         badgesEl.insertAdjacentHTML('beforeend',
           '<div class="card aspect-square flex flex-col items-center justify-center gap-[5px]">' +
           '<span class="text-xl">' + esc(a.icon || '🏅') + '</span>' +

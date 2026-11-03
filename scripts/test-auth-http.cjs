@@ -36,6 +36,15 @@ async function request(path, status, body, token, method) {
   assert.equal(user.rm, '12345');
   assert.equal(user.podeAprovar, false);
   if (!process.argv.includes('--existing')) {
+    const task = await request('/tarefas', 201, {title:'Ganhar XP', priority:'MEDIUM'}, session.token);
+    await request('/tarefas/' + task.id + '/concluir', 200, {}, session.token, 'PATCH');
+    await request('/tarefas/' + task.id + '/concluir', 200, {}, session.token, 'PATCH');
+  }
+  const progress = await request('/progresso', 200, undefined, session.token);
+  assert.equal(progress.xp, 25, 'XP is granted once and survives restart');
+  const badges = await request('/gamificacao/conquistas', 200, undefined, session.token);
+  assert.ok(badges.some(b => b.code === 'FIRST_TASK'));
+  if (!process.argv.includes('--existing')) {
     const event = await request('/calendario/eventos', 201, {title:'Evento persistente CI', date:'2026-11-03', time:'23:30'}, session.token);
     await request('/notificacoes/' + event.id + '/ler', 204, {}, session.token, 'PATCH');
   } else {

@@ -14,7 +14,7 @@ function streakSupported() {
 
 async function streakHeartbeat(payload) {
   try {
-    var res = await api.post('/usage/heartbeat', { seconds: payload });
+    var res = await api.post('/usage/heartbeat', {});
     applyStreakState(res);
     return res;
   } catch (e) {
@@ -24,6 +24,7 @@ async function streakHeartbeat(payload) {
 
 function applyStreakState(res) {
   if (!res) return;
+  var card = document.getElementById('home-streak-card'); if (card) card.classList.remove('hidden');
   var ring = document.getElementById('home-streak-ring');
   if (ring) {
     var circumference = 2 * Math.PI * 23; /* r = 23 */
@@ -51,6 +52,8 @@ function startStreakTracking() {
   /* Streak é exclusivo do aluno (RF09/RN07). */
   if (typeof isProfessor === 'function' && isProfessor()) return;
   if (!streakSupported()) return;
+  streakAccumulated = 0;
+  streakHeartbeat();
   streakLastSent = Date.now();
   streakTimer = setInterval(function () {
     if (document.hidden) { streakLastSent = Date.now(); return; }
@@ -73,5 +76,6 @@ function stopStreakTracking() {
 }
 
 document.addEventListener('visibilitychange', function () {
-  if (!document.hidden) streakLastSent = Date.now();
+  streakAccumulated = 0;
+  if (!document.hidden) { streakLastSent = Date.now(); streakHeartbeat(); }
 });

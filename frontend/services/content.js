@@ -2,40 +2,42 @@
 
 /* Professor cadastra conteúdo associado ao componente curricular (RF03/UC05). */
 async function createContent(data) {
-  return api.post('/contents', data);
+  return api.post('/conteudos', data);
 }
 
 /* Meus conteúdos (professor). */
 async function getMyContents() {
-  return api.get('/contents/mine');
+  return api.get('/conteudos/meus');
 }
 
 /* Conteúdos aguardando aprovação (professor autorizado, RF04/UC06). */
 async function getPendingContents() {
-  return api.get('/contents/pending');
+  return api.get('/conteudos/pendentes');
 }
 
 /* Conteúdos aprovados de um componente curricular (consulta do aluno, RF05). */
 async function getApprovedContents(subjectId) {
-  return api.get('/contents?status=APROVADO' + (subjectId ? '&subjectId=' + subjectId : ''));
+  if (!subjectId) return api.get('/conteudos');
+  var subject = await getSubject(subjectId);
+  return subject.componentId ? api.get('/conteudos?subjectId=' + subject.componentId) : [];
 }
 
 async function approveContent(id) {
-  return api.patch('/contents/' + id + '/approve');
+  return api.patch('/conteudos/' + id + '/aprovar');
 }
 
 async function rejectContent(id, reason) {
-  return api.patch('/contents/' + id + '/reject', { reason: reason || null });
+  return api.patch('/conteudos/' + id + '/rejeitar', { reason: reason || null });
 }
 
 const CONTENT_STATUS = {
-  PENDENTE: { label: 'Aguardando aprovação', cls: 'bg-orange-light text-orange' },
+  AGUARDANDO_APROVACAO: { label: 'Aguardando aprovação', cls: 'bg-orange-light text-orange' },
   APROVADO: { label: 'Aprovado', cls: 'bg-teal-light text-teal' },
   REJEITADO: { label: 'Rejeitado', cls: 'bg-crimson-light text-crimson' },
 };
 
 function contentStatusPill(status) {
-  var meta = CONTENT_STATUS[status] || CONTENT_STATUS.PENDENTE;
+  var meta = CONTENT_STATUS[status] || CONTENT_STATUS.AGUARDANDO_APROVACAO;
   return '<span class="pill ' + meta.cls + '">' + meta.label + '</span>';
 }
 

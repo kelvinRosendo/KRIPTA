@@ -311,9 +311,14 @@ function bindSubjectFilter() {
 }
 
 /* ── Formulário de matéria ── */
-function openSubjectModal(subject) {
+async function openSubjectModal(subject) {
   var form = document.getElementById('subject-form');
   window.__editingSubject = subject || null;
+  var components = await api.get('/componentes');
+  var select = form.elements['componentId'];
+  select.innerHTML = '<option value="">Sem vínculo acadêmico</option>';
+  components.forEach(function(c) { var option = document.createElement('option'); option.value = c.id; option.textContent = c.name; select.appendChild(option); });
+  select.value = subject && subject.componentId || '';
   form.reset();
   document.getElementById('subject-modal-title').textContent = subject ? 'Editar matéria' : 'Nova matéria';
   if (subject) {
@@ -327,7 +332,7 @@ function openSubjectModal(subject) {
 async function submitSubjectForm(form) {
   var btn = form.querySelector('button[type="submit"]');
   submitBtnLoading(btn);
-  var data = { name: form.elements['name'].value, color: form.elements['color'].value };
+  var data = { name: form.elements['name'].value, color: form.elements['color'].value, componentId: form.elements['componentId'].value ? Number(form.elements['componentId'].value) : null };
   try {
     if (window.__editingSubject) {
       await updateSubject(window.__editingSubject.id, data);
@@ -1096,13 +1101,14 @@ async function openContentModal() {
   CONTENT_TYPES.forEach(function (t) { var o = el('option', null, t); o.value = t; typeSel.appendChild(o); });
   var noUnit = el('option', null, 'Sem unidade'); noUnit.value = ''; unitSel.appendChild(noUnit);
   try {
-    var subjects = await getSubjects();
+    var subjects = await api.get('/componentes');
+    if (!subjects.length) { var name = window.prompt('Nome do componente curricular:'); if (name) { await api.post('/componentes', {name:name}); subjects = await api.get('/componentes'); } }
     var arr = Array.isArray(subjects) ? subjects : (subjects && subjects.content ? subjects.content : []);
     arr.forEach(function (s) { var o = el('option', null, s.name); o.value = s.id; subjectSel.appendChild(o); });
-    subjectSel.addEventListener('change', function () { fillContentUnits(subjectSel.value); });
+
     if (arr.length && State.currentSubject) subjectSel.value = State.currentSubject.id;
   } catch (e) { /* sem matérias */ }
-  fillContentUnits(subjectSel.value);
+
   document.getElementById('content-modal').classList.remove('hidden');
   document.getElementById('content-modal').classList.add('flex');
 }

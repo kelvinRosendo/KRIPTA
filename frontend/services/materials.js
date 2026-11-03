@@ -1,22 +1,22 @@
 /* ── Materiais (Sprint 7) ── */
 async function getMaterials(unitId) {
-  return api.get('/units/' + unitId + '/materials');
+  return api.get('/unidades/' + unitId + '/materiais');
 }
 
 async function createMaterial(unitId, data) {
-  return api.post('/units/' + unitId + '/materials', data);
+  return api.post('/unidades/' + unitId + '/materiais', data);
 }
 
 async function updateMaterial(id, data) {
-  return api.put('/materials/' + id, data);
+  return api.put('/materiais/' + id, data);
 }
 
 async function deleteMaterial(id) {
-  return api.del('/materials/' + id);
+  return api.del('/materiais/' + id);
 }
 
 async function completeMaterial(id) {
-  return api.patch('/materials/' + id + '/complete');
+  return api.patch('/materiais/' + id + '/concluir');
 }
 
 const MATERIAL_TYPES = ['PDF', 'LINK', 'VIDEO', 'DOCUMENT', 'NOTE', 'OTHER'];

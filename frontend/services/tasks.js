@@ -9,27 +9,27 @@ async function getTasks(params) {
     });
     if (parts.length) query = '?' + parts.join('&');
   }
-  return api.get('/tasks' + query);
+  return api.get('/tarefas' + query);
 }
 
 async function getTask(id) {
-  return api.get('/tasks/' + id);
+  return api.get('/tarefas/' + id);
 }
 
 async function createTask(data) {
-  return api.post('/tasks', data);
+  return api.post('/tarefas', data);
 }
 
 async function updateTask(id, data) {
-  return api.put('/tasks/' + id, data);
+  return api.put('/tarefas/' + id, data);
 }
 
 async function deleteTask(id) {
-  return api.del('/tasks/' + id);
+  return api.del('/tarefas/' + id);
 }
 
 async function completeTask(id) {
-  return api.patch('/tasks/' + id + '/complete');
+  return api.patch('/tarefas/' + id + '/concluir');
 }
 
 function taskRow(task, opts) {

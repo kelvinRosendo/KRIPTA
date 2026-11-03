@@ -9,6 +9,9 @@ public class DisciplinaRequest {
     @NotBlank(message = "Nome é obrigatório")
     @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres")
     private String nome;
+    private Long componenteId;
+    public Long getComponenteId() { return componenteId; }
+    public void setComponenteId(Long id) { componenteId = id; }
 
     @Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "Cor deve estar no formato hexadecimal (ex.: #FF5733)")
     private String cor;

@@ -12,6 +12,11 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<Map<String, Object>> handleConcurrentReview(Exception ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("CONFLITO", "O registro foi alterado por outra requisição. Atualize a página."));
+    }
+
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<Map<String, Object>> handleDuplicateEmail(DuplicateEmailException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("EMAIL_JA_CADASTRADO", ex.getMessage()));

@@ -1,0 +1,3 @@
+CREATE TABLE componentes_curriculares (id BIGSERIAL PRIMARY KEY, name VARCHAR(100) NOT NULL);
+CREATE TABLE conteudos_academicos (id BIGSERIAL PRIMARY KEY, version BIGINT NOT NULL DEFAULT 0, author_id BIGINT NOT NULL REFERENCES users(id), subject_id BIGINT NOT NULL REFERENCES componentes_curriculares(id), title VARCHAR(200) NOT NULL, description VARCHAR(4000), url VARCHAR(2000), type VARCHAR(30) NOT NULL, status VARCHAR(30) NOT NULL CHECK(status IN ('AGUARDANDO_APROVACAO','APROVADO','REJEITADO')), reviewer_id BIGINT REFERENCES users(id), reject_reason VARCHAR(1000));
+CREATE INDEX idx_conteudos_status ON conteudos_academicos(status);

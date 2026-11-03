@@ -18,9 +18,14 @@ import java.util.List;
 @Service
 public class DisciplinaService {
 
+    private void vincular(Disciplina disciplina, DisciplinaRequest request) {
+        if (request.getComponenteId() != null && (componentes == null || !componentes.existsById(request.getComponenteId()))) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND);
+        disciplina.setComponenteId(request.getComponenteId());
+    }
     private static final String COR_PADRAO = "#3B82F6";
 
     private final DisciplinaRepository disciplinaRepository;
+    @org.springframework.beans.factory.annotation.Autowired private com.kripta.repository.ComponenteRepository componentes;
     private final UserRepository userRepository;
 
     public DisciplinaService(DisciplinaRepository disciplinaRepository, UserRepository userRepository) {
@@ -52,6 +57,7 @@ public class DisciplinaService {
         User usuario = findUsuario(principal.getId());
 
         Disciplina disciplina = new Disciplina(usuario, nome, normalizarCor(request.getCor()));
+        vincular(disciplina, request);
         return toResponse(disciplinaRepository.save(disciplina));
     }
 
@@ -65,6 +71,7 @@ public class DisciplinaService {
             throw new DuplicateDisciplinaException();
         }
 
+        vincular(disciplina, request);
         disciplina.setNome(nome);
         disciplina.setCor(normalizarCor(request.getCor()));
 
@@ -93,6 +100,8 @@ public class DisciplinaService {
     }
 
     private DisciplinaResponse toResponse(Disciplina disciplina) {
-        return new DisciplinaResponse(disciplina.getId(), disciplina.getNome(), disciplina.getCor());
+        var response = new DisciplinaResponse(disciplina.getId(), disciplina.getNome(), disciplina.getCor());
+        response.setComponenteId(disciplina.getComponenteId());
+        return response;
     }
 }

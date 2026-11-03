@@ -172,7 +172,7 @@ AvisoResponseDto _$AvisoResponseDtoFromJson(Map<String, dynamic> json) =>
     AvisoResponseDto(
       id: (json['id'] as num).toInt(),
       title: json['title'] as String,
-      message: json['message'] as String,
+      message: json['message'] as String? ?? '',
       createdAt: json['date'] as String,
       read: json['read'] as bool? ?? false,
       subject: json['subject'] as Map<String, dynamic>?,

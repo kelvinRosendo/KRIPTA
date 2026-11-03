@@ -390,7 +390,8 @@ class AvisoResponseDto {
   /// Assunto do comunicado.
   final String title;
 
-  /// Corpo do comunicado.
+  /// Descrição opcional do evento; ausência é exibida sem texto.
+  @JsonKey(defaultValue: '')
   final String message;
 
   /// Momento de publicação, em ISO-8601 UTC.

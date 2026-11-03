@@ -101,7 +101,7 @@ void main() {
                     {
                       'id': 9,
                       'title': 'Prova',
-                      'message': 'Amanhã',
+                      'message': null,
                       'date': '2026-11-03',
                       'read': true,
                     },

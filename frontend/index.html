@@ -534,7 +534,7 @@
           <input type="text" name="note" placeholder="Opcional"
                  class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm outline-none focus:border-indigo">
         </label>
-        <div class="flex gap-[9px] mt-1">
+        <label>Horário (opcional)<input type="time" name="time"></label><label>Categoria<select name="scope"><option value="PESSOAL">Pessoal</option><option value="ESCOLAR">Escolar</option></select></label><label>Tipo<select name="type"><option value="EVENT">Evento</option><option value="EXAM">Prova</option><option value="TASK">Atividade</option></select></label><div class="flex gap-[9px] mt-1">
           <button type="button" class="btn-ghost !py-[11px] px-5 !w-auto" onclick="closeModal('personal-event-modal')">Cancelar</button>
           <button type="submit" class="flex-1 py-[11px] bg-indigo border-none rounded-md text-white font-bold text-sm cursor-pointer">Salvar</button>
         </div>

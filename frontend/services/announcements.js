@@ -1,6 +1,6 @@
 /* ── Avisos (Sprint 15) ── */
 async function getAnnouncements() {
-  return api.get('/announcements');
+  return getNotifications();
 }
 
 function timeAgo(dateStr) {

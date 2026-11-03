@@ -35,6 +35,13 @@ async function request(path, status, body, token, method) {
   assert.equal(user.tipo, 'ALUNO');
   assert.equal(user.rm, '12345');
   assert.equal(user.podeAprovar, false);
+  if (!process.argv.includes('--existing')) {
+    const event = await request('/calendario/eventos', 201, {title:'Evento persistente CI', date:'2026-11-03', time:'23:30'}, session.token);
+    await request('/notificacoes/' + event.id + '/ler', 204, {}, session.token, 'PATCH');
+  } else {
+    const notifications = await request('/notificacoes', 200, undefined, session.token);
+    assert.ok(notifications.some(n => n.title === 'Evento persistente CI' && n.read), 'Event and read state survive restart');
+  }
   await request('/conteudos/1/aprovar', 403, {}, session.token, 'PATCH');
   if (!process.argv.includes('--existing')) {
     const subject = await request('/disciplinas', 201, {nome:'Matemática CI', cor:'#123456'}, session.token);

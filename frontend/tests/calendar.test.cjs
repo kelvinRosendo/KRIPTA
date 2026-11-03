@@ -1,0 +1,20 @@
+const {test} = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+test('calendar range and notification services use real API routes', async () => {
+  const calls=[];
+  const context={Date,api:{get:async p=>{calls.push(p);return [];},post:async(p,b)=>{calls.push(p);return b;}}};
+  vm.createContext(context);
+  for(const file of ['calendar','notifications','announcements'])vm.runInContext(fs.readFileSync('services/'+file+'.js','utf8'),context);
+  await context.getCalendar('2026-11-03','2026-11-03','PESSOAL');
+  assert.equal(calls[0],'/calendario?inicio=2026-11-03&fim=2026-11-03&scope=PESSOAL');
+  await context.createPersonalEvent({title:'Teste',date:'2026-11-03'});
+  assert.equal(calls[1],'/calendario/eventos');
+  await context.getNotifications();
+  await context.getAnnouncements();
+  assert.equal(calls[2],'/notificacoes');
+  assert.equal(calls[3],'/notificacoes');
+  context.CAL_EVENTS=[{date:'2026-11-03',title:'No dia'},{date:'2026-11-04',title:'Outro dia'}];
+  assert.equal(context.calEventsOn(new Date(2026,10,3)).length,1);
+});

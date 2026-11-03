@@ -12,17 +12,17 @@ var CAL_WEEKDAYS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 var CAL_WEEKDAYS_FULL = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
 async function getCalendar(startDate, endDate, scope) {
-  var qs = '?startDate=' + encodeURIComponent(startDate) + '&endDate=' + encodeURIComponent(endDate);
+  var qs = '?inicio=' + encodeURIComponent(startDate) + '&fim=' + encodeURIComponent(endDate);
   if (scope && scope !== 'ALL') qs += '&scope=' + encodeURIComponent(scope);
-  return api.get('/calendar' + qs);
+  return api.get('/calendario' + qs);
 }
 
 async function getPersonalEvents() {
-  return api.get('/calendar/events');
+  return api.get('/calendario/eventos');
 }
 
 async function createPersonalEvent(data) {
-  return api.post('/calendar/events', data);
+  return api.post('/calendario/eventos', data);
 }
 
 function toLocalDateStr(d) {
@@ -240,6 +240,8 @@ function agendaHTML(date) {
       '<div class="flex-1 min-w-0">' +
       '<div class="text-[13px] font-semibold truncate">' + esc(e.title) + '</div>' +
       (e.note ? '<div class="text-[11.5px] text-text-mid mt-0.5 truncate">' + esc(e.note) + '</div>' : '') +
+      (e.time ? '<div>' + esc(e.time.slice(0,5)) + '</div>' : '') +
+      (State.user && Number(e.ownerId) === Number(State.user.id) ? '<button type="button" onclick="editCalendarEvent(' + e.id + ')">Editar</button> <button type="button" onclick="deleteCalendarEvent(' + e.id + ')">Excluir</button>' : '') +
       '</div>' +
       '<span class="pill bg-surface-2 text-text-mid">' + scope + '</span>' +
       '</div>'
@@ -274,4 +276,16 @@ function shiftCalendar(dir) {
   }
   CAL_SELECTED = new Date(CAL_CURSOR);
   renderCalendar();
+}
+
+async function editCalendarEvent(id) {
+ var event = CAL_EVENTS.find(function(e) { return e.id === id; });
+ if (!event) return;
+ openPersonalEventModal(); window.__editingEvent = id;
+ var form = document.getElementById('personal-event-form');
+ ['title','date','note','time','scope','type'].forEach(function(key) { form.elements[key].value = event[key] || ''; });
+}
+async function deleteCalendarEvent(id) {
+ if (!window.confirm('Excluir este evento e seu aviso?')) return;
+ try { await api.del('/calendario/eventos/' + id); await renderCalendar(); } catch(e) { toast(cleanError(e),'error'); }
 }

@@ -764,9 +764,11 @@ async function doCompleteTask(id, btn) {
 /* ══════════════════════ CALENDÁRIO (Etapa 9) ══════════════════════
    Estado e renderização (dia/semana/mês) ficam em services/calendar.js. */
 function openPersonalEventModal() {
+  window.__editingEvent = null;
   var form = document.getElementById('personal-event-form');
   form.reset();
   form.elements['date'].value = toLocalDateStr(new Date());
+  form.elements['scope'].querySelector('[value=ESCOLAR]').disabled = !isProfessor();
   document.getElementById('personal-event-modal').classList.remove('hidden');
   document.getElementById('personal-event-modal').classList.add('flex');
 }
@@ -775,16 +777,21 @@ async function submitPersonalEventForm(form) {
   var btn = form.querySelector('button[type="submit"]');
   submitBtnLoading(btn);
   try {
-    await createPersonalEvent({
+    var eventPayload = {
       title: form.elements['title'].value,
       date: form.elements['date'].value,
       note: form.elements['note'].value || null,
-    });
+      time: form.elements['time'].value || null,
+      scope: form.elements['scope'].value,
+      type: form.elements['type'].value,
+    };
+    if (window.__editingEvent) await api.put('/calendario/eventos/' + window.__editingEvent, eventPayload);
+    else await createPersonalEvent(eventPayload);
     toast('Evento pessoal salvo');
     closeModal('personal-event-modal');
     CAL_SELECTED = calParseDay(form.elements['date'].value);
     CAL_CURSOR = new Date(CAL_SELECTED);
-    if (CAL_SCOPE !== 'PESSOAL') setCalendarScope('PESSOAL');
+    if (CAL_SCOPE !== eventPayload.scope) setCalendarScope(eventPayload.scope);
     else renderCalendar();
   } catch (e) {
     toast(cleanError(e), 'error');

@@ -4,15 +4,15 @@
 var STREAK_MIN_SECONDS = 600;
 
 async function getProgress() {
-  return api.get('/progress');
+  return api.get('/progresso');
 }
 
 async function getGamificationStats() {
-  return api.get('/gamification/stats');
+  return api.get('/gamificacao/estatisticas');
 }
 
 async function getAchievements() {
-  return api.get('/gamification/achievements');
+  return api.get('/gamificacao/conquistas');
 }
 
 function levelTitle(level) {

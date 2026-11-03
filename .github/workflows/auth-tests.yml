@@ -46,7 +46,7 @@ jobs:
       - name: Academic flow with PostgreSQL migrations
         working-directory: backend
         run: >-
-          bash mvnw -B -ntp test -Dtest=AcademicFlowTest,CalendarFlowTest
+          bash mvnw -B -ntp test -Dtest=AcademicFlowTest,CalendarFlowTest,GamificationFlowTest,GamificationConcurrencyTest
           -Dspring.flyway.enabled=true
           -Dspring.datasource.url=jdbc:postgresql://localhost:5432/kripta
           -Dspring.datasource.username=postgres

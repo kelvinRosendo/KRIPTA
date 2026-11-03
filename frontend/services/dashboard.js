@@ -1,6 +1,13 @@
 /* ── Dashboard (Sprint 11) ── */
 async function getDashboard() {
-  return api.get('/dashboard');
+  var values = await Promise.all([getGamificationStats(), getTasks()]);
+  var stats = values[0], tasks = values[1];
+  var today = toLocalDateStr(new Date());
+  var tomorrow = toLocalDateStr(calAddDays(new Date(),1));
+  var pending = tasks.filter(function(t){return !t.completed && t.dueDate;});
+  function day(t) {return toLocalDateStr(new Date(t.dueDate));}
+  return {stats:stats, xp:stats.xp, level:stats.level, streak:stats.streak,
+    tasksToday:pending.filter(function(t){return day(t)===today;}), tasksTomorrow:pending.filter(function(t){return day(t)===tomorrow;}), overdueTasks:pending.filter(function(t){return day(t)<today;}), achievements:await getAchievements()};
 }
 
 function taskSideLabel(t) {

@@ -26,6 +26,7 @@ async function fetchMe() {
 }
 
 function logout() {
+  if (typeof stopStreakTracking === 'function') stopStreakTracking();
   State.token = null;
   State.user = null;
   State.currentSubject = null;

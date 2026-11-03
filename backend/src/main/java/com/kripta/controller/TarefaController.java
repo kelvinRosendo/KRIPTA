@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.List;
 @RestController @RequestMapping("/api/tarefas") @Transactional
 public class TarefaController {
+ @org.springframework.beans.factory.annotation.Autowired private com.kripta.service.GamificacaoService gamificacao;
  private final TarefaRepository tasks; private final DisciplinaRepository subjects;
  public TarefaController(TarefaRepository t,DisciplinaRepository s){tasks=t;subjects=s;}
  public record Input(@NotBlank @Size(max=200) String title,@Size(max=4000) String description,Instant dueDate,@NotNull @Pattern(regexp="LOW|MEDIUM|HIGH") String priority,Long subjectId){}
@@ -22,6 +23,6 @@ public class TarefaController {
  @GetMapping("/{id}") public Tarefa get(@PathVariable Long id,@AuthenticationPrincipal UserPrincipal p){return find(id,p);}
  @PostMapping @ResponseStatus(HttpStatus.CREATED) public Tarefa create(@AuthenticationPrincipal UserPrincipal p,@Valid @RequestBody Input i){var t=new Tarefa();t.ownerId=p.getId();apply(t,i,p);return tasks.save(t);}
  @PutMapping("/{id}") public Tarefa update(@PathVariable Long id,@AuthenticationPrincipal UserPrincipal p,@Valid @RequestBody Input i){var t=find(id,p);apply(t,i,p);return t;}
- @PatchMapping("/{id}/concluir") public Tarefa complete(@PathVariable Long id,@AuthenticationPrincipal UserPrincipal p){var t=find(id,p);t.completed=true;return t;}
+ @PatchMapping("/{id}/concluir") public Tarefa complete(@PathVariable Long id,@AuthenticationPrincipal UserPrincipal p){return gamificacao.complete(id,p);}
  @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id,@AuthenticationPrincipal UserPrincipal p){tasks.delete(find(id,p));}
 }

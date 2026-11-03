@@ -69,6 +69,9 @@ public class UserService {
     }
 
     private UserResponse toResponse(User user) {
-        return new UserResponse(user.getId(), user.getNome(), user.getEmail(), user.getTipo());
+        var response = new UserResponse(user.getId(), user.getNome(), user.getEmail(), user.getTipo());
+        response.setRm(user.getRm());
+        response.setPodeAprovar(user.isPodeAprovar());
+        return response;
     }
 }

@@ -39,6 +39,10 @@ public class User {
     private String rm;
     public String getRm() { return rm; }
     public void setRm(String rm) { this.rm = rm; }
+    @Column(name = "pode_aprovar", nullable = false)
+    private boolean podeAprovar;
+    public boolean isPodeAprovar() { return tipo == UserType.PROFESSOR && podeAprovar; }
+    public void setPodeAprovar(boolean value) { this.podeAprovar = value; }
     protected User() {
     }
 

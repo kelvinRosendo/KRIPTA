@@ -30,7 +30,7 @@ public class RegisterRequest {
     public void setRm(String rm) { this.rm = rm; }
     @jakarta.validation.constraints.AssertTrue(message = "Perfil inválido ou RM ausente para aluno")
     public boolean isPerfilValido() {
-        return tipo != UserType.ADMIN && (tipo != UserType.ALUNO || (rm != null && !rm.isBlank()));
+        return tipo == UserType.PROFESSOR || (tipo == UserType.ALUNO && rm != null && !rm.isBlank());
     }
     protected RegisterRequest() {
     }

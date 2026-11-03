@@ -21,6 +21,7 @@ async function request(path, status, body, token, method) {
   if (!process.argv.includes('--existing')) {
     await request('/auth/register', 400, {...account, rm: ''});
     await request('/auth/register', 400, {...account, tipo: 'ADMIN'});
+    await request('/auth/register', 400, {...account, tipo: 'USUARIO'});
     await request('/auth/register', 201, account);
     await request('/auth/register', 409, account);
   }
@@ -32,6 +33,9 @@ async function request(path, status, body, token, method) {
   const user = await request('/users/me', 200, undefined, session.token);
   assert.equal(user.email, account.email);
   assert.equal(user.tipo, 'ALUNO');
+  assert.equal(user.rm, '12345');
+  assert.equal(user.podeAprovar, false);
+  await request('/conteudos/1/aprovar', 403, {}, session.token, 'PATCH');
   if (!process.argv.includes('--existing')) {
     const subject = await request('/disciplinas', 201, {nome:'Matemática CI', cor:'#123456'}, session.token);
     await request('/disciplinas/' + subject.id, 200, {nome:'Matemática atualizada', cor:'#654321'}, session.token, 'PUT');

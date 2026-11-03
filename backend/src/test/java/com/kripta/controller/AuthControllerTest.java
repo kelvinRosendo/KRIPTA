@@ -162,4 +162,16 @@ class AuthControllerTest {
             .andExpect(status().isCreated());
         org.junit.jupiter.api.Assertions.assertFalse(userRepository.findByEmail("novo@example.com").orElseThrow().isPodeAprovar());
     }
+
+    @Test
+    void kaiExigeLoginValidaMensagemEInformaAusenciaDeProvedor() throws Exception {
+        mockMvc.perform(post("/api/ai/chat").contentType(MediaType.APPLICATION_JSON).content("{\"message\":\"Olá\"}"))
+            .andExpect(status().isUnauthorized());
+        var user = userRepository.save(new User("Aluno", "kai@example.com", passwordEncoder.encode("senha123"), User.UserType.USUARIO));
+        String token = jwtService.generateToken(user);
+        mockMvc.perform(post("/api/ai/chat").header("Authorization", "Bearer " + token).contentType(MediaType.APPLICATION_JSON).content("{\"message\":\" \"}"))
+            .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/api/ai/chat").header("Authorization", "Bearer " + token).contentType(MediaType.APPLICATION_JSON).content("{\"message\":\"Olá\"}"))
+            .andExpect(status().isServiceUnavailable()).andExpect(jsonPath("$.error").value("IA_INDISPONIVEL"));
+    }
 }

@@ -32,7 +32,7 @@ function devDelay() {
 }
 
 async function devFallback(method, path, body) {
-  if (path.indexOf('/auth/') === 0 || path === '/users/me') return undefined;
+  if (path.indexOf('/auth/') === 0 || path.indexOf('/ai/') === 0 || path === '/users/me') return undefined;
   if (!devMockEnabled()) return undefined;
   if (typeof devMock !== 'function') return undefined;
   var value;

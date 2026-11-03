@@ -11,6 +11,11 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(com.kripta.ai.KaiException.class)
+    public ResponseEntity<Map<String,Object>> handleKai(com.kripta.ai.KaiException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ApiError.of("IA_INDISPONIVEL", ex.getMessage()));
+    }
+
 
     @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<Map<String, Object>> handleConcurrentReview(Exception ex) {

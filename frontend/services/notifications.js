@@ -1,7 +1,7 @@
 /* ── Notificações ligadas ao calendário (RF07 / RN05 / UC02) ── */
 
 async function getNotifications() {
-  return api.get('/notifications');
+  return api.get('/notificacoes');
 }
 
 function notificationTypePill(type) {
@@ -18,6 +18,8 @@ function notificationCardHTML(n) {
     '<span class="text-[11px] text-text-low">' + formatDate(n.date) + '</span></div>' +
     '<div class="text-sm font-bold mt-1.5 truncate">' + esc(n.title) + '</div>' +
     (n.message ? '<div class="text-[12px] text-text-mid mt-[3px]">' + esc(n.message) + '</div>' : '') +
-    '</div></div>'
+    '</div>' + (n.read ? '<span>Lida</span>' : '<button type="button" onclick="readNotification(' + n.id + ')">Marcar como lida</button>') + '</div>'
   );
 }
+
+async function readNotification(id) { try { await api.patch('/notificacoes/' + id + '/ler'); await renderNotifications(); } catch(e) { toast(cleanError(e),'error'); } }

@@ -4,6 +4,7 @@ module.exports = {
     './index.html',
     './pages/**/*.html',
     './components/**/*.html',
+    './services/**/*.js',
   ],
   theme: {
     extend: {
@@ -48,7 +49,10 @@ module.exports = {
         sm: '10px',
       },
       screens: {
-        desktop: '1024px',
+        'sm': '375px',
+        'md': '640px',
+        'lg': '1024px',
+        'xl': '1440px',
       },
     },
   },

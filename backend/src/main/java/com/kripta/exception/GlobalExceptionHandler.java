@@ -1,0 +1,54 @@
+package com.kripta.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateEmail(DuplicateEmailException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("EMAIL_JA_CADASTRADO", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiError.of("CREDENCIAIS_INVALIDAS", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidCurrentPasswordException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCurrentPassword(InvalidCurrentPasswordException ex) {
+        return ResponseEntity.badRequest().body(ApiError.of("SENHA_ATUAL_INCORRETA", ex.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("USUARIO_NAO_ENCONTRADO", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DisciplinaNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleDisciplinaNotFound(DisciplinaNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("DISCIPLINA_NAO_ENCONTRADA", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateDisciplinaException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateDisciplina(DuplicateDisciplinaException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("DISCIPLINA_JA_CADASTRADA", ex.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, Object> body = ApiError.of("VALIDACAO", "Dados inválidos");
+        Map<String, String> errors = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+        body.put("errors", errors);
+        return ResponseEntity.badRequest().body(body);
+    }
+}

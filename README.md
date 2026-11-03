@@ -165,33 +165,72 @@ backend/
 │   ├── main/
 │   │   │
 │   │   ├── java/
-│   │   │   └── br/
-│   │   │       └── com/
-│   │   │           └── kripta/
-│   │   │               │
-│   │   │               ├── config/
-│   │   │               │
-│   │   │               ├── controller/
-│   │   │               │
-│   │   │               ├── service/
-│   │   │               │
-│   │   │               ├── repository/
-│   │   │               │
-│   │   │               ├── model/
-│   │   │               │
-│   │   │               ├── dto/
-│   │   │               │
-│   │   │               ├── exception/
-│   │   │               │
-│   │   │               ├── security/
-│   │   │               │
-│   │   │               └── ai/
+│   │   │   └── com/
+│   │   │       └── kripta/
+│   │   │           │
+│   │   │           ├── KriptaApplication.java
+│   │   │           │
+│   │   │           ├── config/
+│   │   │           │   └── SecurityConfig.java
+│   │   │           │
+│   │   │           ├── controller/
+│   │   │           │   ├── AuthController.java
+│   │   │           │   ├── DisciplinaController.java
+│   │   │           │   ├── HealthController.java
+│   │   │           │   └── UserController.java
+│   │   │           │
+│   │   │           ├── service/
+│   │   │           │   ├── AuthService.java
+│   │   │           │   ├── CustomUserDetailsService.java
+│   │   │           │   ├── DisciplinaService.java
+│   │   │           │   └── UserService.java
+│   │   │           │
+│   │   │           ├── repository/
+│   │   │           │   ├── DisciplinaRepository.java
+│   │   │           │   └── UserRepository.java
+│   │   │           │
+│   │   │           ├── model/
+│   │   │           │   ├── Disciplina.java
+│   │   │           │   └── User.java
+│   │   │           │
+│   │   │           ├── dto/
+│   │   │           │   ├── ChangePasswordRequest.java
+│   │   │           │   ├── DisciplinaRequest.java
+│   │   │           │   ├── DisciplinaResponse.java
+│   │   │           │   ├── LoginRequest.java
+│   │   │           │   ├── LoginResponse.java
+│   │   │           │   ├── RegisterRequest.java
+│   │   │           │   ├── RegisterResponse.java
+│   │   │           │   ├── UpdateProfileRequest.java
+│   │   │           │   └── UserResponse.java
+│   │   │           │
+│   │   │           ├── exception/
+│   │   │           │   ├── ApiError.java
+│   │   │           │   ├── DisciplinaNotFoundException.java
+│   │   │           │   ├── DuplicateDisciplinaException.java
+│   │   │           │   ├── DuplicateEmailException.java
+│   │   │           │   ├── GlobalExceptionHandler.java
+│   │   │           │   ├── InvalidCredentialsException.java
+│   │   │           │   ├── InvalidCurrentPasswordException.java
+│   │   │           │   └── UserNotFoundException.java
+│   │   │           │
+│   │   │           ├── security/
+│   │   │           │   ├── JwtAuthenticationFilter.java
+│   │   │           │   ├── JwtService.java
+│   │   │           │   ├── RestAccessDeniedHandler.java
+│   │   │           │   ├── RestAuthenticationEntryPoint.java
+│   │   │           │   └── UserPrincipal.java
+│   │   │           │
+│   │   │           └── ai/
 │   │   │
 │   │   └── resources/
+│   │       ├── application.properties
+│   │       └── db/migration/
 │   │
 │   └── test/
 │
 ├── pom.xml
+├── .env.example
 ├── .gitignore
 └── README.md
 ```
@@ -206,6 +245,7 @@ backend/
 | 🌱 Spring Boot | Framework backend |
 | 📦 Maven | Gerenciamento do projeto |
 | 🗄️ PostgreSQL | Banco de dados |
+| 🐦 Flyway | Controle de versão do schema (migrations) |
 | 🔗 Spring Data JPA | Persistência de dados |
 | 💤 Hibernate | ORM |
 | 🔐 Spring Security | Segurança e autenticação |
@@ -332,14 +372,14 @@ O KRIPTA encontra-se atualmente em fase de desenvolvimento.
 
 ### Roadmap
 
-- [ ] Definição inicial do projeto
-- [ ] Definição da arquitetura
-- [ ] Estrutura inicial do backend
-- [ ] Configuração do Spring Boot
-- [ ] Configuração do PostgreSQL
-- [ ] Sistema de autenticação
-- [ ] Gerenciamento de usuários
-- [ ] Sistema de disciplinas
+- [x] Definição inicial do projeto
+- [x] Definição da arquitetura
+- [x] Estrutura inicial do backend
+- [x] Configuração do Spring Boot
+- [x] Configuração do PostgreSQL
+- [x] Sistema de autenticação
+- [x] Gerenciamento de usuários
+- [x] Sistema de disciplinas
 - [ ] Sistema de tarefas
 - [ ] Sistema de conteúdos
 - [ ] Acompanhamento de progresso

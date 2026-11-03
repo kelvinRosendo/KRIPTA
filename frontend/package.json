@@ -4,8 +4,10 @@
   "description": "KRIPTA — Protótipo Frontend com Tailwind CSS",
   "scripts": {
     "dev": "tailwindcss -i ./src/input.css -o ./styles/output.css --watch",
-    "build": "tailwindcss -i ./src/input.css -o ./styles/output.css --minify",
-    "serve": "start index.html"
+    "build": "tailwindcss -i ./src/input.css -o ./styles/output.css",
+    "build:min": "tailwindcss -i ./src/input.css -o ./styles/output.css --minify",
+    "postinstall": "node scripts/build-css.js",
+    "serve": "node scripts/serve.js"
   },
   "keywords": [],
   "author": "",

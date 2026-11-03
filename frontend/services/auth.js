@@ -1,14 +1,13 @@
 /* ── Autenticação (Sprint 3) ── */
 async function registerUser(data) {
   if (isDevAccess(data)) return enterDevMode(data);
-  var res = await api.post('/auth/register', data);
-  storeAuth(res);
+  var res = await api.post('/auth/register', {nome: data.name, email: data.email, senha: data.password, tipo: data.role, rm: data.rm});
   return res;
 }
 
 async function loginUser(data) {
   if (isDevAccess(data)) return enterDevMode(data);
-  var res = await api.post('/auth/login', data);
+  var res = await api.post('/auth/login', {email: data.email, senha: data.password});
   storeAuth(res);
   return res;
 }
@@ -16,13 +15,13 @@ async function loginUser(data) {
 function storeAuth(res) {
   if (res && res.token) {
     State.token = res.token;
-    State.user = res.user || null;
+    State.user = res.user || mapAuthUser(res);
   }
 }
 
 async function fetchMe() {
   var user = await api.get('/users/me');
-  State.user = user;
+  user = mapAuthUser(user); State.user = user;
   return user;
 }
 
@@ -89,3 +88,5 @@ function enterDevMode(data) {
   if (typeof toast === 'function') toast('Modo dev ativado — dados de demonstração', 'warn');
   return res;
 }
+
+function mapAuthUser(u) { return {id:u.id, name:u.nome, email:u.email, role:u.tipo === "USUARIO" ? "ALUNO" : u.tipo, authorized:false}; }

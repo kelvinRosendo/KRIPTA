@@ -1,0 +1,64 @@
+name: Authentication tests
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: kripta
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DB_USERNAME: postgres
+      DB_PASSWORD: ci-only-password
+      JWT_SECRET: ci-only-jwt-secret-at-least-32-characters-long
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Backend tests and package
+        working-directory: backend
+        run: bash mvnw -B -ntp package
+      - name: Web contract tests and build
+        working-directory: frontend
+        run: |
+          npm ci --ignore-scripts
+          node --test tests/auth.test.cjs
+          npm run build
+      - name: PostgreSQL authentication and restart
+        shell: bash
+        run: |
+          java -jar backend/target/kripta-backend-0.1.0-SNAPSHOT.jar > backend/target/server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          node scripts/test-auth-http.cjs
+          kill "$pid"
+          wait "$pid" || true
+          java -jar backend/target/kripta-backend-0.1.0-SNAPSHOT.jar >> backend/target/server.log 2>&1 &
+          pid=$!
+          node scripts/test-auth-http.cjs --existing
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: auth-test-results
+          path: |
+            backend/target/surefire-reports/
+            backend/target/server.log

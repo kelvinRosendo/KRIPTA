@@ -15,7 +15,7 @@ public class User {
 
     public enum UserType {
         ADMIN,
-        USUARIO
+        USUARIO, ALUNO, PROFESSOR
     }
 
     @Id
@@ -35,6 +35,10 @@ public class User {
     @Column(name = "tipo", nullable = false, length = 20)
     private UserType tipo;
 
+    @Column(length = 50)
+    private String rm;
+    public String getRm() { return rm; }
+    public void setRm(String rm) { this.rm = rm; }
     protected User() {
     }
 

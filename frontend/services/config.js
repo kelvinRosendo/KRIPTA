@@ -24,9 +24,9 @@ const CONFIG = {
   dev: {
     API_URL: 'http://localhost:8080/api',
     /* Entrada de dev: chave liberada em e-mail OU senha (vazio = desativado) */
-    DEV_ACCESS_KEY: 'kripta08',
+    DEV_ACCESS_KEY: '',
     /* Interruptor do mock. true = demonstração; false = API real. */
-    DEV_MODE: true,
+    DEV_MODE: false,
     /* Piso de latência do mock, em ms. Simula o servidor para o skeleton aparecer. */
     DEV_LATENCY: 150,
   },

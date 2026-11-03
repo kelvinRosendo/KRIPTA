@@ -50,6 +50,7 @@ public class AuthService {
                 request.getTipo()
         );
 
+        user.setRm(request.getRm() == null ? null : request.getRm().trim());
         User salvo = userRepository.save(user);
 
         return new RegisterResponse(salvo.getId(), salvo.getNome(), salvo.getEmail(), salvo.getTipo());

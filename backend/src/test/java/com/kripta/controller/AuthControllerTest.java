@@ -107,4 +107,26 @@ class AuthControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("EMAIL_JA_CADASTRADO"));
     }
+
+    @Test
+    void deveValidarPerfisAcademicos() throws Exception {
+        for (String tipo : new String[]{"ADMIN", "ALUNO"}) {
+            mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nome\":\"Teste\",\"email\":\"teste@email.com\",\"senha\":\"senha123\",\"tipo\":\"" + tipo + "\"}"))
+                .andExpect(status().isBadRequest());
+        }
+        mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+            .content("{\"nome\":\"Aluno\",\"email\":\"aluno@email.com\",\"senha\":\"senha123\",\"tipo\":\"ALUNO\",\"rm\":\"12345\"}"))
+            .andExpect(status().isCreated());
+        var result = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+            .content("{\"email\":\"aluno@email.com\",\"senha\":\"senha123\"}"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.tipo").value("ALUNO"))
+            .andReturn();
+        String token = new com.fasterxml.jackson.databind.ObjectMapper().readTree(result.getResponse().getContentAsString()).get("token").asText();
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/users/me").header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.email").value("aluno@email.com"));
+        mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+            .content("{\"email\":\"aluno@email.com\",\"senha\":\"errada\"}"))
+            .andExpect(status().isUnauthorized());
+    }
 }

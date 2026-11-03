@@ -24,6 +24,14 @@ public class RegisterRequest {
     @NotNull(message = "Tipo é obrigatório")
     private UserType tipo;
 
+    @Size(max = 50)
+    private String rm;
+    public String getRm() { return rm; }
+    public void setRm(String rm) { this.rm = rm; }
+    @jakarta.validation.constraints.AssertTrue(message = "Perfil inválido ou RM ausente para aluno")
+    public boolean isPerfilValido() {
+        return tipo != UserType.ADMIN && (tipo != UserType.ALUNO || (rm != null && !rm.isBlank()));
+    }
     protected RegisterRequest() {
     }
 

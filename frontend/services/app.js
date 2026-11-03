@@ -13,17 +13,8 @@ function init() {
   bindRegisterRole();
 
   if (isAuthenticated()) {
-    if (State.user) {
-      goTo(defaultScreenForRole());
-      startStreakTracking();
-    } else {
-      fetchMe()
-        .then(function () { updateStatusbarAvatar(); goTo(defaultScreenForRole()); startStreakTracking(); })
-        .catch(function () { goTo('login'); });
-    }
-  } else {
-    goTo('login');
-  }
+    fetchMe().then(function () { updateStatusbarAvatar(); goTo(defaultScreenForRole()); startStreakTracking(); }).catch(function () { logout(); goTo('login'); });
+  } else { goTo('login'); }
 
   healthCheck();
 }
@@ -1247,7 +1238,7 @@ function bindRegisterRole() {
     var authWrap = document.getElementById('register-auth-wrap');
     var rmInput = document.querySelector('#register-form [name="rm"]');
     if (rmWrap) rmWrap.style.display = prof ? 'none' : '';
-    if (authWrap) authWrap.style.display = prof ? '' : 'none';
+    if (authWrap) authWrap.style.display = 'none';
     if (rmInput) rmInput.required = !prof;
   };
   sel.addEventListener('change', apply);
@@ -1285,10 +1276,7 @@ async function submitRegister(form) {
 
   /* Entrada de dev: dispensa validações e vai direto para a Home */
   if (isDevAccess(payload)) {
-    await registerUser(payload);
-    resolvePostAuth();
-    startStreakTracking();
-    healthCheck();
+    await registerUser(payload); logout(); goTo('login'); toast('Cadastro concluído. Entre com seu e-mail e senha.');
     return;
   }
 
@@ -1299,10 +1287,7 @@ async function submitRegister(form) {
   }
   submitBtnLoading(btn);
   try {
-    await registerUser(payload);
-    resolvePostAuth();
-    startStreakTracking();
-    healthCheck();
+    await registerUser(payload); logout(); goTo('login'); toast('Cadastro concluído. Entre com seu e-mail e senha.');
   } catch (e) {
     if (errEl) errEl.textContent = cleanError(e);
     toast(cleanError(e), 'error');

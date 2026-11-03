@@ -45,7 +45,8 @@ class AuthControllerTest {
                   "nome": "Joao Silva",
                   "email": "joao@email.com",
                   "senha": "senha123",
-                  "tipo": "USUARIO"
+                  "tipo": "ALUNO",
+                  "rm": "12345"
                 }
                 """;
 
@@ -57,7 +58,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.id").value(greaterThan(0)))
                 .andExpect(jsonPath("$.nome").value("Joao Silva"))
                 .andExpect(jsonPath("$.email").value("joao@email.com"))
-                .andExpect(jsonPath("$.tipo").value("USUARIO"));
+                .andExpect(jsonPath("$.tipo").value("ALUNO"));
 
         User salvo = userRepository.findByEmail("joao@email.com").orElseThrow();
         assertTrue(passwordEncoder.matches("senha123", salvo.getSenha()));
@@ -70,7 +71,8 @@ class AuthControllerTest {
                   "nome": "",
                   "email": "email-invalido",
                   "senha": "123",
-                  "tipo": "USUARIO"
+                  "tipo": "ALUNO",
+                  "rm": "12345"
                 }
                 """;
 
@@ -92,7 +94,8 @@ class AuthControllerTest {
                   "nome": "Joao Silva",
                   "email": "duplicado@email.com",
                   "senha": "senha123",
-                  "tipo": "USUARIO"
+                  "tipo": "ALUNO",
+                  "rm": "12345"
                 }
                 """;
 
@@ -110,7 +113,7 @@ class AuthControllerTest {
 
     @Test
     void deveValidarPerfisAcademicos() throws Exception {
-        for (String tipo : new String[]{"ADMIN", "ALUNO"}) {
+        for (String tipo : new String[]{"ADMIN", "ALUNO", "USUARIO"}) {
             mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nome\":\"Teste\",\"email\":\"teste@email.com\",\"senha\":\"senha123\",\"tipo\":\"" + tipo + "\"}"))
                 .andExpect(status().isBadRequest());
@@ -128,5 +131,35 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
             .content("{\"email\":\"aluno@email.com\",\"senha\":\"errada\"}"))
             .andExpect(status().isUnauthorized());
+    }
+
+    @Autowired
+    private com.kripta.security.JwtService jwtService;
+
+    @Test
+    void permissaoVemDoServidorERevogacaoValeNoMesmoToken() throws Exception {
+        var teacher = userRepository.save(new User("Professor", "prof@example.com", passwordEncoder.encode("senha123"), User.UserType.PROFESSOR));
+        String token = jwtService.generateToken(teacher);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/users/me").header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.podeAprovar").value(false));
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/conteudos/1/aprovar").header("Authorization", "Bearer " + token))
+            .andExpect(status().isForbidden());
+        teacher.setPodeAprovar(true);
+        userRepository.saveAndFlush(teacher);
+        assertTrue(new com.kripta.security.UserPrincipal(teacher).getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("APROVAR_CONTEUDO")));
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/users/me").header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.podeAprovar").value(true));
+        teacher.setPodeAprovar(false);
+        userRepository.saveAndFlush(teacher);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/conteudos/1/aprovar").header("Authorization", "Bearer " + token))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void cadastroNaoPodeConcederPermissao() throws Exception {
+        mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+            .content("{\"nome\":\"Professor\",\"email\":\"novo@example.com\",\"senha\":\"senha123\",\"tipo\":\"PROFESSOR\",\"authorized\":true,\"podeAprovar\":true}"))
+            .andExpect(status().isCreated());
+        org.junit.jupiter.api.Assertions.assertFalse(userRepository.findByEmail("novo@example.com").orElseThrow().isPodeAprovar());
     }
 }

@@ -4,6 +4,12 @@ import com.kripta.model.User.UserType;
 
 public class UserResponse {
 
+    private String rm;
+    private boolean podeAprovar;
+    public String getRm() { return rm; }
+    public void setRm(String rm) { this.rm = rm; }
+    public boolean isPodeAprovar() { return podeAprovar; }
+    public void setPodeAprovar(boolean value) { this.podeAprovar = value; }
     private Long id;
     private String nome;
     private String email;

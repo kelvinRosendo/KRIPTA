@@ -10,6 +10,7 @@ import java.util.List;
 
 public class UserPrincipal implements UserDetails {
 
+    private final boolean podeAprovar;
     private final Long id;
     private final String nome;
     private final String email;
@@ -17,6 +18,7 @@ public class UserPrincipal implements UserDetails {
     private final User.UserType tipo;
 
     public UserPrincipal(User user) {
+        this.podeAprovar = user.isPodeAprovar();
         this.id = user.getId();
         this.nome = user.getNome();
         this.email = user.getEmail();
@@ -38,7 +40,10 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + tipo.name()));
+        var authorities = new java.util.ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + tipo.name()));
+        if (podeAprovar) authorities.add(new SimpleGrantedAuthority("APROVAR_CONTEUDO"));
+        return authorities;
     }
 
     @Override

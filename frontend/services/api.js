@@ -13,7 +13,7 @@ function normalizeError(status, payload) {
   var err = new Error((payload && payload.message) || 'Erro inesperado');
   err.status = status;
   err.code = (payload && payload.error) || 'ERROR';
-  err.fields = (payload && payload.fields) || null;
+  err.fields = (payload && (payload.errors || payload.fields)) || null;
   return err;
 }
 
@@ -82,7 +82,7 @@ async function apiRequest(method, path, body) {
   if (res.status === 401) {
     var isAuthEndpoint = path.indexOf('/auth/login') !== -1 || path.indexOf('/auth/register') !== -1;
     /* Sem mock, o 401 é a resposta real do servidor: encerra a sessão. */
-    if (!isAuthEndpoint && !devMockEnabled()) {
+    if (!isAuthEndpoint) {
       handleSessionExpired();
     }
     var mock401 = await devFallback(method, path, body);

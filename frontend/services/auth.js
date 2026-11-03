@@ -89,4 +89,4 @@ function enterDevMode(data) {
   return res;
 }
 
-function mapAuthUser(u) { return {id:u.id, name:u.nome, email:u.email, role:u.tipo === "USUARIO" ? "ALUNO" : u.tipo, authorized:false}; }
+function mapAuthUser(u) { return {id:u.id, name:u.nome, email:u.email, role:u.tipo === "USUARIO" ? "ALUNO" : u.tipo, rm:u.rm || null, authorized:u.tipo === "PROFESSOR" && u.podeAprovar === true}; }

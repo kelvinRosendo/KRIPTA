@@ -65,8 +65,11 @@ public class AuthService {
 
         String token = jwtService.generateToken(user);
 
-        return new LoginResponse(token, jwtService.getExpirationMs(),
+        var response = new LoginResponse(token, jwtService.getExpirationMs(),
                 user.getId(), user.getNome(), user.getEmail(), user.getTipo());
+        response.setRm(user.getRm());
+        response.setPodeAprovar(user.isPodeAprovar());
+        return response;
     }
 
     private void authenticate(String email, String senha) {

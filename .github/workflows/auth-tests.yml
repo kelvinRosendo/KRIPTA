@@ -41,7 +41,7 @@ jobs:
         working-directory: frontend
         run: |
           npm ci --ignore-scripts
-          node --test tests/auth.test.cjs
+          node --test tests/*.test.cjs
           npm run build
       - name: PostgreSQL authentication and restart
         shell: bash

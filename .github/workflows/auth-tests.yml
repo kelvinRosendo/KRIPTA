@@ -43,6 +43,17 @@ jobs:
           npm ci --ignore-scripts
           node --test tests/*.test.cjs
           npm run build
+      - name: Academic flow with PostgreSQL migrations
+        working-directory: backend
+        run: >-
+          bash mvnw -B -ntp test -Dtest=AcademicFlowTest
+          -Dspring.flyway.enabled=true
+          -Dspring.datasource.url=jdbc:postgresql://localhost:5432/kripta
+          -Dspring.datasource.username=postgres
+          -Dspring.datasource.password=ci-only-password
+          -Dspring.datasource.driver-class-name=org.postgresql.Driver
+          -Dspring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+          -Dspring.jpa.hibernate.ddl-auto=validate
       - name: PostgreSQL authentication and restart
         shell: bash
         run: |

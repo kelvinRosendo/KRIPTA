@@ -1096,13 +1096,14 @@ async function openContentModal() {
   CONTENT_TYPES.forEach(function (t) { var o = el('option', null, t); o.value = t; typeSel.appendChild(o); });
   var noUnit = el('option', null, 'Sem unidade'); noUnit.value = ''; unitSel.appendChild(noUnit);
   try {
-    var subjects = await getSubjects();
+    var subjects = await api.get('/componentes');
+    if (!subjects.length) { var name = window.prompt('Nome do componente curricular:'); if (name) { await api.post('/componentes', {name:name}); subjects = await api.get('/componentes'); } }
     var arr = Array.isArray(subjects) ? subjects : (subjects && subjects.content ? subjects.content : []);
     arr.forEach(function (s) { var o = el('option', null, s.name); o.value = s.id; subjectSel.appendChild(o); });
-    subjectSel.addEventListener('change', function () { fillContentUnits(subjectSel.value); });
+
     if (arr.length && State.currentSubject) subjectSel.value = State.currentSubject.id;
   } catch (e) { /* sem matérias */ }
-  fillContentUnits(subjectSel.value);
+
   document.getElementById('content-modal').classList.remove('hidden');
   document.getElementById('content-modal').classList.add('flex');
 }

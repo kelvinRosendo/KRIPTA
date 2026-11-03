@@ -1,22 +1,26 @@
 /* ── Matérias (Sprint 5) ── */
 async function getSubjects() {
-  return api.get('/subjects');
+  return (await api.get('/disciplinas')).map(mapSubject);
 }
 
 async function getSubject(id) {
-  return api.get('/subjects/' + id);
+  return mapSubject(await api.get('/disciplinas/' + encodeURIComponent(id)));
 }
 
 async function createSubject(data) {
-  return api.post('/subjects', data);
+  return mapSubject(await api.post('/disciplinas', { nome: data.name, cor: data.color || null }));
 }
 
 async function updateSubject(id, data) {
-  return api.put('/subjects/' + id, data);
+  return mapSubject(await api.put('/disciplinas/' + encodeURIComponent(id), { nome: data.name, cor: data.color || null }));
 }
 
 async function deleteSubject(id) {
-  return api.del('/subjects/' + id);
+  return api.del('/disciplinas/' + encodeURIComponent(id));
+}
+
+function mapSubject(data) {
+  return { id: data.id, name: data.nome, color: data.cor };
 }
 
 function subjectMeta(subject) {

@@ -318,7 +318,7 @@ function openSubjectModal(subject) {
   document.getElementById('subject-modal-title').textContent = subject ? 'Editar matéria' : 'Nova matéria';
   if (subject) {
     form.elements['name'].value = subject.name || '';
-    form.elements['description'].value = subject.description || '';
+    form.elements['color'].value = subject.color || '#6366F1';
   }
   document.getElementById('subject-modal').classList.remove('hidden');
   document.getElementById('subject-modal').classList.add('flex');
@@ -327,7 +327,7 @@ function openSubjectModal(subject) {
 async function submitSubjectForm(form) {
   var btn = form.querySelector('button[type="submit"]');
   submitBtnLoading(btn);
-  var data = { name: form.elements['name'].value, description: form.elements['description'].value };
+  var data = { name: form.elements['name'].value, color: form.elements['color'].value };
   try {
     if (window.__editingSubject) {
       await updateSubject(window.__editingSubject.id, data);

@@ -39,6 +39,7 @@ abstract interface class AuthRepository {
     required String email,
     required String senha,
     required PerfilUsuario perfil,
+    String? rm,
   });
 
   /// Autentica um usuário e persiste o token.

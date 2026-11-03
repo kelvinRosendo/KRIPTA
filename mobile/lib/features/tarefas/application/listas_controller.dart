@@ -4,6 +4,8 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../home/application/home_controller.dart';
+import '../../gamificacao/application/gamificacao_controller.dart';
 import '../../../core/utils/result.dart';
 import '../../../domain/entities/entities.dart';
 
@@ -48,10 +50,7 @@ class TarefasController extends AsyncNotifier<List<Tarefa>> {
 
     state = AsyncValue<List<Tarefa>>.data(
       anterior
-          .map(
-            (Tarefa t) =>
-                t.id == tarefaId ? t.copyWith(concluida: !t.concluida) : t,
-          )
+          .map((Tarefa t) => t.id == tarefaId ? t.copyWith(concluida: true) : t)
           .toList(growable: false),
     );
 
@@ -61,6 +60,8 @@ class TarefasController extends AsyncNotifier<List<Tarefa>> {
 
     switch (resultado) {
       case Success<Tarefa>(:final value):
+        ref.invalidate(homeProvider);
+        ref.invalidate(gamificacaoPerfilProvider);
         // Reconcilia com o servidor: o `concluida` e o `xpConquistado`
         // oficiais valem mais que a estimativa local.
         final atual = state.value;

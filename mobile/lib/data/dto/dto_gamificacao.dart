@@ -150,7 +150,7 @@ class ProgressoDto {
   const ProgressoDto({this.overallProgress = 0});
 
   /// Percentual de conclusão geral, de 0 a 100.
-  @JsonKey(name: 'overallProgress', defaultValue: 0)
+  @JsonKey(name: 'progress', defaultValue: 0)
   final int overallProgress;
 
   /// Conversão a partir do JSON.

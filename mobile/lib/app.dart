@@ -5,7 +5,18 @@
 /// de sessão e widget raiz — vive aqui para não duplicar.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import 'core/di/providers.dart';
+import 'core/config/api_endpoints.dart';
+import 'domain/entities/usuario.dart';
+import 'features/home/application/home_controller.dart';
+import 'features/tarefas/application/listas_controller.dart';
+import 'features/materias/application/materias_controller.dart';
+import 'features/gamificacao/application/gamificacao_controller.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +24,8 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/app_date_format.dart';
 import 'features/auth/application/auth_controller.dart';
+import 'features/kai/application/kai_controller.dart';
+import 'features/conteudos/conteudos_screen.dart';
 
 /// Liga o interceptor de autenticação ao [AuthController].
 ///
@@ -91,7 +104,60 @@ class KriptaApp extends ConsumerStatefulWidget {
   ConsumerState<KriptaApp> createState() => _KriptaAppState();
 }
 
-class _KriptaAppState extends ConsumerState<KriptaApp> {
+class _KriptaAppState extends ConsumerState<KriptaApp>
+    with WidgetsBindingObserver {
+  Timer? _timer;
+  bool _beating = false;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _timer = Timer.periodic(const Duration(seconds: 15), (_) => _heartbeat());
+  }
+
+  Future<void> _heartbeat() async {
+    if (!mounted ||
+        widget.mostrarBannerDebug ||
+        _beating ||
+        (WidgetsBinding.instance.lifecycleState != null &&
+            WidgetsBinding.instance.lifecycleState !=
+                AppLifecycleState.resumed)) {
+      return;
+    }
+    final session = ref.read(authControllerProvider);
+    if (!session.autenticado ||
+        ![
+          PerfilUsuario.aluno,
+          PerfilUsuario.usuario,
+        ].contains(session.usuario?.perfil)) {
+      return;
+    }
+    _beating = true;
+    try {
+      await ref
+          .read(apiClientProvider)
+          .dio
+          .post<Object>(ApiEndpoints.heartbeat);
+      if (mounted) ref.invalidate(homeProvider);
+    } catch (_) {
+      // Rede/401 não contam tempo; o interceptor trata a sessão expirada.
+    } finally {
+      _beating = false;
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _heartbeat();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
   /// Cria uma vez por app: um router novo a cada `build` perderia a
   /// pilha de navegação.
   late final _router = criarRouter(
@@ -100,6 +166,21 @@ class _KriptaAppState extends ConsumerState<KriptaApp> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authControllerProvider, (previous, next) {
+      if (previous?.usuario?.id != next.usuario?.id) {
+        ref.invalidate(homeProvider);
+        ref.invalidate(tarefasProvider);
+        ref.invalidate(materiasProvider);
+        ref.invalidate(unidadesProvider);
+        ref.invalidate(materiaisProvider);
+        ref.invalidate(calendarioProvider);
+        ref.invalidate(avisosProvider);
+        ref.invalidate(kaiControllerProvider);
+        ref.invalidate(approvedProvider);
+        ref.invalidate(gamificacaoPerfilProvider);
+        _heartbeat();
+      }
+    });
     return MaterialApp.router(
       title: 'KRIPTA',
       debugShowCheckedModeBanner: widget.mostrarBannerDebug,

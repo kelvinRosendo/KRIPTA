@@ -26,6 +26,13 @@ class MateriasScreen extends ConsumerWidget {
         title: const Text('Matérias', style: AppTypography.screenTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: 'Conteúdos aprovados',
+            icon: const Icon(Icons.menu_book),
+            onPressed: () => context.push('/conteudos'),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(materiasProvider.notifier).recarregar(),
@@ -47,7 +54,7 @@ class MateriasScreen extends ConsumerWidget {
                 height: MediaQuery.sizeOf(context).height * 0.6,
                 child: const VazioView(
                   titulo: 'Nenhuma disciplina cadastrada',
-                  subtitulo: 'Quando o professor criar as matérias, elas aparecem aqui.',
+                  subtitulo: 'Suas matérias cadastradas na web aparecem aqui.',
                   icone: Icons.school_outlined,
                 ),
               ),

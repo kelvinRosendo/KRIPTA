@@ -3,20 +3,16 @@ library;
 
 import 'package:equatable/equatable.dart';
 
-/// Perfil do usuário, espelhando `User.UserType` do backend.
-///
-/// ```java
-/// public enum UserType { ADMIN, USUARIO }
-/// ```
-///
-/// Observação de escopo: o TCC (RF04) prevê os atores **Aluno** e
-/// **Professor**, com o professor aprovando conteúdos. O backend atual
-/// trabalha com `ADMIN`/`USUARIO`. Essa divergência está registrada no
-/// `RELATORIO.md`; até o backend alinhar, o mobile consome o enum real e
-/// **não** inventa os papéis Aluno/Professor.
+/// Perfis da API. USUARIO permanece apenas para contas legadas.
 enum PerfilUsuario {
   /// Administrador do ambiente.
   admin('ADMIN'),
+
+  /// Aluno com RM.
+  aluno('ALUNO'),
+
+  /// Professor; aprovação depende de autorização do servidor.
+  professor('PROFESSOR'),
 
   /// Usuário comum (aluno, no contexto atual do MVP).
   usuario('USUARIO');
@@ -29,6 +25,8 @@ enum PerfilUsuario {
   /// Rótulo exibido na interface.
   String get rotulo => switch (this) {
     PerfilUsuario.admin => 'Administrador',
+    PerfilUsuario.aluno => 'Aluno',
+    PerfilUsuario.professor => 'Professor',
     PerfilUsuario.usuario => 'Aluno',
   };
 

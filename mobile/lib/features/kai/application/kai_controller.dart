@@ -39,6 +39,7 @@ class KaiController extends Notifier<List<MensagemKai>> {
     _emVoo++;
 
     final resultado = await ref.read(kaiRepositoryProvider).enviar(texto);
+    if (!ref.mounted) return;
     _emVoo--;
 
     // `identical` (e não `==`) garante que só este placeholder saia,

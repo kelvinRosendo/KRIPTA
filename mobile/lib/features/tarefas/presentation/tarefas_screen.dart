@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/error/failure.dart';
+import '../../../core/di/providers.dart';
+import '../../../core/widgets/create_item_dialog.dart';
+import '../../home/application/home_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/state_views.dart';
@@ -36,6 +39,27 @@ class _TarefasScreenState extends ConsumerState<TarefasScreen> {
     final tarefas = ref.watch(tarefasProvider);
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Criar tarefa',
+        child: const Icon(Icons.add),
+        onPressed: () async {
+          final saved = await showDialog<bool>(
+            context: context,
+            builder: (_) => CreateItemDialog(
+              title: 'Nova tarefa',
+              save: (title) async =>
+                  (await ref
+                          .read(tarefaRepositoryProvider)
+                          .criar(titulo: title))
+                      .map<void>((_) {}),
+            ),
+          );
+          if (saved == true && mounted) {
+            ref.invalidate(tarefasProvider);
+            ref.invalidate(homeProvider);
+          }
+        },
+      ),
       appBar: AppBar(
         title: const Text('Tarefas', style: AppTypography.screenTitle),
         backgroundColor: AppColors.background,

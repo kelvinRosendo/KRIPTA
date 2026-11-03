@@ -339,6 +339,7 @@ class Aviso extends Equatable {
     required this.titulo,
     required this.mensagem,
     required this.criadoEm,
+    this.lido = false,
     this.disciplinaId,
     this.disciplinaNome,
   });
@@ -354,6 +355,9 @@ class Aviso extends Equatable {
 
   /// Momento de publicação.
   final DateTime criadoEm;
+
+  /// Indica se a notificação foi lida.
+  final bool lido;
 
   /// Disciplina relacionada, quando houver.
   final int? disciplinaId;

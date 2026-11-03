@@ -31,6 +31,7 @@ class CadastroRequestDto {
     required this.nome,
     required this.email,
     required this.senha,
+    this.rm,
     required this.tipo,
   });
 
@@ -40,12 +41,14 @@ class CadastroRequestDto {
     required String email,
     required String senha,
     required String tipo,
+    String? rm,
   }) {
     return CadastroRequestDto(
       nome: nome.trim(),
       email: email.trim().toLowerCase(),
       senha: senha,
       tipo: tipo,
+      rm: rm,
     );
   }
 
@@ -62,7 +65,10 @@ class CadastroRequestDto {
   final String tipo;
 
   /// Perfil enviado pelo app quando o aluno cria a própria conta.
-  static const String perfilPadrao = 'USUARIO';
+  static const String perfilPadrao = 'ALUNO';
+
+  /// Registro de matrícula obrigatório para alunos.
+  final String? rm;
 
   /// Conversão a partir do JSON.
   factory CadastroRequestDto.fromJson(Map<String, dynamic> json) =>

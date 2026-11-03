@@ -1,24 +1,4 @@
-/// Registro central de endpoints do backend KRIPTA.
-///
-/// Este arquivo é a **única** fonte de verdade de rotas HTTP do mobile.
-/// Nenhum outro arquivo deve montar string de caminho (ver a regra 4 das
-/// `ai/rules.md` do projeto).
-///
-/// ## Status de implementação
-///
-/// O backend Spring Boot evolui por branches e nem todo endpoint citado
-/// no frontend web existe ainda. Cada constante abaixo carrega o status
-/// real, para que a equipe saiba o que já funciona contra a API e o que
-/// ainda depende do backend:
-///
-/// - [EndpointStatus.implementado] — existe no `SecurityConfig`/controller
-///   do backend e já é consumido pelo mobile.
-/// - [EndpointStatus.pendente] — contrato definido (frontend web já consome),
-///   mas o controller ainda não foi escrito. O mobile chama mesmo assim: o
-///   erro 404 chega por [ApiFailure] e a tela mostra "recurso indisponível".
-/// - [EndpointStatus.contratoProposto] — só existe no TCC. Não há contrato
-///   definido; o caminho segue a convenção de nomenclatura do backend
-///   (português) e precisa de validação do responsável pelo backend.
+/// Rotas publicadas pelo backend integrado. O Kai pode retornar 503 sem provedor.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -77,7 +57,7 @@ class ApiEndpoints {
   /// `GET|PUT|DELETE /api/disciplinas/{id}`.
   static String disciplineById(int id) => '/disciplinas/$id';
 
-  // ── Unidades (ainda sem controller no backend) ────────────────────
+  // ── Unidades (API integrada) ────────────────────
   /// `GET|POST /api/disciplinas/{id}/unidades`.
   static String unitsByDiscipline(int disciplineId) =>
       '/disciplinas/$disciplineId/unidades';
@@ -85,7 +65,7 @@ class ApiEndpoints {
   /// `PUT|DELETE /api/unidades/{id}`.
   static String unitById(int id) => '/unidades/$id';
 
-  // ── Materiais (ainda sem controller no backend) ───────────────────
+  // ── Materiais (API integrada) ───────────────────
   /// `GET|POST /api/unidades/{id}/materiais`.
   static String materialsByUnit(int unitId) => '/unidades/$unitId/materiais';
 
@@ -95,7 +75,7 @@ class ApiEndpoints {
   /// `PATCH /api/materiais/{id}/concluir`.
   static String completeMaterial(int id) => '/materiais/$id/concluir';
 
-  // ── Tarefas (ainda sem controller no backend) ─────────────────────
+  // ── Tarefas (API integrada) ─────────────────────
   /// `GET|POST /api/tarefas`.
   static const String tasks = '/tarefas';
 
@@ -103,17 +83,23 @@ class ApiEndpoints {
   static String taskById(int id) => '/tarefas/$id';
 
   /// `PATCH /api/tarefas/{id}/concluir` — alterna o estado de conclusão
-  /// e concede XP (regra de gamificação do TCC).
+  /// e concede XP uma única vez. Repetições mantêm a tarefa concluída.
   static String completeTask(int id) => '/tarefas/$id/concluir';
 
-  // ── Calendário e avisos (ainda sem controller no backend) ─────────
+  // ── Calendário e avisos (API integrada) ─────────
   /// `GET /api/calendario?inicio=YYYY-MM-DD&fim=YYYY-MM-DD`.
   static const String calendar = '/calendario';
 
-  /// `GET /api/avisos`.
-  static const String announcements = '/avisos';
+  /// Criação de eventos pessoais ou escolares.
+  static const String calendarEvents = '/calendario/eventos';
 
-  // ── Gamificação (ainda sem controller no backend) ─────────────────
+  /// Leitura de uma notificação pelo usuário atual.
+  static String readNotice(int id) => '/notificacoes/$id/ler';
+
+  /// `GET /api/notificacoes`.
+  static const String announcements = '/notificacoes';
+
+  // ── Gamificação (API integrada) ─────────────────
   /// `GET /api/progresso`.
   static const String progress = '/progresso';
 
@@ -123,11 +109,14 @@ class ApiEndpoints {
   /// `GET /api/gamificacao/conquistas`.
   static const String achievements = '/gamificacao/conquistas';
 
-  // ── Dashboard (ainda sem controller no backend) ───────────────────
-  /// `GET /api/dashboard` — visão agregada usada pela Home.
-  static const String dashboard = '/dashboard';
+  // ── Dashboard (API integrada) ───────────────────
+  /// Registra continuidade de uso autenticado, sem tempo informado pelo cliente.
+  static const String heartbeat = '/usage/heartbeat';
 
-  // ── Kai / IA (ainda sem controller no backend) ────────────────────
+  /// Publicações aprovadas visíveis para alunos.
+  static const String approvedContent = '/conteudos';
+
+  // ── Kai / IA (API integrada) ────────────────────
   /// `POST /api/ai/chat` — único ponto de entrada do agente.
   ///
   /// O frontend web nunca chama um provedor de IA (OpenAI/Gemini) direto:

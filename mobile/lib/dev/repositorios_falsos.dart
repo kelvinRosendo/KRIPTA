@@ -88,6 +88,7 @@ class AuthRepositoryFalso implements AuthRepository {
     required String email,
     required String senha,
     required PerfilUsuario perfil,
+    String? rm,
   }) async {
     _usuario = _usuario.copyWith(nome: nome, email: email, perfil: perfil);
     _autenticado = true;

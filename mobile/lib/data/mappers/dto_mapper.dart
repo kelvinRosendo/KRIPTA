@@ -140,6 +140,7 @@ abstract final class DtoMapper {
     id: dto.id,
     titulo: dto.title,
     mensagem: dto.message,
+    lido: dto.read,
     criadoEm: AppDateFormat.tryParse(dto.createdAt) ?? DateTime.now(),
     disciplinaId: _idDaDisciplina(dto.subject),
     disciplinaNome: _nomeDaDisciplina(dto.subject),

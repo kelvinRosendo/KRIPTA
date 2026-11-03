@@ -18,9 +18,22 @@ void main() {
 
     test('atrasada ignora a hora, comparando só o dia', () {
       // Vence hoje às 23h, mas são 10h: não está atrasada.
-      expect(comPrazo(DateTime(2026, 9, 28, 23)).atrasada, isFalse);
+      expect(
+        comPrazo(
+          DateTime(
+            DateTime.now().year,
+            DateTime.now().month,
+            DateTime.now().day,
+            23,
+          ),
+        ).atrasada,
+        isFalse,
+      );
       // Venceu ontem: atrasada.
-      expect(comPrazo(DateTime(2026, 9, 27, 23, 59)).atrasada, isTrue);
+      expect(
+        comPrazo(DateTime.now().subtract(const Duration(days: 1))).atrasada,
+        isTrue,
+      );
     });
 
     test('tarefa concluída nunca fica atrasada', () {
@@ -32,8 +45,21 @@ void main() {
     });
 
     test('venceHoje só é verdadeiro no dia do prazo', () {
-      expect(comPrazo(DateTime(2026, 9, 28, 23)).venceHoje, isTrue);
-      expect(comPrazo(DateTime(2026, 9, 29, 1)).venceHoje, isFalse);
+      expect(
+        comPrazo(
+          DateTime(
+            DateTime.now().year,
+            DateTime.now().month,
+            DateTime.now().day,
+            23,
+          ),
+        ).venceHoje,
+        isTrue,
+      );
+      expect(
+        comPrazo(DateTime.now().add(const Duration(days: 1))).venceHoje,
+        isFalse,
+      );
     });
   });
 
@@ -45,7 +71,7 @@ void main() {
 
     test('papel desconhecido não quebra o login', () {
       // Um papel novo no backend não pode impedir o app de abrir.
-      expect(PerfilUsuario.fromWire('PROFESSOR'), PerfilUsuario.usuario);
+      expect(PerfilUsuario.fromWire('FUTURO'), PerfilUsuario.usuario);
       expect(PerfilUsuario.fromWire(null), PerfilUsuario.usuario);
     });
   });

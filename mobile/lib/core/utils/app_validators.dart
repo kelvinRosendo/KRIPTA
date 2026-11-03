@@ -43,16 +43,18 @@ abstract final class AppValidators {
   /// Valida tamanho máximo, espelhando `@Size(max = ...)`.
   static String? maxLength(String? value, int max, String label) {
     if (value == null || value.isEmpty) return null;
-    if (value.trim().length > max)
+    if (value.trim().length > max) {
       return '$label deve ter no máximo $max caracteres';
+    }
     return null;
   }
 
   /// Valida tamanho mínimo, espelhando `@Size(min = ...)`.
   static String? minLength(String? value, int min, String label) {
     if (value == null || value.isEmpty) return null;
-    if (value.trim().length < min)
+    if (value.trim().length < min) {
       return '$label deve ter no mínimo $min caracteres';
+    }
     return null;
   }
 

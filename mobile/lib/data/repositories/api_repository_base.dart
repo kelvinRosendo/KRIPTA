@@ -138,19 +138,7 @@ abstract class ApiRepositoryBase {
     Response<dynamic> resposta,
     T Function(Map<String, dynamic> json) construir,
   ) {
-    final itens = corpoLista(resposta);
-    final saida = <T>[];
-    for (var i = 0; i < itens.length; i++) {
-      try {
-        saida.add(construir(itens[i]));
-      } on Object catch (erro, pilha) {
-        log.warning(
-          'item $i da lista descartado: ${erro.runtimeType}',
-          stackTrace: pilha,
-        );
-      }
-    }
-    return saida;
+    return corpoLista(resposta).map(construir).toList(growable: false);
   }
 
   /// Converte um `204 No Content` — ou qualquer resposta sem corpo — em

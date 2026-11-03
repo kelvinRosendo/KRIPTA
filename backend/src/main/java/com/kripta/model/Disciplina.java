@@ -27,6 +27,9 @@ public class Disciplina {
 
     @Column(name = "nome", nullable = false, length = 100)
     private String nome;
+    private Long componenteId;
+    public Long getComponenteId() { return componenteId; }
+    public void setComponenteId(Long id) { componenteId = id; }
 
     @Column(name = "cor", nullable = false, length = 7)
     private String cor;

@@ -4,6 +4,9 @@ public class DisciplinaResponse {
 
     private Long id;
     private String nome;
+    private Long componenteId;
+    public Long getComponenteId() { return componenteId; }
+    public void setComponenteId(Long id) { componenteId = id; }
     private String cor;
 
     public DisciplinaResponse(Long id, String nome, String cor) {

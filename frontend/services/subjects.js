@@ -8,11 +8,11 @@ async function getSubject(id) {
 }
 
 async function createSubject(data) {
-  return mapSubject(await api.post('/disciplinas', { nome: data.name, cor: data.color || null }));
+  return mapSubject(await api.post('/disciplinas', { nome: data.name, cor: data.color || null, componenteId: data.componentId || null }));
 }
 
 async function updateSubject(id, data) {
-  return mapSubject(await api.put('/disciplinas/' + encodeURIComponent(id), { nome: data.name, cor: data.color || null }));
+  return mapSubject(await api.put('/disciplinas/' + encodeURIComponent(id), { nome: data.name, cor: data.color || null, componenteId: data.componentId || null }));
 }
 
 async function deleteSubject(id) {
@@ -20,7 +20,7 @@ async function deleteSubject(id) {
 }
 
 function mapSubject(data) {
-  return { id: data.id, name: data.nome, color: data.cor };
+  return { id: data.id, name: data.nome, color: data.cor, componentId: data.componenteId };
 }
 
 function subjectMeta(subject) {

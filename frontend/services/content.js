@@ -19,9 +19,7 @@ async function getPendingContents() {
 async function getApprovedContents(subjectId) {
   if (!subjectId) return api.get('/conteudos');
   var subject = await getSubject(subjectId);
-  var components = await api.get('/componentes');
-  var component = components.find(function (c) { return c.name.trim().toLowerCase() === subject.name.trim().toLowerCase(); });
-  return component ? api.get('/conteudos?subjectId=' + component.id) : [];
+  return subject.componentId ? api.get('/conteudos?subjectId=' + subject.componentId) : [];
 }
 
 async function approveContent(id) {

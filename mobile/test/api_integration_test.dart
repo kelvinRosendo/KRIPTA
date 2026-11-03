@@ -143,6 +143,17 @@ void main() {
       expect(login.isSuccess, true);
       interceptor.invalidateTokenCache();
       expect((await game.estatisticas()).valueOrNull!.xp, 25);
+      await expectLater(
+        dio.delete<Object>('/users/me'),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.response?.statusCode,
+            'conflito de vínculos',
+            409,
+          ),
+        ),
+      );
+      expect((await auth.usuarioAtual()).isSuccess, true);
       dio.close();
       web.close();
     },

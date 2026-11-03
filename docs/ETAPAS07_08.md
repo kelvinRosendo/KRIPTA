@@ -31,6 +31,10 @@ Atualizado em 03/11/2026. Este relatório complementa o roadmap original; não a
 | UC07 progresso | XP único concorrente, 600 segundos, virada de dia e pausas Java | uso em primeiro plano no aparelho; heartbeat não prova atenção humana |
 | UC08 consultar progresso | Java persistência e Flutter decodificação de XP/conquistas | conferência visual do perfil |
 
+## Resultado local
+
+57 testes Flutter aprovados (1 integração real reservada à CI), análise sem avisos e APK debug gerado. Seis testes web e build aprovados. 93 testes Java locais passaram; o workflow repete os testes sobre o código final e PostgreSQL. Resultado remoto deve ser conferido nos checks da PR 7.
+
 ## Testes reproduzíveis
 
 - `backend`: JDK 21, `./mvnw test` (Windows: `./mvnw.cmd test`).

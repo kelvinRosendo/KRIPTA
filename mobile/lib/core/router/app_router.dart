@@ -192,7 +192,7 @@ GoRouter criarRouter(ProviderContainer container) {
                     const MateriasScreen(),
                 routes: <RouteBase>[
                   GoRoute(
-                    path: Routes.unidadesPrefixo,
+                    path: ':disciplinaId/unidades/:unidadeId',
                     name: 'unidades',
                     builder: (BuildContext context, GoRouterState state) {
                       final disciplinaId =

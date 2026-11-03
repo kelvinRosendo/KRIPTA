@@ -115,7 +115,7 @@ class MateriaisController extends AsyncNotifier<List<MaterialEstudo>> {
       atual
           .map(
             (MaterialEstudo m) =>
-                m.id == materialId ? m.copyWith(concluido: !m.concluido) : m,
+                m.id == materialId ? m.copyWith(concluido: true) : m,
           )
           .toList(growable: false),
     );

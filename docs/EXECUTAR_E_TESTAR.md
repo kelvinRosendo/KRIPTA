@@ -49,6 +49,7 @@ Código: `backend/`, `frontend/`, `mobile/`. Contratos e relatórios: `docs/`. A
 - [PR 4 — calendário e notificações](https://github.com/kelvinRosendo/KRIPTA/pull/4)
 - [PR 5 — gamificação](https://github.com/kelvinRosendo/KRIPTA/pull/5)
 - [PR 6 — estrutura de provedores Kai](https://github.com/kelvinRosendo/KRIPTA/pull/6)
+- [PR 7 — Flutter e revisão de entrega](https://github.com/kelvinRosendo/KRIPTA/pull/7)
 - [Todas as PRs, inclusive encerradas](https://github.com/kelvinRosendo/KRIPTA/pulls?q=is%3Apr)
 
 No GitHub, a aba Files changed de cada PR mostra o que foi alterado; Conversation mostra os testes e o merge.

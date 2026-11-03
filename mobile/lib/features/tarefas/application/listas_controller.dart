@@ -71,9 +71,10 @@ class TarefasController extends AsyncNotifier<List<Tarefa>> {
               .map((Tarefa t) => t.id == value.id ? value : t)
               .toList(growable: false),
         );
-      case FailureResult<Tarefa>():
+      case FailureResult<Tarefa>(:final failure):
         // Reverte: a resposta do servidor é a autoridade.
         state = AsyncValue<List<Tarefa>>.data(anterior);
+        throw failure;
     }
   }
 }

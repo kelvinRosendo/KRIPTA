@@ -103,9 +103,19 @@ class _TarefasScreenState extends ConsumerState<TarefasScreen> {
                     ),
                   AsyncData<List<Tarefa>>(:final value) => _Lista(
                     tarefas: _filtrar(value),
-                    aoAlternar: (int id) => ref
-                        .read(tarefasProvider.notifier)
-                        .alternarConclusao(id),
+                    aoAlternar: (int id) async {
+                      try {
+                        await ref
+                            .read(tarefasProvider.notifier)
+                            .alternarConclusao(id);
+                      } on Failure catch (error) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(error.message)),
+                          );
+                        }
+                      }
+                    },
                   ),
                   _ => const CarregandoView(),
                 },
@@ -283,7 +293,7 @@ class _CardTarefa extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => aoAlternar(tarefa.id),
+          onTap: tarefa.concluida ? null : () => aoAlternar(tarefa.id),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
@@ -292,7 +302,9 @@ class _CardTarefa extends StatelessWidget {
               children: <Widget>[
                 Checkbox(
                   value: tarefa.concluida,
-                  onChanged: (_) => aoAlternar(tarefa.id),
+                  onChanged: tarefa.concluida
+                      ? null
+                      : (_) => aoAlternar(tarefa.id),
                   activeColor: AppColors.success,
                   visualDensity: VisualDensity.compact,
                 ),

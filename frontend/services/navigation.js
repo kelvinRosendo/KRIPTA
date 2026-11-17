@@ -75,7 +75,9 @@ function applyScreen(screenName, isPublic) {
   });
 
   var nav = document.getElementById('bottomnav');
-  if (isPublic || (typeof isAuthenticated === 'function' && !isAuthenticated())) {
+  var showNavigation = !isPublic && (typeof isAuthenticated !== 'function' || isAuthenticated());
+  document.getElementById('app-header').hidden = !showNavigation;
+  if (!showNavigation) {
     nav.classList.add('hidden');
     nav.style.display = 'none';
   } else {

@@ -6,7 +6,6 @@ function init() {
   updateTopbarDate();
   bindGlobalEvents();
   bindSubjectFilter();
-  mountStatusbarActions();
   updateStatusbarAvatar();
   applyPrefs();
 
@@ -308,13 +307,19 @@ function subjectCardHTML(s) {
   );
 }
 
+var subjectsView = null;
+
 async function renderSubjects() {
+  var token = State.token;
+  subjectsView = null;
   var list = document.getElementById('subjects-list');
   var countEl = document.getElementById('subjects-count');
   showLoading(list);
   try {
     var subjects = await getSubjects();
     var arr = Array.isArray(subjects) ? subjects : (subjects && subjects.content ? subjects.content : []);
+    if (State.token !== token) return;
+    subjectsView = { token: token, items: arr };
     fillSubjectFilter(countEl, arr);
     applySubjectFilter(arr);
   } catch (e) {
@@ -329,13 +334,17 @@ function fillSubjectFilter(countEl, subjects) {
 function applySubjectFilter(subjects) {
   var list = document.getElementById('subjects-list');
   var filter = window.__subjectFilter || 'all';
-  var filtered = (filter === 'all')
-    ? subjects
-    : subjects.filter(function (s) { return String(s[filter] || '').toLowerCase() === 'true'; });
+  var query = normalizeSubjectSearch(document.getElementById('subject-search').value);
+  var filtered = subjects.filter(function (subject) {
+    return (filter === 'all' || String(subject[filter] || '').toLowerCase() === 'true') &&
+      normalizeSubjectSearch(subject.name || '').includes(query);
+  });
 
   empty(list);
   if (!filtered.length) {
-    list.innerHTML = emptyState('Nenhuma matéria aqui', 'Toque em "Adicionar matéria" para começar.');
+    list.innerHTML = query
+      ? emptyState('Nenhuma matéria encontrada', 'Tente buscar por outro nome.')
+      : emptyState('Nenhuma matéria aqui', 'Toque em "Adicionar matéria" para começar.');
   } else {
     var GROUPS = [
       { key: 'CURSO', label: 'Matérias do curso' },
@@ -361,7 +370,16 @@ function applySubjectFilter(subjects) {
     '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Adicionar matéria</button>');
 }
 
+function normalizeSubjectSearch(value) {
+  return value.trim().toLocaleLowerCase('pt-BR').normalize('NFD').replace(/\p{M}/gu, '');
+}
+
+function refreshSubjectFilter() {
+  if (subjectsView && subjectsView.token === State.token) applySubjectFilter(subjectsView.items);
+}
+
 function bindSubjectFilter() {
+  document.getElementById('subject-search').addEventListener('input', refreshSubjectFilter);
   document.querySelectorAll('[data-subject-filter]').forEach(function (pill) {
     pill.addEventListener('click', function () {
       window.__subjectFilter = pill.getAttribute('data-subject-filter');
@@ -372,12 +390,7 @@ function bindSubjectFilter() {
           p.className = 'pill bg-surface text-text-mid border border-border cursor-pointer';
         }
       });
-      getSubjects()
-        .then(function (subjects) {
-          var arr = Array.isArray(subjects) ? subjects : (subjects && subjects.content ? subjects.content : []);
-          applySubjectFilter(arr);
-        })
-        .catch(function (e) { document.getElementById('subjects-list').innerHTML = errorView(e && e.message); });
+      refreshSubjectFilter();
     });
   });
 }
@@ -960,31 +973,10 @@ function logoutAndGoLogin() {
   toast('Você saiu da sua conta.');
 }
 
-/* ── Avatar do usuário no statusbar (abre o drawer de perfil) ── */
-function mountStatusbarActions() {
-  document.querySelectorAll('.statusbar').forEach(function (bar) {
-    if (bar.querySelector('.statusbar-avatar')) return;
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'statusbar-avatar';
-    btn.setAttribute('aria-label', 'Abrir perfil');
-    btn.innerHTML = '<span class="statusbar-avatar-initial">A</span>';
-    btn.addEventListener('click', openProfileDrawer);
-    var settings = document.getElementById('header-settings-template').content.firstElementChild.cloneNode(true);
-    settings.addEventListener('click', function () { goTo('configuracoes'); });
-    var actions = document.createElement('div');
-    actions.className = 'statusbar-actions';
-    actions.append(settings, btn);
-    bar.appendChild(actions);
-  });
-}
-
 function updateStatusbarAvatar() {
   var user = State.user;
   var initial = user && user.name ? String(user.name).charAt(0).toUpperCase() : 'A';
-  document.querySelectorAll('.statusbar-avatar-initial').forEach(function (el) {
-    el.textContent = initial;
-  });
+  document.getElementById('header-avatar-initial').textContent = initial;
 }
 
 /* ── Drawer de perfil + configurações ── */

@@ -85,10 +85,13 @@ input::placeholder, textarea::placeholder { color: var(--app-secondary); opacity
 .statusbar {
   min-height: 62px;
   align-items: center;
-  padding-top: 0;
+  padding: 0 clamp(16px, 2.5vw, 34px);
   background: var(--app-navigation);
   border-bottom: 1px solid var(--app-border);
 }
+.statusbar[hidden] { display: none; }
+.statusbar:not([hidden]) ~ .screen { min-height: calc(100vh - 62px); }
+.subject-search { width: min(100%, 420px); }
 .app-wordmark {
   display: flex;
   align-items: center;

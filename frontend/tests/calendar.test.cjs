@@ -18,3 +18,31 @@ test('calendar range and notification services use real API routes', async () =>
   context.CAL_EVENTS=[{date:'2026-11-03',title:'No dia'},{date:'2026-11-04',title:'Outro dia'}];
   assert.equal(context.calEventsOn(new Date(2026,10,3)).length,1);
 });
+
+test('pending task deadlines appear once on the local day and only in personal or combined views', async () => {
+  const start = '2026-11-20';
+  const localDue = new Date(2026, 10, 20, 23, 15).toISOString();
+  let taskRequests = 0;
+  const context = vm.createContext({
+    Date,
+    api: { get: async () => [{ id: 6, title: 'Evento existente', date: start }] },
+    isProfessor: () => false,
+    getTasks: async () => {
+      taskRequests++;
+      return [
+        { id: 11, title: 'Trabalho', dueDate: localDue, completed: false },
+        { id: 12, title: 'Concluída', dueDate: localDue, completed: true },
+        { id: 13, title: 'Sem prazo', dueDate: null },
+        { id: 14, title: 'Outro dia', dueDate: new Date(2026, 10, 21, 12).toISOString() },
+      ];
+    },
+  });
+  vm.runInContext(fs.readFileSync('services/calendar.js', 'utf8'), context);
+  const events = await context.getCalendarWithDeadlines(start, start, 'ALL');
+  assert.equal(events.length, 2);
+  assert.equal(events[1].taskId, 11);
+  assert.equal(events[1].date, start);
+  assert.equal(events[1].time, '23:15');
+  assert.equal((await context.getCalendarWithDeadlines(start, start, 'ESCOLAR')).length, 1);
+  assert.equal(taskRequests, 1);
+});

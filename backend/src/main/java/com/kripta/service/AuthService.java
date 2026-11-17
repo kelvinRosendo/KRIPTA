@@ -9,6 +9,7 @@ import com.kripta.exception.InvalidCredentialsException;
 import com.kripta.model.User;
 import com.kripta.repository.UserRepository;
 import com.kripta.security.JwtService;
+import com.kripta.security.UserPrincipal;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -23,15 +24,20 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final CursoMtecService cursoMtec;
+    private final SalaService salas;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
-                       JwtService jwtService) {
+                       JwtService jwtService,
+                       CursoMtecService cursoMtec, SalaService salas) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.cursoMtec = cursoMtec;
+        this.salas = salas;
     }
 
     @Transactional
@@ -56,13 +62,19 @@ public class AuthService {
         return new RegisterResponse(salvo.getId(), salvo.getNome(), salvo.getEmail(), salvo.getTipo());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public LoginResponse login(LoginRequest request) {
         String email = request.getEmail().trim().toLowerCase();
 
         authenticate(email, request.getSenha());
         User user = buscarUsuario(email);
 
+        if (request.getCodigoSala() != null) {
+            salas.entrar(new UserPrincipal(user), request.getCodigoSala());
+        }
+        if (request.getCursoMtec() != null) {
+            cursoMtec.selecionar(new UserPrincipal(user), request.getCursoMtec(), request.getSerieMtec());
+        }
         String token = jwtService.generateToken(user);
 
         var response = new LoginResponse(token, jwtService.getExpirationMs(),

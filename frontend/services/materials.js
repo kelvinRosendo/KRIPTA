@@ -22,12 +22,6 @@ async function completeMaterial(id) {
 const MATERIAL_TYPES = ['PDF', 'LINK', 'VIDEO', 'DOCUMENT', 'NOTE', 'OTHER'];
 
 function materialIcon(type) {
-  switch (type) {
-    case 'PDF': return '📄';
-    case 'LINK': return '🔗';
-    case 'VIDEO': return '🎬';
-    case 'DOCUMENT': return '📃';
-    case 'NOTE': return '📝';
-    default: return '📎';
-  }
+  var icons = { PDF: 'document', LINK: 'link', VIDEO: 'video', DOCUMENT: 'document', NOTE: 'note' };
+  return uiIcon(icons[type] || 'attachment');
 }

@@ -48,13 +48,12 @@ public class DisciplinaService {
 
     @Transactional
     public DisciplinaResponse criar(UserPrincipal principal, DisciplinaRequest request) {
+        User usuario = lockUsuario(principal.getId());
         String nome = request.getNome().trim();
 
         if (disciplinaRepository.existsByUsuarioIdAndNomeIgnoreCase(principal.getId(), nome)) {
             throw new DuplicateDisciplinaException();
         }
-
-        User usuario = findUsuario(principal.getId());
 
         Disciplina disciplina = new Disciplina(usuario, nome, normalizarCor(request.getCor()));
         vincular(disciplina, request);
@@ -63,6 +62,7 @@ public class DisciplinaService {
 
     @Transactional
     public DisciplinaResponse atualizar(Long id, UserPrincipal principal, DisciplinaRequest request) {
+        lockUsuario(principal.getId());
         Disciplina disciplina = buscarDisciplina(id, principal);
         String nome = request.getNome().trim();
 
@@ -80,6 +80,7 @@ public class DisciplinaService {
 
     @Transactional
     public void excluir(Long id, UserPrincipal principal) {
+        lockUsuario(principal.getId());
         Disciplina disciplina = buscarDisciplina(id, principal);
         disciplinaRepository.delete(disciplina);
     }
@@ -89,8 +90,8 @@ public class DisciplinaService {
                 .orElseThrow(DisciplinaNotFoundException::new);
     }
 
-    private User findUsuario(Long id) {
-        return userRepository.findById(id)
+    private User lockUsuario(Long id) {
+        return userRepository.locked(id)
                 .orElseThrow(UserNotFoundException::new);
     }
 

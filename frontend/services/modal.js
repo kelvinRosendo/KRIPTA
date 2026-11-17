@@ -34,7 +34,7 @@ async function confirmDelete() {
     closeDeleteModal();
     if (state.kind === 'subject') renderSubjects();
     else if (state.kind === 'unit' || state.kind === 'material') switchTab(DETAIL_TAB);
-    else renderTasks();
+    else refreshTaskScreen();
   } catch (e) {
     toast(cleanError(e), 'error');
   } finally {

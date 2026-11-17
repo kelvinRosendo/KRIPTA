@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="shortcut icon" href="assets/KriptaLogoNw.png" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
 
   <script>
     /* Rede de segurança: se styles/output.css não carregar (ex.: clone novo
@@ -32,11 +32,47 @@
     };
   </script>
 
+  <script src="services/prefs.js"></script>
   <link rel="stylesheet" href="styles/output.css?v=20261019" onerror="window.kriptaCssError && window.kriptaCssError()">
+  <link rel="stylesheet" href="styles/redesign.css">
 </head>
 <body>
+  <svg class="icon-definitions" aria-hidden="true" focusable="false">
+    <symbol id="icon-flame" viewBox="0 0 24 24"><path d="M12.6 2.8c.7 4.1 5.7 5.6 5.7 11.3a6.3 6.3 0 0 1-12.6 0c0-2.5 1.5-4.6 3.4-6.1-.1 2 .7 3.1 1.5 3.6 1.6-2.6 2.4-5.5 2-8.8Z"/><path d="M12.5 13.6c1.4 1.2 2.2 2.4 2.2 3.5a2.7 2.7 0 0 1-5.4 0c0-1.3 1-2.7 3.2-3.5Z"/></symbol>
+    <symbol id="icon-bolt" viewBox="0 0 24 24"><path d="m13.4 2.8-8 10.2h5.3l-.8 8.2 8.7-11h-5.4l.2-7.4Z"/></symbol>
+    <symbol id="icon-level" viewBox="0 0 24 24"><path d="m4 15 8-6 8 6M4 20l8-6 8 6M9 6l3-2.3L15 6"/></symbol>
+    <symbol id="icon-medal" viewBox="0 0 24 24"><path d="m8 14-2 7 6-2.7 6 2.7-2-7"/><circle cx="12" cy="9" r="6"/><path d="m9.6 9 1.6 1.6 3.2-3.2"/></symbol>
+    <symbol id="icon-kai" viewBox="0 0 24 24"><path d="m12 2.7 7.8 4.5v9.6L12 21.3l-7.8-4.5V7.2L12 2.7Z"/><path d="m7.8 12 2.8 2.8 5.5-5.5M12 2.7v2.5m7.8 11.6-2.2-1.3m-13.4 1.3 2.2-1.3"/></symbol>
+    <symbol id="icon-tasks" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="3"/><path d="M9 4v-1m6 1v-1m-6 9 2 2 4-4"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="14" rx="3"/><path d="M8 4v4m8-4v4M4 10h16m-11 4h2m3 0h2m-7 3h2"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Zm0 0v14"/></symbol>
+    <symbol id="icon-folder" viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
+    <symbol id="icon-document" viewBox="0 0 24 24"><path d="M7 3h7l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm7 0v5h4M9 12h5m-5 4h5"/></symbol>
+    <symbol id="icon-link" viewBox="0 0 24 24"><path d="m10 14 4-4m-5 6-1 1a3.5 3.5 0 0 1-5-5l4-4a3.5 3.5 0 0 1 5 0m0 8a3.5 3.5 0 0 0 5 0l4-4a3.5 3.5 0 0 0-5-5l-1 1"/></symbol>
+    <symbol id="icon-video" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></symbol>
+    <symbol id="icon-note" viewBox="0 0 24 24"><path d="M6 3h12a2 2 0 0 1 2 2v9l-6 6H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 17v-5a1 1 0 0 1 1-1h5M8 8h8m-8 4h4"/></symbol>
+    <symbol id="icon-attachment" viewBox="0 0 24 24"><path d="M8 12.5l5.9-5.9a2.6 2.6 0 0 1 3.7 3.7l-7.2 7.2a4 4 0 0 1-5.7-5.7l8-8"/></symbol>
+    <symbol id="icon-empty" viewBox="0 0 24 24"><path d="M4 11l2.6-6h10.8l2.6 6v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm0 0h5l1.6 2h2.8l1.6-2h5"/></symbol>
+    <symbol id="icon-alert" viewBox="0 0 24 24"><path d="m10.4 4.7-7 12.6A1.8 1.8 0 0 0 5 20h14a1.8 1.8 0 0 0 1.6-2.7l-7-12.6a1.8 1.8 0 0 0-3.2 0Z"/><path d="M12 9v4m0 3h.01"/></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M9 10V7a3 3 0 1 1 6 0v3m-3 4v2"/></symbol>
+    <symbol id="icon-code" viewBox="0 0 24 24"><path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 4l-4 16"/></symbol>
+    <symbol id="icon-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01" stroke-width="2.6"/></symbol>
+    <symbol id="icon-flask" viewBox="0 0 24 24"><path d="M9 3h6m-5 0v6L4.5 18a1.8 1.8 0 0 0 1.5 3h12a1.8 1.8 0 0 0 1.5-3L14 9V3M7.4 14h9.2"/></symbol>
+    <symbol id="icon-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 4v16h16M8 15l4-5 3 2 5-6m-4 0h4v4"/></symbol>
+    <symbol id="icon-leaf" viewBox="0 0 24 24"><path d="M5 19C1 8 12 4 21 4c-1 9-4 17-13 15M4 21l12-12"/></symbol>
+    <symbol id="icon-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18h1a2 2 0 0 0 1.5-3.3 1.4 1.4 0 0 1 1-2.4H18a3 3 0 0 0 3-3.6A9 9 0 0 0 12 3Z"/><path d="M7 12h.01M9 8h.01M13 7h.01M17 10h.01" stroke-width="2.8"/></symbol>
+  </svg>
 
 <div class="device">
+
+  <header class="statusbar" id="app-header" hidden>
+    <span class="app-wordmark"><img src="assets/KriptaLogoNw.png" alt=""> KRIPTA</span>
+    <div class="statusbar-actions">
+      <button type="button" class="icon-btn header-settings" aria-label="Configurações" title="Configurações" onclick="goTo('configuracoes')"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.2 3h3.6l.5 2.3 1.7 1 2.2-.7L20 8.7l-1.7 1.6v2l1.7 1.6-1.8 3.1-2.2-.7-1.7 1-.5 2.3h-3.6l-.5-2.3-1.7-1-2.2.7L4 13.9l1.7-1.6v-2L4 8.7l1.8-3.1 2.2.7 1.7-1z"/><circle cx="12" cy="11.3" r="2.7"/></svg></button>
+      <button type="button" class="statusbar-avatar" aria-label="Abrir perfil" onclick="openProfileDrawer()"><span id="header-avatar-initial">A</span></button>
+    </div>
+  </header>
 
   <!-- Pill de status da conexão (canto superior direito) -->
   <div id="conn-banner" class="hidden fixed top-2 right-2 z-[150] rounded-full px-3 py-1 text-[10.5px] font-bold shadow-sm max-w-[280px] truncate pointer-events-auto cursor-default"></div>
@@ -45,12 +81,17 @@
        LOGIN
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-login">
-    <div class="flex flex-col justify-between flex-1 pt-14 px-7 pb-11">
+    <div class="auth-art" aria-hidden="true">
+      <div class="app-wordmark"><img src="assets/KriptaLogoNw.png" alt=""> KRIPTA</div>
+      <img class="auth-art-logo" src="assets/KriptaLogoNw.png" alt="">
+      <div><p class="auth-art-title">Sua rotina de estudos, em um só lugar.</p><p>Tarefas, matérias, agenda e progresso.</p></div>
+    </div>
+    <div class="card auth-card">
       <div class="text-center mt-6">
         <div class="w-[150px] h-[150px] mx-auto mb-4 flex items-center justify-center">
           <img src="assets/KriptaLogoNw.png" alt="KRIPTA" class="max-w-full max-h-full object-contain">
         </div>
-        <h1 class="font-display text-[38px] font-bold tracking-tight text-indigo">KRIPTA</h1>
+        <h1 class="font-display text-[38px] font-bold tracking-tight text-indigo">Entrar</h1>
         <p class="text-text-mid text-[15px] mt-2 leading-[1.55]">
           Que bom te ver de novo. Continue de onde parou.
         </p>
@@ -65,6 +106,28 @@
             <option value="PROFESSOR">Professor</option>
           </select>
         </label>
+        <fieldset id="login-course-fields" class="login-course-fields">
+          <label class="flex flex-col gap-1 text-xs font-bold text-text-mid">CURSO M-TEC
+            <select name="curso" required class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm" disabled>
+              <option value="">Carregando cursos…</option>
+            </select>
+          </label>
+          <label class="flex flex-col gap-1 text-xs font-bold text-text-mid">SÉRIE
+            <select name="serie" required class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm">
+              <option value="">Escolha a série</option>
+              <option value="1">1ª série</option>
+              <option value="2">2ª série</option>
+              <option value="3">3ª série</option>
+            </select>
+          </label>
+          <p data-course-note class="text-xs text-text-mid" hidden></p>
+          <button type="button" id="login-courses-retry" class="text-xs text-indigo font-bold" hidden>Recarregar cursos</button>
+          <label class="room-login-field flex flex-col gap-1 text-xs font-bold text-text-mid">CÓDIGO DA SALA (OPCIONAL)
+            <input name="codigoSala" maxlength="12" pattern="[A-Fa-f0-9]{12}" autocomplete="off" autocapitalize="characters"
+                   title="Código de 12 caracteres fornecido pelo professor" placeholder="Código fornecido pelo professor"
+                   class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm">
+          </label>
+        </fieldset>
         <label class="flex flex-col gap-1">
           <span class="text-xs font-bold text-text-mid tracking-wide">E-MAIL</span>
           <input type="email" name="email" required autocomplete="email" placeholder="voce@email.com"
@@ -90,7 +153,12 @@
        CADASTRO
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-register">
-    <div class="flex flex-col justify-between flex-1 pt-14 px-7 pb-11">
+    <div class="auth-art" aria-hidden="true">
+      <div class="app-wordmark"><img src="assets/KriptaLogoNw.png" alt=""> KRIPTA</div>
+      <img class="auth-art-logo" src="assets/KriptaLogoNw.png" alt="">
+      <div><p class="auth-art-title">Sua rotina de estudos, em um só lugar.</p><p>Tarefas, matérias, agenda e progresso.</p></div>
+    </div>
+    <div class="card auth-card">
       <div class="text-center mt-6">
         <div class="w-[120px] h-[120px] mx-auto mb-4 flex items-center justify-center">
           <img src="assets/KriptaLogoNw.png" alt="KRIPTA" class="max-w-full max-h-full object-contain">
@@ -154,7 +222,6 @@
        HOME
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-home">
-    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
       <div>
         <h1 id="home-greeting">Olá</h1>
@@ -166,86 +233,133 @@
     </div>
 
     <div class="px-app mt-1">
-      <div class="card p-4 flex items-center gap-[14px] border-orange border-[1.5px]" id="home-streak-card">
-        <div class="relative w-[58px] h-[58px] shrink-0">
-          <svg width="58" height="58" viewBox="0 0 58 58" class="-rotate-90">
-            <circle cx="29" cy="29" r="23" stroke="#FFF0EB" stroke-width="5" fill="none"/>
-            <circle id="home-streak-ring" cx="29" cy="29" r="23" stroke="#FF6B35" stroke-width="5" fill="none"
-              stroke-dasharray="144.5" stroke-dashoffset="144.5" stroke-linecap="round"
-              style="transition: stroke-dashoffset .5s ease"/>
-          </svg>
-          <div class="absolute inset-0 flex items-center justify-center text-xl">🔥</div>
+      <article id="home-highlight" class="home-highlight" hidden>
+        <div>
+          <p id="home-highlight-date" class="home-highlight-date"></p>
+          <h2 id="home-highlight-title"></h2>
+          <button type="button" onclick="goTo('tasks')">Ver tarefas <span aria-hidden="true">→</span></button>
         </div>
-        <div class="flex-1">
-          <div class="font-display text-[17px] font-bold text-text-hi" id="home-streak-days">—</div>
-          <div class="text-xs text-text-mid mt-0.5" id="home-streak-sub">Continue assim para manter a sequência</div>
+        <img src="assets/KriptaLogoNw.png" alt="">
+      </article>
+      <div class="home-stats">
+        <div class="card p-4 flex items-center gap-[14px] border-orange border-[1.5px]" id="home-streak-card">
+          <div class="relative w-[58px] h-[58px] shrink-0">
+            <svg width="58" height="58" viewBox="0 0 58 58" class="-rotate-90">
+              <circle cx="29" cy="29" r="23" stroke="#FFF0EB" stroke-width="5" fill="none"/>
+              <circle id="home-streak-ring" cx="29" cy="29" r="23" stroke="#FF6B35" stroke-width="5" fill="none"
+                stroke-dasharray="144.5" stroke-dashoffset="144.5" stroke-linecap="round"
+                style="transition: stroke-dashoffset .5s ease"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center streak-mark"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-flame"></use></svg></div>
+          </div>
+          <div class="flex-1">
+            <div class="font-display text-[17px] font-bold text-text-hi" id="home-streak-days">—</div>
+            <div class="text-xs text-text-mid mt-0.5" id="home-streak-sub">Continue assim para manter a sequência</div>
+          </div>
+        </div>
+
+        <div class="home-stat-group">
+          <div class="card flex-1 p-3 text-center">
+            <span class="home-stat-icon"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-bolt"></use></svg></span>
+            <div class="font-display text-[17px] font-bold text-indigo" id="home-stat-xp">—</div>
+            <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">XP TOTAL</div>
+          </div>
+          <div class="card flex-1 p-3 text-center">
+            <span class="home-stat-icon"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-level"></use></svg></span>
+            <div class="font-display text-[17px] font-bold" id="home-stat-level">—</div>
+            <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">NÍVEL</div>
+          </div>
+          <button type="button" class="card flex-1 p-3 text-center home-badges-link" onclick="goTo('perfil')">
+            <span class="home-stat-icon"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-medal"></use></svg></span>
+            <div class="font-display text-[17px] font-bold" id="home-stat-badges">—</div>
+            <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">INSÍGNIAS</div>
+          </button>
         </div>
       </div>
+    </div>
 
-      <div class="flex gap-[9px] mt-[9px]">
-        <div class="card flex-1 p-3 text-center">
-          <div class="font-display text-[17px] font-bold text-indigo" id="home-stat-xp">—</div>
-          <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">XP TOTAL</div>
+    <div class="home-columns px-app">
+      <section class="card home-panel" aria-labelledby="home-tasks-heading">
+        <div class="flex justify-between items-baseline gap-3">
+          <h2 id="home-tasks-heading"><span class="home-heading"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-tasks"></use></svg><span>Próximas tarefas</span></span></h2>
+          <button type="button" class="text-sm text-indigo font-bold" onclick="goTo('tasks')">Ver todas →</button>
         </div>
-        <div class="card flex-1 p-3 text-center">
-          <div class="font-display text-[17px] font-bold" id="home-stat-level">—</div>
-          <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">NÍVEL</div>
-        </div>
-        <div class="card flex-1 p-3 text-center cursor-pointer" onclick="openProfileDrawer()">
-          <div class="font-display text-[17px] font-bold" id="home-stat-badges">—</div>
-          <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">INSÍGNIAS</div>
+
+        <div class="flex flex-col gap-[9px] mt-[11px]" id="home-tasks"></div>
+      </section>
+      <div class="home-secondary">
+        <section class="card home-panel">
+          <div class="flex items-baseline justify-between gap-3">
+            <h2><span class="home-heading"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-calendar"></use></svg><span>Na agenda</span></span></h2>
+            <button type="button" class="text-sm text-indigo font-bold" onclick="goTo('calendario')">Ver calendário →</button>
+          </div>
+          <div id="home-agenda" class="mt-3" aria-live="polite"></div>
+        </section>
+
+        <div>
+          <div class="card p-[15px] flex items-center gap-3 cursor-pointer bg-lilac-light border-lilac" onclick="goTo('ia')">
+            <div class="w-10 h-10 rounded-xl bg-lilac flex items-center justify-center shrink-0">
+              <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-kai"></use></svg>
+            </div>
+            <div class="flex-1">
+              <div class="text-[13.5px] font-bold text-text-hi">Travou em algo?</div>
+              <div class="text-[11.5px] text-text-mid">Pergunte ao Kai sobre qualquer matéria</div>
+            </div>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="px-app mt-6 flex justify-between items-baseline">
-      <span class="font-display text-[15px] font-bold">Para hoje e amanhã</span>
-      <span class="text-xs text-indigo font-bold cursor-pointer" onclick="goTo('tasks')">ver tudo</span>
-    </div>
-
-    <div class="px-app flex flex-col gap-[9px] mt-[11px]" id="home-tasks"></div>
-
-    <div class="px-app mt-5">
-      <div class="card p-[15px] flex items-center gap-3 cursor-pointer bg-lilac-light border-lilac" onclick="goTo('ia')">
-        <div class="w-10 h-10 rounded-xl bg-lilac flex items-center justify-center shrink-0">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
-        </div>
-        <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-text-hi">Travou em algo?</div>
-          <div class="text-[11.5px] text-text-mid">Pergunte ao Kai sobre qualquer matéria</div>
-        </div>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    <section class="px-app home-subjects-panel" aria-labelledby="home-subjects-heading">
+      <div class="flex items-baseline justify-between gap-3">
+        <h2 id="home-subjects-heading"><span class="home-heading"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-book"></use></svg><span>Minhas matérias</span></span></h2>
+        <button type="button" class="text-sm text-indigo font-bold" onclick="goTo('materias')">Ver todas →</button>
       </div>
-    </div>
+      <div id="home-subjects" class="home-subjects" aria-live="polite"></div>
+    </section>
   </section>
 
   <!-- ══════════════════════════════════════════════════
        MATÉRIAS
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-materias">
-    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
-    <div class="topbar">
+    <div class="topbar subjects-heading">
       <div><h1>Matérias</h1><div class="sub" id="subjects-count">Carregando…</div></div>
-      <button class="icon-btn" aria-label="Buscar">
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <button type="button" class="btn-primary subjects-add" onclick="openSubjectModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Adicionar matéria
       </button>
     </div>
 
-    <div class="flex gap-2 overflow-x-auto pt-1 px-5 scrollbar-hidden">
-      <span class="pill bg-indigo text-white cursor-pointer" data-subject-filter="all">Todas</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-subject-filter="hasExam">📌 Provas em breve</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-subject-filter="isProject">📁 Projetos</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-subject-filter="isFavorite">⭐ Favoritas</span>
+    <div class="px-app">
+      <section class="card course-card" aria-labelledby="mtec-heading" id="mtec-card" hidden>
+        <div class="course-icon" aria-hidden="true"><svg class="ui-icon"><use href="#icon-book"></use></svg></div>
+        <div class="course-summary">
+          <h2 id="mtec-heading">Minha turma M-Tec</h2>
+          <p id="mtec-status" aria-live="polite">Carregando…</p>
+        </div>
+        <button type="button" class="btn-ghost course-action" id="mtec-open" onclick="openCourseModal()" disabled>Selecionar curso e série</button>
+      </section>
+      <button type="button" class="btn-ghost room-link" onclick="goTo('salas')">Minha sala</button>
+      <section class="card subjects-panel" aria-label="Minhas matérias">
+        <div class="subjects-toolbar">
+          <input id="subject-search" type="search" aria-label="Buscar matéria" placeholder="Buscar por nome" class="subject-search bg-surface border border-border rounded-md px-3.5 py-2.5 text-sm">
+          <div class="subjects-filters" role="group" aria-label="Filtrar matérias">
+            <button type="button" class="pill" data-subject-filter="all" aria-pressed="true">Todas</button>
+            <button type="button" class="pill" data-subject-filter="hasExam" aria-pressed="false">Provas em breve</button>
+            <button type="button" class="pill" data-subject-filter="isProject" aria-pressed="false">Projetos</button>
+            <button type="button" class="pill" data-subject-filter="isFavorite" aria-pressed="false">Favoritas</button>
+          </div>
+        </div>
+        <div id="subjects-list"></div>
+      </section>
     </div>
-
-    <div class="px-app flex flex-col gap-[9px] mt-4" id="subjects-list"></div>
   </section>
 
   <!-- ══════════════════════════════════════════════════
        DETALHE DA MATÉRIA
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-materia-detalhe">
-    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
       <button class="icon-btn" onclick="goTo('materias')" aria-label="Voltar">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -263,6 +377,7 @@
       <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid mr-[18px] cursor-pointer shrink-0" data-detail-tab="contents" onclick="switchTab('contents')">Conteúdos</div>
       <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid mr-[18px] cursor-pointer shrink-0" data-detail-tab="materials" onclick="switchTab('materials')">Materiais</div>
       <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid cursor-pointer shrink-0" data-detail-tab="avisos" onclick="switchTab('avisos')">Avisos</div>
+      <button type="button" class="py-2.5 px-1 text-[13px] font-semibold text-text-mid shrink-0" data-detail-tab="atividades" onclick="switchTab('atividades')">Atividades</button>
     </div>
 
     <div id="subject-body"></div>
@@ -272,17 +387,17 @@
        TAREFAS
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-tasks">
-    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
       <div><h1>Tarefas</h1><div class="sub" id="tasks-count">Carregando…</div></div>
-      <button class="icon-btn" aria-label="Filtrar">
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+      <button type="button" class="btn-primary desktop-task-action" onclick="openTaskModal()">
+        <span aria-hidden="true">+</span> Nova tarefa
       </button>
     </div>
 
     <div class="flex gap-2 pt-1 px-5 overflow-x-auto scrollbar-hidden">
-      <span class="pill bg-indigo text-white cursor-pointer" data-task-filter="PENDING" onclick="setTasksFilter('PENDING')">Pendentes</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-task-filter="COMPLETED" onclick="setTasksFilter('COMPLETED')">Concluídas</span>
+      <button type="button" class="pill bg-surface text-text-mid border border-border cursor-pointer" data-task-filter="ALL" aria-pressed="false" onclick="setTasksFilter('ALL')">Todas</button>
+      <button type="button" class="pill bg-indigo text-white cursor-pointer" data-task-filter="PENDING" aria-pressed="true" onclick="setTasksFilter('PENDING')">Pendentes</button>
+      <button type="button" class="pill bg-surface text-text-mid border border-border cursor-pointer" data-task-filter="COMPLETED" aria-pressed="false" onclick="setTasksFilter('COMPLETED')">Concluídas</button>
     </div>
 
     <div class="px-app flex flex-col gap-[9px] mt-[18px]" id="tasks-list"></div>
@@ -296,7 +411,6 @@
        CALENDÁRIO
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-calendario">
-    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
       <div><h1>Calendário</h1><div class="sub">Sua agenda escolar e pessoal</div></div>
       <button class="icon-btn" onclick="openPersonalEventModal()" aria-label="Novo evento pessoal">
@@ -305,8 +419,9 @@
     </div>
 
     <div class="flex gap-2 pt-1 px-5 overflow-x-auto scrollbar-hidden">
-      <span class="pill bg-indigo text-white cursor-pointer" data-cal-scope="ESCOLAR" onclick="setCalendarScope('ESCOLAR')">Escolar</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-cal-scope="PESSOAL" onclick="setCalendarScope('PESSOAL')">Pessoal</span>
+      <button type="button" class="pill bg-indigo text-white cursor-pointer" data-cal-scope="ALL" onclick="setCalendarScope('ALL')">Todos</button>
+      <button type="button" class="pill bg-surface text-text-mid border border-border cursor-pointer" data-cal-scope="ESCOLAR" onclick="setCalendarScope('ESCOLAR')">Escolar</button>
+      <button type="button" class="pill bg-surface text-text-mid border border-border cursor-pointer" data-cal-scope="PESSOAL" onclick="setCalendarScope('PESSOAL')">Pessoal</button>
     </div>
 
     <div class="px-app mt-3">
@@ -324,11 +439,10 @@
        KAI — Agente de IA
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-ia">
-    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
       <div class="flex items-center gap-2.5">
         <div class="w-[34px] h-[34px] rounded-[10px] bg-lilac flex items-center justify-center">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+          <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-kai"></use></svg>
         </div>
         <div><h1 class="!text-[17px]">Kai</h1><div class="sub">assistente de estudos</div></div>
       </div>
@@ -340,8 +454,8 @@
     <div class="px-app flex flex-col gap-[13px] mt-1.5 flex-1 overflow-y-auto max-h-[56vh]" id="kai-chat"></div>
 
     <div class="flex gap-2 pt-[10px] px-5 overflow-x-auto scrollbar-hidden">
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="var i=document.getElementById('kai-input'); i.value='Monte um roteiro de estudos para hoje'; sendKai()">📋 Roteiro de hoje</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="var i=document.getElementById('kai-input'); i.value='Quais são minhas pendências?'; sendKai()">📊 Minhas pendências</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="var i=document.getElementById('kai-input'); i.value='Monte um roteiro de estudos para hoje'; sendKai()"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-tasks"></use></svg> Roteiro de hoje</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="var i=document.getElementById('kai-input'); i.value='Quais são minhas pendências?'; sendKai()"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-level"></use></svg> Minhas pendências</span>
     </div>
 
     <div class="px-app mt-2.5 flex gap-2">
@@ -358,7 +472,6 @@
        PERFIL
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-perfil">
-    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
       <button class="icon-btn" onclick="goTo('home')" aria-label="Voltar">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -379,13 +492,15 @@
     </div>
 
     <div class="px-app mt-[26px]" id="profile-badges-section">
-      <div class="section-label">Insígnias conquistadas</div>
-      <div class="grid grid-cols-4 gap-[9px] mt-0.5" id="badges-grid"></div>
+      <div class="flex justify-between items-center"><div class="section-label">Insígnias conquistadas</div>
+        <button type="button" class="text-sm text-indigo font-bold" onclick="goTo('insignias')">Ver coleção</button>
+      </div>
+      <div class="badges-grid" id="badges-grid"></div>
     </div>
 
     <div class="px-app mt-[22px] flex flex-col gap-2">
       <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer" id="profile-kai-row" onclick="goTo('ia')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+        <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-kai"></use></svg>
         <span class="text-[13.5px] font-semibold">Personalizar o Kai</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto"><path d="m9 18 6-6-6-6"/></svg>
       </div>
@@ -404,8 +519,36 @@
   <!-- ══════════════════════════════════════════════════
        AVISOS
        ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-configuracoes">
+    <div class="topbar"><div><h1>Configurações</h1><p class="sub">Personalize a aparência e os avisos do KRIPTA.</p></div></div>
+    <div class="px-app">
+      <section class="card settings-card" aria-labelledby="prefs-heading">
+        <h2 id="prefs-heading">Preferências</h2>
+        <label class="settings-row">
+          <span class="flex-1">
+            <span class="block text-[13px] font-semibold">Tema escuro</span>
+            <span class="block text-[11px] text-text-mid mt-0.5">Use uma interface com fundo escuro</span>
+          </span>
+          <input type="checkbox" class="toggle" id="pref-dark" onchange="setPref('dark', this.checked)">
+        </label>
+        <label class="settings-row">
+          <span class="flex-1">
+            <span class="block text-[13px] font-semibold">Acessibilidade</span>
+            <span class="block text-[11px] text-text-mid mt-0.5">Mais contraste e sem animações</span>
+          </span>
+          <input type="checkbox" class="toggle" id="pref-a11y" onchange="setPref('a11y', this.checked)">
+        </label>
+        <label class="settings-row">
+          <span class="flex-1">
+            <span class="block text-[13px] font-semibold">Notificações</span>
+            <span class="block text-[11px] text-text-mid mt-0.5">Exibir avisos do calendário</span>
+          </span>
+          <input type="checkbox" class="toggle" id="pref-notifications" onchange="setPref('notifications', this.checked)">
+        </label>
+      </section>
+    </div>
+  </section>
   <section class="screen" id="screen-avisos">
-    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
       <button class="icon-btn" onclick="goTo('home')" aria-label="Voltar">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -429,15 +572,15 @@
        PROFESSOR — PAINEL (RF03 / UC05)
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-professor">
-    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
       <div><h1>Painel do professor</h1><div class="sub" id="professor-sub">Gerencie os conteúdos que você cadastra</div></div>
-      <button class="icon-btn" onclick="goTo('aprovacoes')" aria-label="Aprovações pendentes">
+      <button type="button" id="professor-approvals" class="icon-btn" style="display:none" onclick="goTo('aprovacoes')" aria-label="Aprovações pendentes">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       </button>
     </div>
 
     <div class="px-app flex flex-col gap-[9px] mt-1">
+      <button type="button" class="btn-ghost" onclick="goTo('salas')">Gerenciar salas</button>
       <button type="button" class="btn-primary flex items-center justify-center gap-2" onclick="openContentModal()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         Cadastrar conteúdo
@@ -453,8 +596,26 @@
   <!-- ══════════════════════════════════════════════════
        PROFESSOR — APROVAÇÃO (RF04 / UC06 / RN04)
        ══════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-insignias">
+    <div class="topbar"><h1>Insígnias</h1><button type="button" class="btn-ghost !w-auto" onclick="goTo('perfil')">Voltar</button></div>
+    <div class="px-app crystal-collection" id="crystal-collection"></div>
+  </section>
+
+  <section class="screen" id="screen-salas">
+    <div class="topbar">
+      <div><h1 id="salas-heading">Salas</h1></div>
+      <button type="button" class="btn-ghost !w-auto" onclick="goTo(isProfessor() ? 'professor' : 'materias')">Voltar</button>
+    </div>
+    <div class="px-app room-screen">
+      <form class="card room-form" id="sala-form" hidden>
+        <label><span>Nome da sala</span><input name="sala" required></label>
+        <button class="btn-primary" type="submit">Criar sala</button>
+      </form>
+      <div id="salas-list" class="room-list" aria-live="polite"></div>
+    </div>
+  </section>
+
   <section class="screen" id="screen-aprovacoes">
-    <div class="statusbar"><span>9:41</span><span>●●●  Wi-Fi  100%</span></div>
     <div class="topbar">
       <button class="icon-btn" onclick="goTo('professor')" aria-label="Voltar">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -644,6 +805,38 @@
   <!-- ══════════════════════════════════════════════════
        MODAL: TAREFA
        ══════════════════════════════════════════════════ -->
+  <div id="course-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop">
+    <section class="card course-dialog p-5" role="dialog" aria-modal="true" aria-labelledby="course-modal-title">
+      <h2 class="font-display text-xl font-bold" id="course-modal-title">Selecionar curso M-Tec</h2>
+      <p class="text-sm text-text-mid mt-1">Adicione as matérias da sua série na Etec São Mateus. Suas matérias e atividades ficam salvas ao trocar de turma.</p>
+      <form id="course-form" class="flex flex-col gap-3 mt-4">
+        <label class="flex flex-col gap-1 text-sm font-bold">Curso
+          <select name="curso" required class="w-full border border-border rounded-md bg-bg p-2.5 text-sm"></select>
+        </label>
+        <label class="flex flex-col gap-1 text-sm font-bold">Série
+          <select name="serie" required class="w-full border border-border rounded-md bg-bg p-2.5 text-sm">
+            <option value="">Escolha a série</option>
+            <option value="1">1ª série</option>
+            <option value="2">2ª série</option>
+            <option value="3">3ª série</option>
+          </select>
+        </label>
+        <p data-course-note class="text-xs text-text-mid" hidden></p>
+        <p id="course-error" class="text-sm text-crimson" role="alert"></p>
+        <div class="flex gap-2">
+          <button type="button" class="btn-ghost !w-auto !py-2.5" onclick="closeCourseModal()">Cancelar</button>
+          <button type="submit" class="btn-primary !py-2.5">Carregar matérias</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <dialog id="room-task-dialog" class="card room-task-dialog" aria-labelledby="room-task-title">
+    <h2 id="room-task-title"></h2>
+    <time id="room-task-due"></time>
+    <p id="room-task-description"></p>
+    <form method="dialog"><button type="submit" class="btn-ghost">Fechar</button></form>
+  </dialog>
   <div id="task-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop">
     <div class="card w-[330px] p-[22px] bg-surface max-h-[88vh] overflow-y-auto" onclick="event.stopPropagation()">
       <div class="text-base font-bold" id="task-modal-title">Nova tarefa</div>
@@ -689,9 +882,14 @@
        BOTTOM NAV
        ══════════════════════════════════════════════════ -->
   <nav class="bottomnav" id="bottomnav" aria-label="Navegação principal" style="display:none;">
+    <div class="app-wordmark sidebar-brand"><img src="assets/KriptaLogoNw.png" alt=""> KRIPTA</div>
     <button class="navitem" data-screen="home" onclick="goTo('home')">
       <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
       <span>Início</span>
+    </button>
+    <button class="navitem" data-screen="materias" onclick="goTo('materias')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4.5A2.5 2.5 0 0 0 17.5 2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20"/></svg>
+      <span>Matérias</span>
     </button>
     <button class="navitem" data-screen="tasks" onclick="goTo('tasks')">
       <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 2.5 2.5L16 9"/></svg>
@@ -701,12 +899,8 @@
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
       <span>Agenda</span>
     </button>
-    <button class="navitem" data-screen="materias" onclick="goTo('materias')">
-      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4.5A2.5 2.5 0 0 0 17.5 2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20"/></svg>
-      <span>Matérias</span>
-    </button>
     <button class="navitem" data-screen="ia" onclick="goTo('ia')">
-      <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+      <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-kai"></use></svg>
       <span>Kai</span>
     </button>
     <button class="navitem" data-screen="professor" onclick="goTo('professor')" style="display:none;">
@@ -716,6 +910,14 @@
     <button class="navitem" data-screen="aprovacoes" onclick="goTo('aprovacoes')" style="display:none;">
       <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       <span>Aprovar</span>
+    </button>
+    <button type="button" class="navitem nav-account" data-screen="perfil" onclick="goTo('perfil')">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
+      <span>Perfil</span>
+    </button>
+    <button type="button" class="navitem nav-settings" data-screen="configuracoes" onclick="goTo('configuracoes')">
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.2 3h3.6l.5 2.3 1.7 1 2.2-.7L20 8.7l-1.7 1.6v2l1.7 1.6-1.8 3.1-2.2-.7-1.7 1-.5 2.3h-3.6l-.5-2.3-1.7-1-2.2.7L4 13.9l1.7-1.6v-2L4 8.7l1.8-3.1 2.2.7 1.7-1z"/><circle cx="12" cy="11.3" r="2.7"/></svg>
+      <span>Configurações</span>
     </button>
   </nav>
 
@@ -743,28 +945,11 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto"><path d="m9 18 6-6-6-6"/></svg>
         </button>
 
-        <button type="button" class="drawer-row" onclick="toggleDrawerSettings()" aria-expanded="false" aria-controls="drawer-settings">
+        <button type="button" class="drawer-row" onclick="openSettingsFromDrawer()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
           <span class="text-[13.5px] font-semibold">Configurações</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto drawer-chevron"><path d="m9 18 6-6-6-6"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto"><path d="m9 18 6-6-6-6"/></svg>
         </button>
-
-        <div id="drawer-settings" class="drawer-settings">
-          <label class="drawer-row cursor-pointer">
-            <span class="flex-1">
-              <span class="block text-[13px] font-semibold">Acessibilidade</span>
-              <span class="block text-[11px] text-text-mid mt-0.5">Mais contraste e sem animações</span>
-            </span>
-            <input type="checkbox" class="toggle" id="pref-a11y" onchange="setPref('a11y', this.checked)">
-          </label>
-          <label class="drawer-row cursor-pointer">
-            <span class="flex-1">
-              <span class="block text-[13px] font-semibold">Notificações</span>
-              <span class="block text-[11px] text-text-mid mt-0.5">Exibir avisos do calendário</span>
-            </span>
-            <input type="checkbox" class="toggle" id="pref-notifications" onchange="setPref('notifications', this.checked)">
-          </label>
-        </div>
 
         <button type="button" class="drawer-row" onclick="logoutAndGoLogin()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C0392B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
@@ -774,32 +959,19 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════
-       LOADER DE TRANSIÇÃO
-       ══════════════════════════════════════════════════ -->
-  <div id="loader-overlay" class="loader-overlay hidden" aria-hidden="true">
-    <div class="loader-wrapper">
-      <div class="kripta-logo">
-        <div class="piece piece-indigo" data-piece="indigo"></div>
-        <div class="piece piece-purple" data-piece="purple"></div>
-        <div class="piece piece-teal" data-piece="teal"></div>
-        <div class="piece piece-orange" data-piece="orange"></div>
-      </div>
-    </div>
-  </div>
 
 </div>
 
 <script src="services/config.js"></script>
 <script src="services/state.js"></script>
-<script src="services/prefs.js"></script>
 <script src="services/ui.js"></script>
-<script src="services/loader.js"></script>
 <script src="services/api.js"></script>
 <script src="services/auth.js"></script>
 <script src="services/dev-data.js"></script>
 <script src="services/dashboard.js"></script>
 <script src="services/subjects.js"></script>
+<script src="services/courses.js"></script>
+<script src="services/salas.js"></script>
 <script src="services/units.js"></script>
 <script src="services/materials.js"></script>
 <script src="services/tasks.js"></script>

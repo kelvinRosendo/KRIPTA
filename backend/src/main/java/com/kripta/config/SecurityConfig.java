@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/health", "/api/curso-mtec/opcoes").permitAll()
                         .requestMatchers("/api/conteudos/pendentes", "/api/conteudos/*/aprovar", "/api/conteudos/*/rejeitar").hasAuthority("APROVAR_CONTEUDO")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

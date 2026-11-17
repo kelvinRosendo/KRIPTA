@@ -2,10 +2,11 @@
    Visões dia, semana e mês, com escopo escolar ou pessoal. */
 
 var CAL_VIEW = 'month';
-var CAL_SCOPE = 'ESCOLAR';
+var CAL_SCOPE = 'ALL';
 var CAL_CURSOR = new Date();
 var CAL_SELECTED = new Date();
 var CAL_EVENTS = [];
+var CAL_REQUEST = 0;
 
 var CAL_MONTHS = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 var CAL_WEEKDAYS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
@@ -15,6 +16,25 @@ async function getCalendar(startDate, endDate, scope) {
   var qs = '?inicio=' + encodeURIComponent(startDate) + '&fim=' + encodeURIComponent(endDate);
   if (scope && scope !== 'ALL') qs += '&scope=' + encodeURIComponent(scope);
   return api.get('/calendario' + qs);
+}
+
+async function getCalendarWithDeadlines(startDate, endDate, scope) {
+  var events = getCalendar(startDate, endDate, scope);
+  if (scope === 'ESCOLAR' || isProfessor()) return events;
+
+  var results = await Promise.all([events, getTasks({ status: 'PENDING' })]);
+  var calendar = results[0];
+  var deadlines = results[1].flatMap(function (task) {
+    if (!task.dueDate || task.completed) return [];
+    var due = new Date(task.dueDate);
+    var date = toLocalDateStr(due);
+    if (date < startDate || date > endDate) return [];
+    return [{
+      taskId: task.id, title: task.title, date: date, time: due.toTimeString().slice(0, 5),
+      type: 'TASK', scope: 'PESSOAL'
+    }];
+  });
+  return calendar.concat(deadlines);
 }
 
 async function getPersonalEvents() {
@@ -112,21 +132,25 @@ async function renderCalendar() {
   var body = document.getElementById('calendar-body');
   if (!body) return;
   showLoading(body);
+  var request = ++CAL_REQUEST;
+  var token = State.token;
   var range = calendarRange();
   try {
-    var events = await getCalendar(toLocalDateStr(range.start), toLocalDateStr(range.end), CAL_SCOPE);
+    var events = await getCalendarWithDeadlines(toLocalDateStr(range.start), toLocalDateStr(range.end), CAL_SCOPE);
+    if (request !== CAL_REQUEST || State.token !== token) return;
     CAL_EVENTS = Array.isArray(events) ? events : (events && events.content ? events.content : []);
     body.innerHTML = calendarShellHTML();
     bindCalendarNav();
     renderCalendarView();
   } catch (e) {
-    body.innerHTML = errorView(e && e.message);
+    if (request === CAL_REQUEST && State.token === token) body.innerHTML = errorView(e && e.message);
   }
 }
 
 function calendarShellHTML() {
   return (
-    '<div class="card p-4">' +
+    '<div class="calendar-layout">' +
+    '<div class="card p-4 min-w-0">' +
     '<div class="flex items-center justify-between mb-3">' +
     '<button type="button" class="icon-btn !w-8 !h-8" data-cal-prev aria-label="Anterior">' +
     '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>' +
@@ -136,7 +160,9 @@ function calendarShellHTML() {
     '</div>' +
     '<div id="cal-view-body"></div>' +
     '</div>' +
-    '<div id="cal-day-events" class="mt-3"></div>'
+    '<section class="card calendar-agenda p-4" aria-labelledby="cal-agenda-heading">' +
+    '<h2 id="cal-agenda-heading" class="font-display text-lg font-bold"></h2>' +
+    '<div id="cal-day-events" class="mt-3"></div></section></div>'
   );
 }
 
@@ -148,7 +174,11 @@ function renderCalendarView() {
   else if (CAL_VIEW === 'week') vb.innerHTML = weekStripHTML();
   else vb.innerHTML = monthGridHTML();
   bindCalendarDays();
-  if (agenda) agenda.innerHTML = agendaHTML(CAL_SELECTED);
+  if (agenda) {
+    document.getElementById('cal-agenda-heading').textContent =
+      CAL_SELECTED.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    agenda.innerHTML = agendaHTML(CAL_SELECTED);
+  }
 }
 
 function weekdayHeaderHTML() {
@@ -227,11 +257,19 @@ function eventTypeMeta(type) {
 }
 
 function agendaHTML(date) {
-  var events = calEventsOn(date);
+  var events = calEventsOn(date).sort(function (a, b) { return (a.time || '').localeCompare(b.time || ''); });
   if (!events.length) {
-    return '<div class="card p-4 text-center text-[12.5px] text-text-mid">Nenhum evento neste dia.</div>';
+    return emptyState('Nenhum evento neste dia', '', 'calendar');
   }
   return events.map(function (e) {
+    if (e.taskId) {
+      return '<div class="card p-3.5 mb-2 flex items-center gap-3">' +
+        '<div class="flex-1 min-w-0"><span class="pill bg-indigo-light text-indigo">Prazo de atividade</span>' +
+        '<div class="text-sm font-semibold mt-1">' + esc(e.title) + '</div>' +
+        '<time class="task-due text-xs">' + esc(e.time) + '</time></div>' +
+        '<button type="button" class="text-indigo text-xs font-bold" data-edit-task="' +
+        esc(e.taskId) + '">Ver atividade</button></div>';
+    }
     var meta = eventTypeMeta(e.type);
     var scope = e.scope === 'PESSOAL' ? 'Pessoal' : 'Escolar';
     return (

@@ -13,9 +13,13 @@ function streakSupported() {
 }
 
 async function streakHeartbeat(payload) {
+  var token = State.token;
+  if (!token || isProfessor()) return null;
   try {
     var res = await api.post('/usage/heartbeat', {});
+    if (State.token !== token) return null;
     applyStreakState(res);
+    if (res && res.unlocked && res.unlocked.length) celebrateProgress(res);
     return res;
   } catch (e) {
     return null;

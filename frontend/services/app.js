@@ -6,7 +6,6 @@ function init() {
   updateTopbarDate();
   bindGlobalEvents();
   bindSubjectFilter();
-  mountStatusbarAvatars();
   updateStatusbarAvatar();
   applyPrefs();
 
@@ -51,8 +50,10 @@ function renderScreen(screenName) {
       case 'tasks': renderTasks(); break;
       case 'calendario': renderCalendar(); break;
       case 'perfil': renderProfile(); break;
+      case 'insignias': renderBadgeCollection(); break;
       case 'avisos': renderAnnouncements(); break;
       case 'professor': renderProfessor(); break;
+      case 'salas': renderSalas(); break;
       case 'aprovacoes': renderApprovals(); break;
       case 'ia': initKai(); break;
     }
@@ -63,6 +64,7 @@ function renderScreen(screenName) {
 
 function handleSessionExpired() {
   logout();
+  closeProfileDrawer(true);
   goTo('login');
   toast('Sua sessão expirou. Entre novamente.', 'warn');
 }
@@ -154,15 +156,87 @@ function bindGlobalEvents() {
 
 /* ══════════════════════ HOME (Etapa 4) ══════════════════════ */
 async function renderHome() {
+  var token = State.token;
   var greeting = document.getElementById('home-greeting');
   if (State.user && State.user.name) greeting.textContent = 'Olá, ' + State.user.name.split(' ')[0];
+  document.getElementById('home-highlight').hidden = true;
+  renderHomeAgenda();
+  renderHomeSubjects();
 
   try {
     var dash = await getDashboard();
+    if (State.token !== token) return;
     fillHomeStats(dash);
     fillHomeTasks(dash);
+    fillHomeHighlight(dash);
   } catch (e) {
-    document.getElementById('home-tasks').innerHTML = errorView(e && e.message);
+    if (State.token === token) document.getElementById('home-tasks').innerHTML = errorView(e && e.message);
+  }
+}
+
+async function renderHomeSubjects() {
+  var panel = document.getElementById('home-subjects');
+  var token = State.token;
+  showLoading(panel);
+  try {
+    var subjects = await getSubjects();
+    if (State.token !== token) return;
+    panel.replaceChildren();
+    subjects.slice(0, 3).forEach(function (subject) {
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'card home-subject';
+      item.dataset.openSubject = subject.id;
+      item.textContent = subject.name;
+      panel.append(item);
+    });
+    if (!subjects.length) panel.innerHTML = emptyState('Nenhuma matéria cadastrada', '', 'book');
+  } catch (error) {
+    if (State.token === token) panel.textContent = 'Não foi possível carregar as matérias.';
+  }
+}
+
+function fillHomeHighlight(dash) {
+  var next = dash.tasksToday.concat(dash.tasksTomorrow, dash.upcomingTasks || []).reduce(function (earliest, task) {
+    return !earliest || new Date(task.dueDate) < new Date(earliest.dueDate) ? task : earliest;
+  }, null);
+  if (!next) return;
+
+  document.getElementById('home-highlight-title').textContent = next.title;
+  document.getElementById('home-highlight-date').textContent = 'Próxima entrega · ' + formatDateTime(next.dueDate);
+  document.getElementById('home-highlight').hidden = false;
+}
+
+async function renderHomeAgenda() {
+  var panel = document.getElementById('home-agenda');
+  var token = State.token;
+  var today = new Date();
+  showLoading(panel);
+  try {
+    var events = await getCalendar(toLocalDateStr(today), toLocalDateStr(calAddDays(today, 7)));
+    if (State.token !== token) return;
+    panel.replaceChildren();
+    events.sort(function (a, b) {
+      return (a.date + (a.time || '')).localeCompare(b.date + (b.time || ''));
+    }).slice(0, 3).forEach(function (event) {
+      var row = document.createElement('div');
+      row.className = 'home-event';
+      var date = document.createElement('time');
+      date.dateTime = event.date;
+      date.textContent = formatDate(calParseDay(event.date));
+      var details = document.createElement('div');
+      var title = document.createElement('strong');
+      title.textContent = event.title;
+      var meta = document.createElement('p');
+      meta.textContent = (event.scope === 'PESSOAL' ? 'Pessoal' : 'Escolar') +
+        (event.time ? ' · ' + event.time.slice(0, 5) : '');
+      details.append(title, meta);
+      row.append(date, details);
+      panel.append(row);
+    });
+    if (!events.length) panel.innerHTML = emptyState('Nenhum evento nos próximos sete dias', '', 'calendar');
+  } catch (error) {
+    if (State.token === token) panel.textContent = 'Não foi possível carregar a agenda.';
   }
 }
 
@@ -172,6 +246,9 @@ function fillHomeStats(dash) {
   var level = stats.level !== undefined ? stats.level : dash.level;
   var streak = stats.streak !== undefined ? stats.streak : dash.streak;
   var badges = (dash.badgesCount !== undefined) ? dash.badgesCount : (dash.achievements ? dash.achievements.length : null);
+  if (badges !== null && level) badges += badgeDefinitions.filter(function (badge) {
+    return badge.level && badge.level <= level;
+  }).length;
 
   var streakCard = document.getElementById('home-streak-card');
   if (streak) {
@@ -195,10 +272,11 @@ function fillHomeTasks(dash) {
   var tasks = [];
   (dash.tasksToday || []).forEach(function (t) { tasks.push({ task: t, label: '<span class="pill bg-orange-light text-orange" style="flex:0 0 auto">hoje</span>', color: 'border-l-orange' }); });
   (dash.tasksTomorrow || []).forEach(function (t) { tasks.push({ task: t, label: '<span class="pill bg-teal-light text-teal" style="flex:0 0 auto">amanhã</span>', color: 'border-l-teal' }); });
+  (dash.upcomingTasks || []).forEach(function (t) { tasks.push({ task: t, label: taskSideLabel(t), color: 'border-l-border' }); });
   (dash.overdueTasks || []).forEach(function (t) { tasks.push({ task: t, label: '<span class="pill bg-crimson-light text-crimson" style="flex:0 0 auto">atrasada</span>', color: 'border-l-crimson' }); });
 
   if (!tasks.length) {
-    container.innerHTML = emptyState('Nada por aqui', 'Você não tem tarefas para hoje e amanhã.');
+    container.innerHTML = emptyState('Nada por aqui', 'Você não tem atividades pendentes nos próximos sete dias.', 'tasks');
     return;
   }
 
@@ -208,27 +286,36 @@ function fillHomeTasks(dash) {
 }
 
 /* ══════════════════════ MATÉRIAS (Etapa 5) ══════════════════════ */
-var SUBJECT_COLORS = ['bg-indigo-light', 'bg-teal-light', 'bg-orange-light', 'bg-lilac-light', 'bg-surface-2'];
+var SUBJECT_STYLES = [
+  [/program|sistemas|banco de dados|internet|tecnologia|informati|comput/, 'code', '#373c9c'],
+  [/matemat|estatistica|calculo/, 'calc', '#18548c'],
+  [/quimica|fisica|laborat/, 'flask', '#9c3e35'],
+  [/biologia|nutri|ambiente|saude|alimento/, 'leaf', '#17645a'],
+  [/geografia|historia|filosofia|sociologia/, 'globe', '#804279'],
+  [/marketing|gestao|administr|negocio|financ|contab/, 'chart', '#8b411d'],
+  [/arte|design/, 'palette', '#8b3e60']
+];
 
 function subjectGroupHTML(label) {
   return '<div class="subject-group-label text-[11px] font-bold uppercase tracking-wide text-text-low mt-2 mb-0.5 px-0.5">' + esc(label) + '</div>';
 }
 
 function subjectCardHTML(s) {
-  var c = SUBJECT_COLORS[Math.abs(s.id || 1) % SUBJECT_COLORS.length];
-  var icon = s.icon || '📚';
+  var name = s.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  var style = SUBJECT_STYLES.find(function (entry) { return entry[0].test(name); });
+  var icon = style ? style[1] : 'book';
+  var color = style ? style[2] : '#51427e';
   var meta = subjectMeta(s);
   var pending = (s.pendingCount && s.pendingCount > 0)
     ? '<span class="pill bg-crimson-light text-crimson">' + s.pendingCount + ' pendência' + (s.pendingCount === 1 ? '' : 's') + '</span>'
     : '<span class="pill bg-teal-light text-teal">em dia</span>';
   return (
-    '<div class="card p-3.5 flex items-center gap-3 cursor-pointer" data-open-subject="' + s.id + '">' +
-    '<div class="w-[44px] h-[44px] rounded-[13px] ' + c + ' flex items-center justify-center text-xl shrink-0">' + esc(icon) + '</div>' +
-    '<div class="flex-1 min-w-0">' +
-    '<div class="text-[14.5px] font-bold truncate">' + esc(s.name) + '</div>' +
-    (meta ? '<div class="text-xs text-text-mid mt-px truncate">' + esc(meta) + '</div>' : '') +
-    '</div>' +
-    pending +
+    '<div class="card subject-color-card" style="--subject-color:' + color + '">' +
+    '<button type="button" class="subject-open" data-open-subject="' + s.id + '">' +
+    '<span class="subject-emblem">' + uiIcon(icon) + '</span>' +
+    '<span class="subject-text"><strong>' + esc(s.name) + '</strong>' +
+    (meta ? '<small>' + esc(meta) + '</small>' : '') +
+    '</span>' + pending + '</button>' +
     '<button type="button" class="icon-btn !w-8 !h-8" data-action="delete" data-kind="subject" data-id="' + s.id + '" data-name="' + esc(s.name) + '" aria-label="Excluir matéria">' +
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>' +
     '</button>' +
@@ -236,13 +323,20 @@ function subjectCardHTML(s) {
   );
 }
 
+var subjectsView = null;
+
 async function renderSubjects() {
+  var token = State.token;
+  subjectsView = null;
+  renderCourseSelection();
   var list = document.getElementById('subjects-list');
   var countEl = document.getElementById('subjects-count');
   showLoading(list);
   try {
     var subjects = await getSubjects();
     var arr = Array.isArray(subjects) ? subjects : (subjects && subjects.content ? subjects.content : []);
+    if (State.token !== token) return;
+    subjectsView = { token: token, items: arr };
     fillSubjectFilter(countEl, arr);
     applySubjectFilter(arr);
   } catch (e) {
@@ -257,13 +351,31 @@ function fillSubjectFilter(countEl, subjects) {
 function applySubjectFilter(subjects) {
   var list = document.getElementById('subjects-list');
   var filter = window.__subjectFilter || 'all';
-  var filtered = (filter === 'all')
-    ? subjects
-    : subjects.filter(function (s) { return String(s[filter] || '').toLowerCase() === 'true'; });
+  var query = normalizeSubjectSearch(document.getElementById('subject-search').value);
+  var filtered = subjects.filter(function (subject) {
+    return (filter === 'all' || String(subject[filter] || '').toLowerCase() === 'true') &&
+      normalizeSubjectSearch(subject.name || '').includes(query);
+  });
 
   empty(list);
   if (!filtered.length) {
-    list.innerHTML = emptyState('Nenhuma matéria aqui', 'Toque em "Adicionar matéria" para começar.');
+    var hasCriteria = query || filter !== 'all';
+    list.innerHTML = '<div class="subjects-empty" role="status">' +
+      crystalIllustration('book') +
+      '<h2>' + (hasCriteria ? 'Nenhuma matéria encontrada' : 'Nenhuma matéria cadastrada') + '</h2>' +
+      '<p>' + (hasCriteria ? 'Tente outro nome ou mude o filtro.' : 'Adicione sua primeira matéria para organizar unidades e materiais.') + '</p></div>';
+  } else if (courseView && courseView.selecao) {
+    var courseIds = new Set(courseView.selecao.disciplinaIds);
+    var current = filtered.filter(function (subject) { return courseIds.has(subject.id); });
+    var other = filtered.filter(function (subject) { return !courseIds.has(subject.id); });
+    if (current.length) {
+      list.insertAdjacentHTML('beforeend', subjectGroupHTML('Matérias da minha turma'));
+      current.forEach(function (subject) { list.insertAdjacentHTML('beforeend', subjectCardHTML(subject)); });
+    }
+    if (other.length) {
+      list.insertAdjacentHTML('beforeend', subjectGroupHTML('Outras matérias'));
+      other.forEach(function (subject) { list.insertAdjacentHTML('beforeend', subjectCardHTML(subject)); });
+    }
   } else {
     var GROUPS = [
       { key: 'CURSO', label: 'Matérias do curso' },
@@ -284,28 +396,25 @@ function applySubjectFilter(subjects) {
       byGroup.OUTROS.forEach(function (s) { list.insertAdjacentHTML('beforeend', subjectCardHTML(s)); });
     }
   }
-  list.insertAdjacentHTML('beforeend',
-    '<button type="button" class="btn-ghost flex items-center justify-center gap-2 mt-1" onclick="openSubjectModal()">' +
-    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Adicionar matéria</button>');
+}
+
+function normalizeSubjectSearch(value) {
+  return value.trim().toLocaleLowerCase('pt-BR').normalize('NFD').replace(/\p{M}/gu, '');
+}
+
+function refreshSubjectFilter() {
+  if (subjectsView && subjectsView.token === State.token) applySubjectFilter(subjectsView.items);
 }
 
 function bindSubjectFilter() {
+  document.getElementById('subject-search').addEventListener('input', refreshSubjectFilter);
   document.querySelectorAll('[data-subject-filter]').forEach(function (pill) {
     pill.addEventListener('click', function () {
       window.__subjectFilter = pill.getAttribute('data-subject-filter');
       document.querySelectorAll('[data-subject-filter]').forEach(function (p) {
-        if (p === pill) {
-          p.className = 'pill bg-indigo text-white cursor-pointer';
-        } else {
-          p.className = 'pill bg-surface text-text-mid border border-border cursor-pointer';
-        }
+        p.setAttribute('aria-pressed', String(p === pill));
       });
-      getSubjects()
-        .then(function (subjects) {
-          var arr = Array.isArray(subjects) ? subjects : (subjects && subjects.content ? subjects.content : []);
-          applySubjectFilter(arr);
-        })
-        .catch(function (e) { document.getElementById('subjects-list').innerHTML = errorView(e && e.message); });
+      refreshSubjectFilter();
     });
   });
 }
@@ -385,7 +494,35 @@ function switchTab(tab) {
   if (tab === 'units') renderUnits(0);
   else if (tab === 'contents') renderSubjectContents();
   else if (tab === 'materials') renderAllMaterials();
+  else if (tab === 'atividades') renderSubjectTasks();
   else renderSubjectAvisos();
+}
+
+async function renderSubjectTasks() {
+  var body = document.getElementById('subject-body');
+  var subject = State.currentSubject;
+  var token = State.token;
+  showLoading(body);
+  try {
+    var tasks = await getTasks({ subjectId: subject.id });
+    if (State.token !== token || State.currentSubject !== subject || DETAIL_TAB !== 'atividades') return;
+    var wrap = el('section', 'px-app subject-tasks');
+    var action = el('button', 'btn-primary subjects-add', 'Nova atividade');
+    action.type = 'button';
+    action.addEventListener('click', function () { openTaskModal(subject.id); });
+    wrap.appendChild(action);
+    if (!tasks.length) {
+      wrap.insertAdjacentHTML('beforeend', emptyState('Nenhuma atividade nesta matéria', 'Adicione uma atividade com prazo para ver o lembrete na agenda.', 'tasks'));
+    }
+    tasks.forEach(function (task) {
+      wrap.insertAdjacentHTML('beforeend', taskRow(task, { onEdit: true, sideLabel: taskSideLabel }));
+    });
+    body.replaceChildren(wrap);
+  } catch (error) {
+    if (State.token === token && State.currentSubject === subject && DETAIL_TAB === 'atividades') {
+      body.innerHTML = errorView(error && error.message);
+    }
+  }
 }
 
 /* Conteúdos aprovados do componente curricular (RF05 — consulta do aluno) */
@@ -437,7 +574,7 @@ function unitCardHTML(unit) {
   return (
     '<div class="card p-[15px]">' +
     '<div class="flex justify-between items-center cursor-pointer" data-toggle-unit="' + unit.id + '">' +
-    '<div class="text-[14.5px] font-bold">📂 ' + esc(unit.name) + '</div>' +
+    '<div class="text-[14.5px] font-bold">' + uiIcon('folder') + ' ' + esc(unit.name) + '</div>' +
     '<span class="text-[11.5px] text-text-mid font-semibold">' + (unit.materialsCount || unit.materialCount || 0) + ' materiais</span>' +
     '</div>' +
     '</div>'
@@ -458,7 +595,7 @@ async function toggleUnitMaterials(unitId) {
   State.currentUnit = { id: unitId };
   var detail = el('div', 'unit-detail mt-3 flex flex-col gap-2');
   detail.dataset.unitMaterials = unitId;
-  detail.innerHTML = spinner();
+  showLoading(detail);
   card.appendChild(detail);
 
   try {
@@ -621,8 +758,11 @@ async function renderTasks() {
     var params = {};
     if (TASKS_FILTER === 'COMPLETED') params.status = 'COMPLETED';
     else if (TASKS_FILTER === 'PENDING') params.status = 'PENDING';
-    var tasks = await getTasks(params);
+    var values = await Promise.all([getTasks(params), getSubjects().catch(function () { return []; })]);
+    var tasks = values[0];
+    var names = new Map(values[1].map(function (subject) { return [subject.id, subject.name]; }));
     var arr = Array.isArray(tasks) ? tasks : (tasks && tasks.content ? tasks.content : []);
+    arr.forEach(function (task) { task.subjectName = names.get(task.subjectId); });
     if (countEl) countEl.textContent = arr.length + ' tarefa' + (arr.length === 1 ? '' : 's');
     renderTaskGroups(arr);
   } catch (e) {
@@ -633,7 +773,9 @@ async function renderTasks() {
 function setTasksFilter(filter) {
   TASKS_FILTER = filter;
   document.querySelectorAll('[data-task-filter]').forEach(function (p) {
-    if (p.getAttribute('data-task-filter') === filter) {
+    var active = p.dataset.taskFilter === filter;
+    p.setAttribute('aria-pressed', String(active));
+    if (active) {
       p.className = 'pill bg-indigo text-white cursor-pointer';
     } else {
       p.className = 'pill bg-surface text-text-mid border border-border cursor-pointer';
@@ -677,33 +819,41 @@ function renderTaskGroups(arr) {
 }
 
 /* ── Formulário de tarefa ── */
-async function prepareTaskForm(form, editingId) {
+var taskFormRequest = 0;
+
+async function prepareTaskForm(form, subjectId) {
+  var request = ++taskFormRequest;
+  var token = State.token;
   var subjectSel = form.elements['subjectId'];
-  subjectSel.innerHTML = '';
+  var submit = form.querySelector('button[type="submit"]');
+  subjectSel.replaceChildren(new Option('Carregando matérias…', ''));
+  subjectSel.disabled = true;
+  submit.disabled = true;
   try {
     var subjects = await getSubjects();
-    var arr = Array.isArray(subjects) ? subjects : (subjects && subjects.content ? subjects.content : []);
-    var placeholder = el('option', null, 'Sem matéria');
-    placeholder.value = '';
-    subjectSel.appendChild(placeholder);
-    arr.forEach(function (s) {
-      var opt = el('option', null, s.name);
-      opt.value = s.id;
-      subjectSel.appendChild(opt);
-    });
-    if (editingId && window.__editingTask && window.__editingTask.subject) {
-      subjectSel.value = window.__editingTask.subject.id;
-    }
-  } catch (e) { /* sem matérias */ }
+    if (request !== taskFormRequest || State.token !== token) return;
+    subjectSel.replaceChildren(new Option('Sem matéria', ''));
+    subjects.forEach(function (subject) { subjectSel.add(new Option(subject.name, subject.id)); });
+    subjectSel.value = subjectId || '';
+    submit.disabled = false;
+  } catch (error) {
+    if (request !== taskFormRequest || State.token !== token) return;
+    subjectSel.replaceChildren(new Option('Não foi possível carregar as matérias', ''));
+    toast('Não foi possível carregar as matérias. Feche o formulário e tente novamente.', 'error');
+  } finally {
+    if (request === taskFormRequest && State.token === token) subjectSel.disabled = false;
+  }
 }
 
-function openTaskModal() {
+function openTaskModal(subjectId) {
   var form = document.getElementById('task-form');
   window.__editingTask = null;
   form.reset();
-  document.getElementById('task-modal-title').textContent = 'Nova tarefa';
+  document.getElementById('task-modal-title').textContent = subjectId ? 'Nova atividade' : 'Nova tarefa';
+  form.elements['dueDate'].required = Boolean(subjectId);
+  form.elements['subjectId'].required = Boolean(subjectId);
   form.elements['priority'].value = 'MEDIUM';
-  prepareTaskForm(form, null);
+  prepareTaskForm(form, subjectId);
   document.getElementById('task-modal').classList.remove('hidden');
   document.getElementById('task-modal').classList.add('flex');
 }
@@ -711,6 +861,15 @@ function openTaskModal() {
 function openTaskEditModal(id) {
   getTask(id)
     .then(function (t) {
+      if (t.salaAtividadeId) {
+        document.getElementById('room-task-title').textContent = t.title;
+        var due = document.getElementById('room-task-due');
+        due.dateTime = t.dueDate;
+        due.textContent = formatDateTime(t.dueDate);
+        document.getElementById('room-task-description').textContent = t.description || '';
+        document.getElementById('room-task-dialog').showModal();
+        return;
+      }
       var form = document.getElementById('task-form');
       window.__editingTask = t;
       document.getElementById('task-modal-title').textContent = 'Editar tarefa';
@@ -719,7 +878,9 @@ function openTaskEditModal(id) {
       form.elements['description'].value = t.description || '';
       form.elements['dueDate'].value = dueDateInputValue(t.dueDate);
       form.elements['priority'].value = t.priority || 'MEDIUM';
-      prepareTaskForm(form, id);
+      form.elements['dueDate'].required = false;
+      form.elements['subjectId'].required = false;
+      prepareTaskForm(form, t.subjectId || (t.subject && t.subject.id));
       document.getElementById('task-modal').classList.remove('hidden');
       document.getElementById('task-modal').classList.add('flex');
     })
@@ -728,9 +889,10 @@ function openTaskEditModal(id) {
 
 async function submitTaskForm(form) {
   var btn = form.querySelector('button[type="submit"]');
+  if (btn.disabled || !form.reportValidity()) return;
   submitBtnLoading(btn);
-  var data = taskFormPayload(form);
   try {
+    var data = taskFormPayload(form);
     if (window.__editingTask) {
       await updateTask(window.__editingTask.id, data);
       toast('Tarefa atualizada');
@@ -740,7 +902,7 @@ async function submitTaskForm(form) {
     }
     window.__editingTask = null;
     closeModal('task-modal');
-    renderTasks();
+    refreshTaskScreen();
   } catch (e) {
     toast(cleanError(e), 'error');
   } finally {
@@ -748,16 +910,30 @@ async function submitTaskForm(form) {
   }
 }
 
+function refreshTaskScreen() {
+  var active = document.querySelector('.screen.active');
+  if (active && active.id === 'screen-materia-detalhe' && DETAIL_TAB === 'atividades') renderSubjectTasks();
+  else if (active && active.id === 'screen-home') renderHome();
+  else if (active && active.id === 'screen-calendario') renderCalendar();
+  else renderTasks();
+}
+
 async function doCompleteTask(id, btn) {
+  if (btn.disabled) return;
+  var token = State.token;
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
   try {
     var res = await completeTask(id);
-    var earned = res && res.gamification && res.gamification.xpEarned;
-    toast(earned ? '+' + earned + ' XP' : '+20 XP', earned ? 'success' : 'success');
-    var row = document.querySelector('[data-task="' + id + '"]');
-    if (row) row.classList.add('opacity-55');
-    setTimeout(function () { renderTasks(); }, 700);
+    if (State.token !== token) return;
+    if (res && res.gamification) celebrateProgress(res.gamification);
+    else toast('Tarefa concluída');
+    refreshTaskScreen();
   } catch (e) {
-    toast(cleanError(e), 'error');
+    if (State.token === token) toast(cleanError(e), 'error');
+  } finally {
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
   }
 }
 
@@ -858,56 +1034,109 @@ async function renderProfile() {
       else if (p && p.overallProgress !== undefined) bar.style.width = p.overallProgress + '%';
     }
 
-    var achievements = null;
-    try { achievements = await getAchievements(); } catch (e) {}
-    empty(badgesEl);
-    if (achievements && Array.isArray(achievements) && achievements.length) {
-      var open = achievements.filter(function (a) { return a.earned !== false; });
-      open.forEach(function (a) {
-        badgesEl.insertAdjacentHTML('beforeend',
-          '<div class="card aspect-square flex flex-col items-center justify-center gap-[5px]">' +
-          '<span class="text-xl">' + esc(a.icon || '🏅') + '</span>' +
-          '<span class="text-[9px] text-text-mid font-bold">' + esc(a.name || a.title || '') + '</span></div>');
-      });
-    } else {
-      badgesEl.innerHTML =
-        '<div class="card aspect-square flex flex-col items-center justify-center gap-[5px] opacity-[.28] border-dashed"><span class="text-xl">🔒</span><span class="text-[9px] text-text-low font-bold">VOCÊ DESBLOQUEIA</span></div>';
-    }
+    renderBadges(badgesEl, await getAchievements(), g && g.level);
   } catch (e) {
     badgesEl.innerHTML = errorView(e && e.message);
   }
 }
 
+var crystalGroups = [
+  { name: 'Jasper', tone: 'orange', shape: 'M12 2 21 8 20 17 11 22 3 16 4 7Z', facets: 'm4 7 8 3 9-2m-9 2-1 12m-8-6 9-6 8 7' },
+  { name: 'Lapiz-lazuli', tone: 'indigo', shape: 'M6 3h12l4 8-4 10H6L2 11Z', facets: 'm6 3 3 8-3 10m12-18-3 8 3 10M2 11h20' },
+  { name: 'Ametista', tone: 'lilac', shape: 'm12 1 8 6v10l-8 6-8-6V7Z', facets: 'm4 7 8 3 8-3m-8-6v22m-8-6 8-7 8 7' },
+  { name: 'Diamante', tone: 'teal', shape: 'M6 4h12l5 6-11 12L1 10Z', facets: 'M1 10h22M6 4l2 6 4 12 4-12 2-6M8 10l4-6 4 6' }
+];
+
+var badgeDefinitions = [
+  { code: 'FIRST_TASK', name: 'Primeira tarefa', description: 'Concluiu a primeira tarefa.', group: 0 },
+  { code: 'LEVEL_2', name: 'Estudante', level: 2, group: 0 },
+  { code: 'FIRST_STREAK', name: 'Primeiro dia', description: 'Estudou por dez minutos em um dia.', group: 1 },
+  { code: 'LEVEL_5', name: 'Dedicado', level: 5, group: 1 },
+  { code: 'TEN_TASKS', name: 'Dez tarefas', description: 'Concluiu dez tarefas.', group: 2 },
+  { code: 'LEVEL_10', name: 'Lenda', level: 10, group: 2 },
+  { code: 'WEEK_STREAK', name: 'Semana de estudos', description: 'Manteve uma sequência por sete dias.', group: 3 },
+  { code: 'LEVEL_20', name: 'Diamante', level: 20, group: 3 }
+];
+
+function earnedBadge(badge, codes, level) {
+  return badge.level ? level >= badge.level : codes.has(badge.code);
+}
+
+function badgeCard(badge, unlocked) {
+  var crystal = crystalGroups[badge.group];
+  var label = unlocked ? badge.name : (badge.level ? 'Bloqueado. Atinja o nível ' + badge.level + ' para desbloquear.' : 'Bloqueado');
+  var description = badge.description || ('Nível ' + badge.level + ' alcançado.');
+  return '<article class="card badge-card' + (unlocked ? '' : ' badge-locked') + '">' +
+    '<div class="badge-emblem badge-' + crystal.tone + '"><svg viewBox="0 0 24 24" aria-hidden="true">' +
+    '<path d="' + crystal.shape + '" fill="currentColor" fill-opacity=".28" stroke="currentColor"/>' +
+    '<path d="' + crystal.facets + '" fill="none" stroke="currentColor"/></svg></div>' +
+    '<div><h3>' + esc(label) + '</h3>' + (unlocked ? '<p>' + esc(description) + '</p>' : '') +
+    '</div></article>';
+}
+
+function renderBadges(container, achievements, level) {
+  var codes = new Set(achievements.filter(function (badge) { return badge.earned !== false; }).map(function (badge) { return badge.code; }));
+  var earned = badgeDefinitions.filter(function (badge) { return earnedBadge(badge, codes, level); });
+  container.innerHTML = earned.length ? earned.map(function (badge) { return badgeCard(badge, true); }).join('') :
+    emptyState('Nenhuma insígnia conquistada', 'Conclua uma tarefa para desbloquear sua primeira.', 'medal');
+}
+
+async function renderBadgeCollection() {
+  var container = document.getElementById('crystal-collection');
+  var token = State.token;
+  showLoading(container);
+  try {
+    var result = await Promise.all([getAchievements(), getGamificationStats()]);
+    if (State.token !== token) return;
+    var codes = new Set(result[0].filter(function (badge) { return badge.earned !== false; }).map(function (badge) { return badge.code; }));
+    container.innerHTML = crystalGroups.map(function (group, index) {
+      return '<section><h2 class="crystal-section-title tone-' + group.tone + '">Insígnia ' + esc(group.name) +
+        '</h2><div class="badges-grid">' + badgeDefinitions.filter(function (badge) { return badge.group === index; })
+          .map(function (badge) { return badgeCard(badge, earnedBadge(badge, codes, result[1].level)); }).join('') +
+        '</div></section>';
+    }).join('');
+  } catch (error) {
+    if (State.token === token) container.innerHTML = errorView(cleanError(error));
+  }
+}
+
+function celebrateProgress(progress) {
+  var unlocked = progress.unlocked || [];
+  var messages = [];
+  if (progress.xpEarned) messages.push('+' + progress.xpEarned + ' XP');
+  if (progress.levelUp) messages.push('Nível ' + progress.levelUp + ' alcançado!');
+  if (unlocked.length) messages.push(unlocked.length === 1 ? 'Insígnia desbloqueada!' : 'Insígnias desbloqueadas!');
+  if (!messages.length) return;
+  toast(messages.join(' · '));
+  var message = document.getElementById('toast');
+  message.classList.add(progress.levelUp ? 'level-celebration' : 'xp-celebration');
+  if (!unlocked.length || matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      document.documentElement.classList.contains('a11y-mode')) return;
+  var confetti = el('div', 'badge-confetti');
+  confetti.setAttribute('aria-hidden', 'true');
+  for (var i = 0; i < 28; i++) {
+    var piece = el('span');
+    piece.style.setProperty('--x', (i * 23 % 101) + '%');
+    piece.style.setProperty('--delay', (i % 7) * 45 + 'ms');
+    piece.style.setProperty('--piece', ['#ff6b35', '#625add', '#b28fff', '#42ddd7'][i % 4]);
+    confetti.appendChild(piece);
+  }
+  document.body.appendChild(confetti);
+  setTimeout(function () { confetti.remove(); }, 1800);
+}
+
 function logoutAndGoLogin() {
   stopStreakTracking();
   logout();
-  closeProfileDrawer();
+  closeProfileDrawer(true);
   goTo('login');
   toast('Você saiu da sua conta.');
-}
-
-/* ── Avatar do usuário no statusbar (abre o drawer de perfil) ── */
-function mountStatusbarAvatars() {
-  document.querySelectorAll('.statusbar').forEach(function (bar) {
-    if (bar.querySelector('.statusbar-avatar')) return;
-    var first = bar.querySelector('span');
-    if (!first) return;
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'statusbar-avatar';
-    btn.setAttribute('aria-label', 'Abrir perfil');
-    btn.innerHTML = '<span class="statusbar-avatar-initial">A</span>';
-    btn.addEventListener('click', openProfileDrawer);
-    bar.replaceChild(btn, first);
-  });
 }
 
 function updateStatusbarAvatar() {
   var user = State.user;
   var initial = user && user.name ? String(user.name).charAt(0).toUpperCase() : 'A';
-  document.querySelectorAll('.statusbar-avatar-initial').forEach(function (el) {
-    el.textContent = initial;
-  });
+  document.getElementById('header-avatar-initial').textContent = initial;
 }
 
 /* ── Drawer de perfil + configurações ── */
@@ -920,27 +1149,33 @@ function openProfileDrawer() {
   if (!drawer) return;
   if (PROFILE_DRAWER_TIMER) { clearTimeout(PROFILE_DRAWER_TIMER); PROFILE_DRAWER_TIMER = null; }
   drawer.style.display = 'flex';
-  requestAnimationFrame(function () { drawer.classList.add('open'); });
   drawer.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(function () {
+    if (drawer.getAttribute('aria-hidden') === 'false') drawer.classList.add('open');
+  });
 }
 
-function closeProfileDrawer() {
+function closeProfileDrawer(immediately) {
   var drawer = document.getElementById('profile-drawer');
   if (!drawer) return;
   drawer.classList.remove('open');
   drawer.setAttribute('aria-hidden', 'true');
-  if (PROFILE_DRAWER_TIMER) clearTimeout(PROFILE_DRAWER_TIMER);
+  if (PROFILE_DRAWER_TIMER) {
+    clearTimeout(PROFILE_DRAWER_TIMER);
+    PROFILE_DRAWER_TIMER = null;
+  }
+  if (immediately) {
+    drawer.style.display = 'none';
+    return;
+  }
   PROFILE_DRAWER_TIMER = setTimeout(function () {
     if (!drawer.classList.contains('open')) drawer.style.display = 'none';
   }, 300);
 }
 
-function toggleDrawerSettings() {
-  var panel = document.getElementById('drawer-settings');
-  var trigger = document.querySelector('[aria-controls="drawer-settings"]');
-  if (!panel) return;
-  var open = panel.classList.toggle('open');
-  if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+function openSettingsFromDrawer() {
+  closeProfileDrawer();
+  goTo('configuracoes');
 }
 
 function renderProfileDrawer() {
@@ -1024,6 +1259,7 @@ async function renderNotifications() {
 async function renderProfessor() {
   var subEl = document.getElementById('professor-sub');
   var container = document.getElementById('professor-contents');
+  document.getElementById('professor-approvals').style.display = isAuthorizedTeacher() ? '' : 'none';
   if (subEl && State.user) subEl.textContent = (State.user.name || 'Professor') + (State.user.authorized ? ' · autorizado a aprovar' : ' · sem permissão de aprovação');
   showLoading(container);
   try {
@@ -1158,52 +1394,68 @@ async function submitContentForm(form) {
 }
 
 /* ══════════════════════ KAI (Etapa 11) ══════════════════════ */
+function kaiTimestamp() {
+  var now = new Date();
+  return '<time class="kai-time" datetime="' + now.toISOString() + '">' +
+    esc(now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) + '</time>';
+}
+
+function kaiAvatar() {
+  return '<span class="kai-avatar">' + uiIcon('kai') + '</span>';
+}
+
 function initKai() {
   var container = document.getElementById('kai-chat');
-  if (container.dataset.ready) {
+  if (container.dataset.ready === String(State.user.id)) {
     bindKaiSend();
     return;
   }
-  empty(container);
-  var name = State.user ? State.user.name.split(' ')[0] : 'humano';
-  container.innerHTML =
-    '<div class="flex gap-2 max-w-[90%]">' +
-    '<div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">🤖</div>' +
-    '<div class="chat-bubble-kai"><div class="text-[13px] leading-[1.55] text-text-hi">Oi, ' + esc(name) + '! Posso te ajudar com matérias, tarefas e prazos. O que precisa hoje?</div></div>' +
-    '</div>';
-  container.dataset.ready = '1';
-  window.__kaiTyping = false;
+  var name = State.user.name.split(' ')[0];
+  container.innerHTML = '<div class="kai-reply">' + kaiAvatar() + '<div class="chat-bubble-kai">' +
+    '<div>Oi, ' + esc(name) + '! Posso te ajudar com matérias, tarefas e prazos. O que precisa hoje?</div>' +
+    kaiTimestamp() + '</div></div>';
+  container.dataset.ready = String(State.user.id);
+  container.removeAttribute('aria-busy');
+  document.getElementById('kai-input').value = '';
+  document.getElementById('kai-send').disabled = false;
   bindKaiSend();
 }
 
 async function sendKai() {
   var input = document.getElementById('kai-input');
   var container = document.getElementById('kai-chat');
+  var button = document.getElementById('kai-send');
   var message = (input.value || '').trim();
-  if (!message || window.__kaiTyping) return;
+  if (!message || button.disabled) return;
+  var token = State.token;
 
   container.insertAdjacentHTML('beforeend',
-    '<div class="flex justify-end"><div class="chat-bubble-user"><div class="text-[13px] leading-[1.55] text-white">' + esc(message) + '</div></div></div>');
+    '<div class="flex justify-end"><div class="chat-bubble-user"><div>' + esc(message) + '</div>' +
+    kaiTimestamp() + '</div></div>');
   input.value = '';
-  window.__kaiTyping = true;
+  button.disabled = true;
+  button.setAttribute('aria-busy', 'true');
+
+  var reply = el('div', 'kai-reply');
+  reply.innerHTML = kaiAvatar() + '<div class="chat-bubble-kai"><span class="kai-typing" role="status">' +
+    '<span class="sr-only">Kai está digitando</span><i></i><i></i><i></i></span></div>';
+  container.appendChild(reply);
   container.scrollTop = container.scrollHeight;
 
-  var typingId = 'kai-typing';
-  container.insertAdjacentHTML('beforeend',
-    '<div class="flex gap-2 max-w-[90%]"><div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">🤖</div>' +
-    '<div class="chat-bubble-kai"><div class="text-[13px]" id="' + typingId + '">…</div></div></div>');
-
+  var text;
   try {
-    var res = await kaiChat(message);
-    var reply = (res && (res.reply || res.response || res.message)) || 'Não consegui processar sua pergunta agora.';
-    var typing = document.getElementById(typingId);
-    if (typing) typing.textContent = reply;
-  } catch (e) {
-    var typing = document.getElementById(typingId);
-    if (typing) typing.textContent = 'Ops, não consegui responder agora: ' + cleanError(e);
+    var result = await kaiChat(message);
+    text = (result && (result.reply || result.response || result.message)) || 'Não consegui processar sua pergunta agora.';
+  } catch (error) {
+    text = 'Não consegui responder agora: ' + cleanError(error);
   } finally {
-    window.__kaiTyping = false;
-    container.scrollTop = container.scrollHeight;
+    if (State.token === token) {
+      var bubble = reply.querySelector('.chat-bubble-kai');
+      bubble.innerHTML = '<div>' + esc(text) + '</div>' + kaiTimestamp();
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
+      container.scrollTop = container.scrollHeight;
+    }
   }
 }
 
@@ -1223,14 +1475,31 @@ function bindKaiSend() {
 async function submitLogin(form) {
   var btn = form.querySelector('button[type="submit"]');
   var errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  var student = form.elements.role.value === 'ALUNO';
+  if (student && form.elements.curso.disabled) {
+    errEl.textContent = 'Aguarde o carregamento dos cursos ou tente novamente.';
+    return;
+  }
+  if (btn.disabled || !form.reportValidity()) return;
   submitBtnLoading(btn);
   try {
     await loginUser({
       email: form.elements['email'].value,
       password: form.elements['password'].value,
       role: form.elements['role'] ? form.elements['role'].value : 'ALUNO',
+      course: student ? form.elements.curso.value : null,
+      grade: student ? Number(form.elements.serie.value) : null,
+      roomCode: student ? form.elements.codigoSala.value.trim() : null,
     });
-    resolvePostAuth();
+    if (!student && !isProfessor()) {
+      logout();
+      form.elements.role.value = 'ALUNO';
+      form.elements.role.dispatchEvent(new Event('change'));
+      errEl.textContent = 'Entre com o perfil Aluno e selecione sua turma.';
+      return;
+    }
+    resolvePostAuth(student ? 'materias' : null);
     startStreakTracking();
     healthCheck();
   } catch (e) {

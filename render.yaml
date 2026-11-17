@@ -1,0 +1,42 @@
+databases:
+  - name: kripta-db
+    databaseName: kripta
+    plan: free
+    region: oregon
+    postgresMajorVersion: "16"
+    ipAllowList: []
+
+services:
+  - type: web
+    name: kripta-api
+    runtime: docker
+    branch: main
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    buildFilter:
+      paths:
+        - backend/**
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_HOST
+        fromDatabase:
+          name: kripta-db
+          property: host
+      - key: DB_NAME
+        fromDatabase:
+          name: kripta-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: kripta-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: kripta-db
+          property: password
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false

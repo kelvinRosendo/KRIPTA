@@ -3,6 +3,7 @@ package com.kripta.config;
 import com.kripta.security.JwtAuthenticationFilter;
 import com.kripta.security.RestAccessDeniedHandler;
 import com.kripta.security.RestAuthenticationEntryPoint;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -24,11 +26,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthenticationFilter jwtAuthenticationFilter,
                                                    RestAuthenticationEntryPoint authenticationEntryPoint,
-                                                   RestAccessDeniedHandler accessDeniedHandler) throws Exception {
+                                                   RestAccessDeniedHandler accessDeniedHandler,
+                                                   @Value("${app.cors.allowed-origins}") String allowedOrigins) throws Exception {
+        var origins = Arrays.stream(allowedOrigins.split(",")).map(String::trim)
+                .filter(origin -> !origin.isEmpty()).toList();
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
-                    config.setAllowedOrigins(java.util.List.of("http://localhost:5173", "http://127.0.0.1:5173"));
+                    config.setAllowedOrigins(origins);
                     config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(java.util.List.of("Content-Type", "Authorization"));
                     return config;

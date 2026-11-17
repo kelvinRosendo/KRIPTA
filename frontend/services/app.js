@@ -154,15 +154,87 @@ function bindGlobalEvents() {
 
 /* ══════════════════════ HOME (Etapa 4) ══════════════════════ */
 async function renderHome() {
+  var token = State.token;
   var greeting = document.getElementById('home-greeting');
   if (State.user && State.user.name) greeting.textContent = 'Olá, ' + State.user.name.split(' ')[0];
+  document.getElementById('home-highlight').hidden = true;
+  renderHomeAgenda();
+  renderHomeSubjects();
 
   try {
     var dash = await getDashboard();
+    if (State.token !== token) return;
     fillHomeStats(dash);
     fillHomeTasks(dash);
+    fillHomeHighlight(dash);
   } catch (e) {
-    document.getElementById('home-tasks').innerHTML = errorView(e && e.message);
+    if (State.token === token) document.getElementById('home-tasks').innerHTML = errorView(e && e.message);
+  }
+}
+
+async function renderHomeSubjects() {
+  var panel = document.getElementById('home-subjects');
+  var token = State.token;
+  panel.textContent = 'Carregando matérias…';
+  try {
+    var subjects = await getSubjects();
+    if (State.token !== token) return;
+    panel.replaceChildren();
+    subjects.slice(0, 3).forEach(function (subject) {
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'card home-subject';
+      item.dataset.openSubject = subject.id;
+      item.textContent = subject.name;
+      panel.append(item);
+    });
+    if (!subjects.length) panel.textContent = 'Nenhuma matéria cadastrada.';
+  } catch (error) {
+    if (State.token === token) panel.textContent = 'Não foi possível carregar as matérias.';
+  }
+}
+
+function fillHomeHighlight(dash) {
+  var next = dash.tasksToday.concat(dash.tasksTomorrow).reduce(function (earliest, task) {
+    return !earliest || new Date(task.dueDate) < new Date(earliest.dueDate) ? task : earliest;
+  }, null);
+  if (!next) return;
+
+  document.getElementById('home-highlight-title').textContent = next.title;
+  document.getElementById('home-highlight-date').textContent = 'Próxima entrega · ' + formatDateTime(next.dueDate);
+  document.getElementById('home-highlight').hidden = false;
+}
+
+async function renderHomeAgenda() {
+  var panel = document.getElementById('home-agenda');
+  var token = State.token;
+  var today = new Date();
+  panel.textContent = 'Carregando eventos…';
+  try {
+    var events = await getCalendar(toLocalDateStr(today), toLocalDateStr(calAddDays(today, 7)));
+    if (State.token !== token) return;
+    panel.replaceChildren();
+    events.sort(function (a, b) {
+      return (a.date + (a.time || '')).localeCompare(b.date + (b.time || ''));
+    }).slice(0, 3).forEach(function (event) {
+      var row = document.createElement('div');
+      row.className = 'home-event';
+      var date = document.createElement('time');
+      date.dateTime = event.date;
+      date.textContent = formatDate(calParseDay(event.date));
+      var details = document.createElement('div');
+      var title = document.createElement('strong');
+      title.textContent = event.title;
+      var meta = document.createElement('p');
+      meta.textContent = (event.scope === 'PESSOAL' ? 'Pessoal' : 'Escolar') +
+        (event.time ? ' · ' + event.time.slice(0, 5) : '');
+      details.append(title, meta);
+      row.append(date, details);
+      panel.append(row);
+    });
+    if (!events.length) panel.textContent = 'Nenhum evento nos próximos sete dias.';
+  } catch (error) {
+    if (State.token === token) panel.textContent = 'Não foi possível carregar a agenda.';
   }
 }
 
@@ -633,7 +705,9 @@ async function renderTasks() {
 function setTasksFilter(filter) {
   TASKS_FILTER = filter;
   document.querySelectorAll('[data-task-filter]').forEach(function (p) {
-    if (p.getAttribute('data-task-filter') === filter) {
+    var active = p.dataset.taskFilter === filter;
+    p.setAttribute('aria-pressed', String(active));
+    if (active) {
       p.className = 'pill bg-indigo text-white cursor-pointer';
     } else {
       p.className = 'pill bg-surface text-text-mid border border-border cursor-pointer';
@@ -890,15 +964,13 @@ function logoutAndGoLogin() {
 function mountStatusbarAvatars() {
   document.querySelectorAll('.statusbar').forEach(function (bar) {
     if (bar.querySelector('.statusbar-avatar')) return;
-    var first = bar.querySelector('span');
-    if (!first) return;
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'statusbar-avatar';
     btn.setAttribute('aria-label', 'Abrir perfil');
     btn.innerHTML = '<span class="statusbar-avatar-initial">A</span>';
     btn.addEventListener('click', openProfileDrawer);
-    bar.replaceChild(btn, first);
+    bar.appendChild(btn);
   });
 }
 

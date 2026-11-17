@@ -1228,10 +1228,6 @@ body {
   margin-top: 5px;
 }
 
-.mt-\[9px\] {
-  margin-top: 9px;
-}
-
 .mt-px {
   margin-top: 1px;
 }
@@ -1892,11 +1888,6 @@ body {
   padding-right: 1.25rem;
 }
 
-.px-7 {
-  padding-left: 1.75rem;
-  padding-right: 1.75rem;
-}
-
 .py-1 {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
@@ -1942,10 +1933,6 @@ body {
   padding-bottom: 13px;
 }
 
-.pb-11 {
-  padding-bottom: 2.75rem;
-}
-
 .pl-\[14px\] {
   padding-left: 14px;
 }
@@ -1956,10 +1943,6 @@ body {
 
 .pt-1 {
   padding-top: 0.25rem;
-}
-
-.pt-14 {
-  padding-top: 3.5rem;
 }
 
 .pt-\[10px\] {

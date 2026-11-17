@@ -1,4 +1,4 @@
-/* ── Preferências do usuário (acessibilidade / notificações) ── */
+/* ── Preferências de aparência, acessibilidade e notificações ── */
 
 var PREFS_KEY = 'kripta_prefs';
 
@@ -11,6 +11,7 @@ function getPrefs() {
   }
   return {
     a11y: parsed.a11y === true,
+    dark: parsed.dark === true,
     notifications: parsed.notifications !== false,
   };
 }
@@ -30,6 +31,7 @@ function setPref(key, value) {
 
 function applyPrefs() {
   var prefs = getPrefs();
+  applyTheme(prefs.dark);
   document.documentElement.classList.toggle('a11y-mode', prefs.a11y);
 
   var section = document.getElementById('notifications-section');
@@ -39,6 +41,13 @@ function applyPrefs() {
   if (a11yToggle) a11yToggle.checked = prefs.a11y;
   var notifToggle = document.getElementById('pref-notifications');
   if (notifToggle) notifToggle.checked = prefs.notifications;
+  var darkToggle = document.getElementById('pref-dark');
+  if (darkToggle) darkToggle.checked = prefs.dark;
 }
 
+function applyTheme(dark) {
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+}
+
+applyTheme(getPrefs().dark);
 document.addEventListener('DOMContentLoaded', applyPrefs);

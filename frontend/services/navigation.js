@@ -80,10 +80,11 @@ function applyScreen(screenName, isPublic) {
   if (target) target.classList.add('active');
 
   document.querySelectorAll('.navitem').forEach(function (n) {
-    n.classList.remove('active');
+    var active = !isPublic && n.dataset.screen === (screenName === 'materia-detalhe' ? 'materias' : screenName);
+    n.classList.toggle('active', active);
+    if (active) n.setAttribute('aria-current', 'page');
+    else n.removeAttribute('aria-current');
   });
-  var navItem = document.querySelector('.navitem[data-screen="' + screenName + '"]');
-  if (navItem && !isPublic) navItem.classList.add('active');
 
   var nav = document.getElementById('bottomnav');
   if (isPublic || (typeof isAuthenticated === 'function' && !isAuthenticated())) {

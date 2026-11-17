@@ -126,7 +126,8 @@ async function renderCalendar() {
 
 function calendarShellHTML() {
   return (
-    '<div class="card p-4">' +
+    '<div class="calendar-layout">' +
+    '<div class="card p-4 min-w-0">' +
     '<div class="flex items-center justify-between mb-3">' +
     '<button type="button" class="icon-btn !w-8 !h-8" data-cal-prev aria-label="Anterior">' +
     '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>' +
@@ -136,7 +137,9 @@ function calendarShellHTML() {
     '</div>' +
     '<div id="cal-view-body"></div>' +
     '</div>' +
-    '<div id="cal-day-events" class="mt-3"></div>'
+    '<section class="card calendar-agenda p-4" aria-labelledby="cal-agenda-heading">' +
+    '<h2 id="cal-agenda-heading" class="font-display text-lg font-bold"></h2>' +
+    '<div id="cal-day-events" class="mt-3"></div></section></div>'
   );
 }
 
@@ -148,7 +151,11 @@ function renderCalendarView() {
   else if (CAL_VIEW === 'week') vb.innerHTML = weekStripHTML();
   else vb.innerHTML = monthGridHTML();
   bindCalendarDays();
-  if (agenda) agenda.innerHTML = agendaHTML(CAL_SELECTED);
+  if (agenda) {
+    document.getElementById('cal-agenda-heading').textContent =
+      CAL_SELECTED.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    agenda.innerHTML = agendaHTML(CAL_SELECTED);
+  }
 }
 
 function weekdayHeaderHTML() {

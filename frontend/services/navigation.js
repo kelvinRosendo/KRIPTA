@@ -40,6 +40,7 @@ function defaultScreenForRole() {
  * - Após navegar para tela autenticada, dispara o render dinâmico.
  */
 function goTo(screenName) {
+  if (screenName === 'insignias' && isProfessor()) screenName = 'professor';
   /* Professor não tem acesso ao agente de IA (Kai). */
   if (typeof isProfessor === 'function' && isProfessor() && screenName === 'ia') screenName = 'professor';
   /* Área de aprovação exige professor autorizado (UC06/FA02). */

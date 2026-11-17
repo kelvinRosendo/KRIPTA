@@ -11,6 +11,11 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleStatus(org.springframework.web.server.ResponseStatusException ex) {
+        String mensagem = ex.getReason() == null ? "Não foi possível concluir a operação." : ex.getReason();
+        return ResponseEntity.status(ex.getStatusCode()).body(ApiError.of("OPERACAO", mensagem));
+    }
     @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
     public ResponseEntity<Map<String,Object>> handleIntegrity(Exception ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("CONFLITO_DADOS", "A operação conflita com registros existentes ou vinculados. Revise os dados antes de tentar novamente."));

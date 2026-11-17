@@ -4,7 +4,7 @@ const vm=require('node:vm');
 const fs=require('node:fs');
 test('gamification reads persisted routes and heartbeat never reports client time',async()=>{
   const calls=[];
-  const c={document:{addEventListener:()=>{},getElementById:()=>null},api:{get:async p=>{calls.push([p]);return {};},post:async(p,b)=>{calls.push([p,b]);return {};}}};
+  const c={State:{token:'jwt'},isProfessor:()=>false,document:{addEventListener:()=>{},getElementById:()=>null},api:{get:async p=>{calls.push([p]);return {};},post:async(p,b)=>{calls.push([p,b]);return {};}}};
   vm.createContext(c);
   for(const name of ['gamification','streak'])vm.runInContext(fs.readFileSync('services/'+name+'.js','utf8'),c);
   await c.getProgress();await c.getGamificationStats();await c.getAchievements();await c.streakHeartbeat(999999);

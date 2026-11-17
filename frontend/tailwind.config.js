@@ -41,7 +41,7 @@ module.exports = {
       },
       fontFamily: {
         display: ['Nunito', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
+        body: ['Nunito', 'sans-serif'],
       },
       borderRadius: {
         lg: '20px',

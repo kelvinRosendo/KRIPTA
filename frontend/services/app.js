@@ -50,8 +50,10 @@ function renderScreen(screenName) {
       case 'tasks': renderTasks(); break;
       case 'calendario': renderCalendar(); break;
       case 'perfil': renderProfile(); break;
+      case 'insignias': renderBadgeCollection(); break;
       case 'avisos': renderAnnouncements(); break;
       case 'professor': renderProfessor(); break;
+      case 'salas': renderSalas(); break;
       case 'aprovacoes': renderApprovals(); break;
       case 'ia': initKai(); break;
     }
@@ -174,7 +176,7 @@ async function renderHome() {
 async function renderHomeSubjects() {
   var panel = document.getElementById('home-subjects');
   var token = State.token;
-  panel.textContent = 'Carregando matérias…';
+  showLoading(panel);
   try {
     var subjects = await getSubjects();
     if (State.token !== token) return;
@@ -187,7 +189,7 @@ async function renderHomeSubjects() {
       item.textContent = subject.name;
       panel.append(item);
     });
-    if (!subjects.length) panel.textContent = 'Nenhuma matéria cadastrada.';
+    if (!subjects.length) panel.innerHTML = emptyState('Nenhuma matéria cadastrada', '', 'book');
   } catch (error) {
     if (State.token === token) panel.textContent = 'Não foi possível carregar as matérias.';
   }
@@ -208,7 +210,7 @@ async function renderHomeAgenda() {
   var panel = document.getElementById('home-agenda');
   var token = State.token;
   var today = new Date();
-  panel.textContent = 'Carregando eventos…';
+  showLoading(panel);
   try {
     var events = await getCalendar(toLocalDateStr(today), toLocalDateStr(calAddDays(today, 7)));
     if (State.token !== token) return;
@@ -231,7 +233,7 @@ async function renderHomeAgenda() {
       row.append(date, details);
       panel.append(row);
     });
-    if (!events.length) panel.textContent = 'Nenhum evento nos próximos sete dias.';
+    if (!events.length) panel.innerHTML = emptyState('Nenhum evento nos próximos sete dias', '', 'calendar');
   } catch (error) {
     if (State.token === token) panel.textContent = 'Não foi possível carregar a agenda.';
   }
@@ -243,6 +245,9 @@ function fillHomeStats(dash) {
   var level = stats.level !== undefined ? stats.level : dash.level;
   var streak = stats.streak !== undefined ? stats.streak : dash.streak;
   var badges = (dash.badgesCount !== undefined) ? dash.badgesCount : (dash.achievements ? dash.achievements.length : null);
+  if (badges !== null && level) badges += badgeDefinitions.filter(function (badge) {
+    return badge.level && badge.level <= level;
+  }).length;
 
   var streakCard = document.getElementById('home-streak-card');
   if (streak) {
@@ -280,26 +285,36 @@ function fillHomeTasks(dash) {
 }
 
 /* ══════════════════════ MATÉRIAS (Etapa 5) ══════════════════════ */
-var SUBJECT_COLORS = ['bg-indigo-light', 'bg-teal-light', 'bg-orange-light', 'bg-lilac-light', 'bg-surface-2'];
+var SUBJECT_STYLES = [
+  [/program|sistemas|banco de dados|internet|tecnologia|informati|comput/, 'code', '#373c9c'],
+  [/matemat|estatistica|calculo/, 'calc', '#18548c'],
+  [/quimica|fisica|laborat/, 'flask', '#9c3e35'],
+  [/biologia|nutri|ambiente|saude|alimento/, 'leaf', '#17645a'],
+  [/geografia|historia|filosofia|sociologia/, 'globe', '#804279'],
+  [/marketing|gestao|administr|negocio|financ|contab/, 'chart', '#8b411d'],
+  [/arte|design/, 'palette', '#8b3e60']
+];
 
 function subjectGroupHTML(label) {
   return '<div class="subject-group-label text-[11px] font-bold uppercase tracking-wide text-text-low mt-2 mb-0.5 px-0.5">' + esc(label) + '</div>';
 }
 
 function subjectCardHTML(s) {
-  var c = SUBJECT_COLORS[Math.abs(s.id || 1) % SUBJECT_COLORS.length];
+  var name = s.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  var style = SUBJECT_STYLES.find(function (entry) { return entry[0].test(name); });
+  var icon = style ? style[1] : 'book';
+  var color = style ? style[2] : '#51427e';
   var meta = subjectMeta(s);
   var pending = (s.pendingCount && s.pendingCount > 0)
     ? '<span class="pill bg-crimson-light text-crimson">' + s.pendingCount + ' pendência' + (s.pendingCount === 1 ? '' : 's') + '</span>'
     : '<span class="pill bg-teal-light text-teal">em dia</span>';
   return (
-    '<div class="card p-3.5 flex items-center gap-3 cursor-pointer" data-open-subject="' + s.id + '">' +
-    '<div class="w-[44px] h-[44px] rounded-[13px] ' + c + ' flex items-center justify-center text-xl shrink-0">' + uiIcon('book') + '</div>' +
-    '<div class="flex-1 min-w-0">' +
-    '<div class="text-[14.5px] font-bold truncate">' + esc(s.name) + '</div>' +
-    (meta ? '<div class="text-xs text-text-mid mt-px truncate">' + esc(meta) + '</div>' : '') +
-    '</div>' +
-    pending +
+    '<div class="card subject-color-card" style="--subject-color:' + color + '">' +
+    '<button type="button" class="subject-open" data-open-subject="' + s.id + '">' +
+    '<span class="subject-emblem">' + uiIcon(icon) + '</span>' +
+    '<span class="subject-text"><strong>' + esc(s.name) + '</strong>' +
+    (meta ? '<small>' + esc(meta) + '</small>' : '') +
+    '</span>' + pending + '</button>' +
     '<button type="button" class="icon-btn !w-8 !h-8" data-action="delete" data-kind="subject" data-id="' + s.id + '" data-name="' + esc(s.name) + '" aria-label="Excluir matéria">' +
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>' +
     '</button>' +
@@ -345,7 +360,7 @@ function applySubjectFilter(subjects) {
   if (!filtered.length) {
     var hasCriteria = query || filter !== 'all';
     list.innerHTML = '<div class="subjects-empty" role="status">' +
-      '<span class="subjects-empty-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 6c-3-2-6-2-10-1v14c4-1 7-1 10 1 3-2 6-2 10-1V5c-4-1-7-1-10 1v14"/></svg></span>' +
+      crystalIllustration('book') +
       '<h2>' + (hasCriteria ? 'Nenhuma matéria encontrada' : 'Nenhuma matéria cadastrada') + '</h2>' +
       '<p>' + (hasCriteria ? 'Tente outro nome ou mude o filtro.' : 'Adicione sua primeira matéria para organizar unidades e materiais.') + '</p></div>';
   } else if (courseView && courseView.selecao) {
@@ -579,7 +594,7 @@ async function toggleUnitMaterials(unitId) {
   State.currentUnit = { id: unitId };
   var detail = el('div', 'unit-detail mt-3 flex flex-col gap-2');
   detail.dataset.unitMaterials = unitId;
-  detail.innerHTML = spinner();
+  showLoading(detail);
   card.appendChild(detail);
 
   try {
@@ -845,6 +860,15 @@ function openTaskModal(subjectId) {
 function openTaskEditModal(id) {
   getTask(id)
     .then(function (t) {
+      if (t.salaAtividadeId) {
+        document.getElementById('room-task-title').textContent = t.title;
+        var due = document.getElementById('room-task-due');
+        due.dateTime = t.dueDate;
+        due.textContent = formatDateTime(t.dueDate);
+        document.getElementById('room-task-description').textContent = t.description || '';
+        document.getElementById('room-task-dialog').showModal();
+        return;
+      }
       var form = document.getElementById('task-form');
       window.__editingTask = t;
       document.getElementById('task-modal-title').textContent = 'Editar tarefa';
@@ -894,13 +918,21 @@ function refreshTaskScreen() {
 }
 
 async function doCompleteTask(id, btn) {
+  if (btn.disabled) return;
+  var token = State.token;
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
   try {
     var res = await completeTask(id);
-    var earned = res && res.gamification && res.gamification.xpEarned;
-    toast(earned ? '+' + earned + ' XP' : 'Tarefa concluída');
+    if (State.token !== token) return;
+    if (res && res.gamification) celebrateProgress(res.gamification);
+    else toast('Tarefa concluída');
     refreshTaskScreen();
   } catch (e) {
-    toast(cleanError(e), 'error');
+    if (State.token === token) toast(cleanError(e), 'error');
+  } finally {
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
   }
 }
 
@@ -1001,33 +1033,95 @@ async function renderProfile() {
       else if (p && p.overallProgress !== undefined) bar.style.width = p.overallProgress + '%';
     }
 
-    renderBadges(badgesEl, await getAchievements());
+    renderBadges(badgesEl, await getAchievements(), g && g.level);
   } catch (e) {
     badgesEl.innerHTML = errorView(e && e.message);
   }
 }
 
-var badgeDefinitions = [
-  { code: 'FIRST_TASK', name: 'Primeira tarefa', description: 'Conclua uma tarefa.', icon: 'tasks', tone: 'teal' },
-  { code: 'TEN_TASKS', name: 'Dez tarefas', description: 'Conclua dez tarefas.', icon: 'medal', tone: 'lilac' },
-  { code: 'FIRST_STREAK', name: 'Primeiro dia', description: 'Estude por 10 minutos em um dia.', icon: 'flame', tone: 'orange' },
-  { code: 'WEEK_STREAK', name: 'Semana de estudos', description: 'Mantenha a sequência por 7 dias.', icon: 'calendar', tone: 'indigo' }
+var crystalGroups = [
+  { name: 'Jasper', tone: 'orange', shape: 'M12 2 21 8 20 17 11 22 3 16 4 7Z', facets: 'm4 7 8 3 9-2m-9 2-1 12m-8-6 9-6 8 7' },
+  { name: 'Lapiz-lazuli', tone: 'indigo', shape: 'M6 3h12l4 8-4 10H6L2 11Z', facets: 'm6 3 3 8-3 10m12-18-3 8 3 10M2 11h20' },
+  { name: 'Ametista', tone: 'lilac', shape: 'm12 1 8 6v10l-8 6-8-6V7Z', facets: 'm4 7 8 3 8-3m-8-6v22m-8-6 8-7 8 7' },
+  { name: 'Diamante', tone: 'teal', shape: 'M6 4h12l5 6-11 12L1 10Z', facets: 'M1 10h22M6 4l2 6 4 12 4-12 2-6M8 10l4-6 4 6' }
 ];
 
-function renderBadges(container, achievements) {
-  var earned = achievements.filter(function (badge) { return badge.earned !== false; });
-  var catalog = badgeDefinitions.concat(earned.filter(function (badge) {
-    return !badgeDefinitions.some(function (definition) { return definition.code === badge.code; });
-  }));
-  container.innerHTML = catalog.map(function (badge) {
-    var unlocked = earned.includes(badge) || earned.some(function (item) { return item.code === badge.code; });
-    return '<article class="card badge-card' + (unlocked ? '' : ' badge-locked') + '">' +
-      '<div class="badge-emblem badge-' + (badgeDefinitions.includes(badge) ? badge.tone : 'indigo') + '">' +
-      uiIcon(badgeDefinitions.includes(badge) ? badge.icon : 'medal') + '</div>' +
-      '<div><h3>' + esc(badge.name || badge.title || 'Insígnia') + '</h3>' +
-      (badgeDefinitions.includes(badge) ? '<p>' + badge.description + '</p>' : '') +
-      '</div><span class="badge-status">' + (unlocked ? 'Conquistada' : uiIcon('lock') + ' Bloqueada') + '</span></article>';
-  }).join('');
+var badgeDefinitions = [
+  { code: 'FIRST_TASK', name: 'Primeira tarefa', description: 'Concluiu a primeira tarefa.', group: 0 },
+  { code: 'LEVEL_2', name: 'Estudante', level: 2, group: 0 },
+  { code: 'FIRST_STREAK', name: 'Primeiro dia', description: 'Estudou por dez minutos em um dia.', group: 1 },
+  { code: 'LEVEL_5', name: 'Dedicado', level: 5, group: 1 },
+  { code: 'TEN_TASKS', name: 'Dez tarefas', description: 'Concluiu dez tarefas.', group: 2 },
+  { code: 'LEVEL_10', name: 'Lenda', level: 10, group: 2 },
+  { code: 'WEEK_STREAK', name: 'Semana de estudos', description: 'Manteve uma sequência por sete dias.', group: 3 },
+  { code: 'LEVEL_20', name: 'Diamante', level: 20, group: 3 }
+];
+
+function earnedBadge(badge, codes, level) {
+  return badge.level ? level >= badge.level : codes.has(badge.code);
+}
+
+function badgeCard(badge, unlocked) {
+  var crystal = crystalGroups[badge.group];
+  var label = unlocked ? badge.name : (badge.level ? 'Bloqueado. Atinja o nível ' + badge.level + ' para desbloquear.' : 'Bloqueado');
+  var description = badge.description || ('Nível ' + badge.level + ' alcançado.');
+  return '<article class="card badge-card' + (unlocked ? '' : ' badge-locked') + '">' +
+    '<div class="badge-emblem badge-' + crystal.tone + '"><svg viewBox="0 0 24 24" aria-hidden="true">' +
+    '<path d="' + crystal.shape + '" fill="currentColor" fill-opacity=".28" stroke="currentColor"/>' +
+    '<path d="' + crystal.facets + '" fill="none" stroke="currentColor"/></svg></div>' +
+    '<div><h3>' + esc(label) + '</h3>' + (unlocked ? '<p>' + esc(description) + '</p>' : '') +
+    '</div></article>';
+}
+
+function renderBadges(container, achievements, level) {
+  var codes = new Set(achievements.filter(function (badge) { return badge.earned !== false; }).map(function (badge) { return badge.code; }));
+  var earned = badgeDefinitions.filter(function (badge) { return earnedBadge(badge, codes, level); });
+  container.innerHTML = earned.length ? earned.map(function (badge) { return badgeCard(badge, true); }).join('') :
+    emptyState('Nenhuma insígnia conquistada', 'Conclua uma tarefa para desbloquear sua primeira.', 'medal');
+}
+
+async function renderBadgeCollection() {
+  var container = document.getElementById('crystal-collection');
+  var token = State.token;
+  showLoading(container);
+  try {
+    var result = await Promise.all([getAchievements(), getGamificationStats()]);
+    if (State.token !== token) return;
+    var codes = new Set(result[0].filter(function (badge) { return badge.earned !== false; }).map(function (badge) { return badge.code; }));
+    container.innerHTML = crystalGroups.map(function (group, index) {
+      return '<section><h2 class="crystal-section-title tone-' + group.tone + '">Insígnia ' + esc(group.name) +
+        '</h2><div class="badges-grid">' + badgeDefinitions.filter(function (badge) { return badge.group === index; })
+          .map(function (badge) { return badgeCard(badge, earnedBadge(badge, codes, result[1].level)); }).join('') +
+        '</div></section>';
+    }).join('');
+  } catch (error) {
+    if (State.token === token) container.innerHTML = errorView(cleanError(error));
+  }
+}
+
+function celebrateProgress(progress) {
+  var unlocked = progress.unlocked || [];
+  var messages = [];
+  if (progress.xpEarned) messages.push('+' + progress.xpEarned + ' XP');
+  if (progress.levelUp) messages.push('Nível ' + progress.levelUp + ' alcançado!');
+  if (unlocked.length) messages.push(unlocked.length === 1 ? 'Insígnia desbloqueada!' : 'Insígnias desbloqueadas!');
+  if (!messages.length) return;
+  toast(messages.join(' · '));
+  var message = document.getElementById('toast');
+  message.classList.add(progress.levelUp ? 'level-celebration' : 'xp-celebration');
+  if (!unlocked.length || matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      document.documentElement.classList.contains('a11y-mode')) return;
+  var confetti = el('div', 'badge-confetti');
+  confetti.setAttribute('aria-hidden', 'true');
+  for (var i = 0; i < 28; i++) {
+    var piece = el('span');
+    piece.style.setProperty('--x', (i * 23 % 101) + '%');
+    piece.style.setProperty('--delay', (i % 7) * 45 + 'ms');
+    piece.style.setProperty('--piece', ['#ff6b35', '#625add', '#b28fff', '#42ddd7'][i % 4]);
+    confetti.appendChild(piece);
+  }
+  document.body.appendChild(confetti);
+  setTimeout(function () { confetti.remove(); }, 1800);
 }
 
 function logoutAndGoLogin() {
@@ -1289,52 +1383,68 @@ async function submitContentForm(form) {
 }
 
 /* ══════════════════════ KAI (Etapa 11) ══════════════════════ */
+function kaiTimestamp() {
+  var now = new Date();
+  return '<time class="kai-time" datetime="' + now.toISOString() + '">' +
+    esc(now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) + '</time>';
+}
+
+function kaiAvatar() {
+  return '<span class="kai-avatar">' + uiIcon('kai') + '</span>';
+}
+
 function initKai() {
   var container = document.getElementById('kai-chat');
-  if (container.dataset.ready) {
+  if (container.dataset.ready === String(State.user.id)) {
     bindKaiSend();
     return;
   }
-  empty(container);
-  var name = State.user ? State.user.name.split(' ')[0] : 'humano';
-  container.innerHTML =
-    '<div class="flex gap-2 max-w-[90%]">' +
-    '<div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">' + uiIcon('kai') + '</div>' +
-    '<div class="chat-bubble-kai"><div class="text-[13px] leading-[1.55] text-text-hi">Oi, ' + esc(name) + '! Posso te ajudar com matérias, tarefas e prazos. O que precisa hoje?</div></div>' +
-    '</div>';
-  container.dataset.ready = '1';
-  window.__kaiTyping = false;
+  var name = State.user.name.split(' ')[0];
+  container.innerHTML = '<div class="kai-reply">' + kaiAvatar() + '<div class="chat-bubble-kai">' +
+    '<div>Oi, ' + esc(name) + '! Posso te ajudar com matérias, tarefas e prazos. O que precisa hoje?</div>' +
+    kaiTimestamp() + '</div></div>';
+  container.dataset.ready = String(State.user.id);
+  container.removeAttribute('aria-busy');
+  document.getElementById('kai-input').value = '';
+  document.getElementById('kai-send').disabled = false;
   bindKaiSend();
 }
 
 async function sendKai() {
   var input = document.getElementById('kai-input');
   var container = document.getElementById('kai-chat');
+  var button = document.getElementById('kai-send');
   var message = (input.value || '').trim();
-  if (!message || window.__kaiTyping) return;
+  if (!message || button.disabled) return;
+  var token = State.token;
 
   container.insertAdjacentHTML('beforeend',
-    '<div class="flex justify-end"><div class="chat-bubble-user"><div class="text-[13px] leading-[1.55] text-white">' + esc(message) + '</div></div></div>');
+    '<div class="flex justify-end"><div class="chat-bubble-user"><div>' + esc(message) + '</div>' +
+    kaiTimestamp() + '</div></div>');
   input.value = '';
-  window.__kaiTyping = true;
+  button.disabled = true;
+  button.setAttribute('aria-busy', 'true');
+
+  var reply = el('div', 'kai-reply');
+  reply.innerHTML = kaiAvatar() + '<div class="chat-bubble-kai"><span class="kai-typing" role="status">' +
+    '<span class="sr-only">Kai está digitando</span><i></i><i></i><i></i></span></div>';
+  container.appendChild(reply);
   container.scrollTop = container.scrollHeight;
 
-  var typingId = 'kai-typing';
-  container.insertAdjacentHTML('beforeend',
-    '<div class="flex gap-2 max-w-[90%]"><div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">' + uiIcon('kai') + '</div>' +
-    '<div class="chat-bubble-kai"><div class="text-[13px]" id="' + typingId + '">…</div></div></div>');
-
+  var text;
   try {
-    var res = await kaiChat(message);
-    var reply = (res && (res.reply || res.response || res.message)) || 'Não consegui processar sua pergunta agora.';
-    var typing = document.getElementById(typingId);
-    if (typing) typing.textContent = reply;
-  } catch (e) {
-    var typing = document.getElementById(typingId);
-    if (typing) typing.textContent = 'Ops, não consegui responder agora: ' + cleanError(e);
+    var result = await kaiChat(message);
+    text = (result && (result.reply || result.response || result.message)) || 'Não consegui processar sua pergunta agora.';
+  } catch (error) {
+    text = 'Não consegui responder agora: ' + cleanError(error);
   } finally {
-    window.__kaiTyping = false;
-    container.scrollTop = container.scrollHeight;
+    if (State.token === token) {
+      var bubble = reply.querySelector('.chat-bubble-kai');
+      bubble.innerHTML = '<div>' + esc(text) + '</div>' + kaiTimestamp();
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
+      container.scrollTop = container.scrollHeight;
+    }
   }
 }
 
@@ -1369,6 +1479,7 @@ async function submitLogin(form) {
       role: form.elements['role'] ? form.elements['role'].value : 'ALUNO',
       course: student ? form.elements.curso.value : null,
       grade: student ? Number(form.elements.serie.value) : null,
+      roomCode: student ? form.elements.codigoSala.value.trim() : null,
     });
     if (!student && !isProfessor()) {
       logout();

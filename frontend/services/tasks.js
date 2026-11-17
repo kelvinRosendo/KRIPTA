@@ -39,15 +39,16 @@ function taskRow(task, opts) {
   var checkbox = done
     ? '<div class="w-[22px] h-[22px] rounded-[7px] bg-teal shrink-0 flex items-center justify-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></div>'
     : '<button type="button" data-action="complete" data-kind="task" data-id="' + task.id + '" aria-label="Concluir tarefa" class="w-[22px] h-[22px] rounded-[7px] border-2 border-border shrink-0 cursor-pointer bg-transparent"></button>';
-  var btnDel = opts.noDelete
+  var btnDel = opts.noDelete || task.salaAtividadeId
     ? ''
     : '<button type="button" data-action="delete" data-kind="task" data-id="' + task.id + '" data-name="' + esc(task.title) + '" class="icon-btn !w-8 !h-8" aria-label="Excluir tarefa">' +
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B6F8E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>' +
       '</button>';
   var subjectName = task.subjectName || (task.subject && task.subject.name);
   var due = task.dueDate ? '<time class="task-due" datetime="' + esc(task.dueDate) + '">' + esc(formatDateTime(task.dueDate)) + '</time>' : '';
-  var meta = [subjectName ? esc(subjectName) : '', due].filter(Boolean).join(' · ');
-  var edit = opts.onEdit ? '<button type="button" data-edit-task="' + task.id + '" class="icon-btn !w-8 !h-8 shrink-0" aria-label="Editar tarefa">' + uiIcon('note') + '</button>' : '';
+  var meta = [task.salaAtividadeId ? 'Atividade da sala' : '', subjectName ? esc(subjectName) : '', due].filter(Boolean).join(' · ');
+  var edit = opts.onEdit ? '<button type="button" data-edit-task="' + task.id + '" class="icon-btn !w-8 !h-8 shrink-0" aria-label="' +
+    (task.salaAtividadeId ? 'Ver atividade da sala' : 'Editar tarefa') + '">' + uiIcon('note') + '</button>' : '';
   var row = (
     '<div class="card py-[13px] px-4 flex items-center gap-[11px] border-l-[3px] border-t-0 border-r-0 border-b-0 border border-border' +
     (opts.accentColor ? ' ' + opts.accentColor : ' ' + accent) +

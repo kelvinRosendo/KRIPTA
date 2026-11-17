@@ -26,22 +26,28 @@ function empty(container) {
   while (container.firstChild) container.removeChild(container.firstChild);
 }
 
-function spinner() {
-  return '<div class="flex items-center justify-center py-10"><div class="w-8 h-8 border-2 border-border border-t-indigo rounded-full animate-spin"></div></div>';
-}
-
 function skeleton() {
   var blocks = '';
   for (var i = 0; i < 3; i++) {
     blocks += '<div class="card p-4 mb-2"><div class="h-4 w-2/3 bg-surface-2 rounded mb-2"></div><div class="h-3 w-1/3 bg-surface-2 rounded"></div></div>';
   }
-  return '<div class="px-app mt-3">' + blocks + '</div>';
+  return '<div class="loading-skeleton" role="status"><span class="sr-only">Carregando…</span><div aria-hidden="true">' + blocks + '</div></div>';
+}
+
+function crystalIllustration(icon) {
+  return '<div class="crystal-illustration" aria-hidden="true"><svg viewBox="0 0 112 83" focusable="false">' +
+    '<path fill="var(--app-orange-text)" opacity=".5" d="m17 27 4 7 7 4-7 4-4 8-4-8-7-4 7-4Z"/>' +
+    '<path fill="var(--app-teal-text)" opacity=".6" d="m95 11 3 5 5 3-5 3-3 5-3-5-5-3 5-3Z"/>' +
+    '<path fill="var(--app-lilac-text)" opacity=".6" d="m89 30 13 14-7 26-20-6 2-23Z"/>' +
+    '<path fill="var(--app-primary)" d="m55 5 23 19 6 33-29 22-28-22 5-33Z"/>' +
+    '<path fill="#fff" opacity=".22" d="m55 5 23 19-23 10-23-10Zm0 29 23-10 6 33-29 22Z"/>' +
+    '<path fill="#171432" opacity=".25" d="m55 34-23-10-5 33 28 22Z"/></svg>' + uiIcon(icon || 'book') + '</div>';
 }
 
 function emptyState(title, subtitle, icon) {
   return (
     '<div class="px-app mt-6 flex flex-col items-center text-center py-10">' +
-    '<div class="state-icon">' + uiIcon(icon || 'empty') + '</div>' +
+    crystalIllustration(icon) +
     '<div class="font-display text-sm font-bold text-text-hi">' + esc(title) + '</div>' +
     (subtitle ? '<div class="text-xs text-text-mid mt-1 leading-relaxed max-w-[240px]">' + esc(subtitle) + '</div>' : '') +
     '</div>'
@@ -90,10 +96,12 @@ function submitBtnLoading(btn, text) {
   btn.dataset.label = btn.textContent;
   btn.textContent = text || 'Aguarde…';
   btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
 }
 
 function submitBtnReset(btn) {
   if (!btn) return;
   btn.textContent = btn.dataset.label || btn.textContent;
   btn.disabled = false;
+  btn.removeAttribute('aria-busy');
 }

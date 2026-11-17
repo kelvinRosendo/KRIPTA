@@ -259,7 +259,7 @@ function eventTypeMeta(type) {
 function agendaHTML(date) {
   var events = calEventsOn(date).sort(function (a, b) { return (a.time || '').localeCompare(b.time || ''); });
   if (!events.length) {
-    return '<div class="card p-4 text-center text-[12.5px] text-text-mid">Nenhum evento neste dia.</div>';
+    return emptyState('Nenhum evento neste dia', '', 'calendar');
   }
   return events.map(function (e) {
     if (e.taskId) {

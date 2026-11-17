@@ -25,17 +25,19 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final CursoMtecService cursoMtec;
+    private final SalaService salas;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
                        JwtService jwtService,
-                       CursoMtecService cursoMtec) {
+                       CursoMtecService cursoMtec, SalaService salas) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.cursoMtec = cursoMtec;
+        this.salas = salas;
     }
 
     @Transactional
@@ -67,6 +69,9 @@ public class AuthService {
         authenticate(email, request.getSenha());
         User user = buscarUsuario(email);
 
+        if (request.getCodigoSala() != null) {
+            salas.entrar(new UserPrincipal(user), request.getCodigoSala());
+        }
         if (request.getCursoMtec() != null) {
             cursoMtec.selecionar(new UserPrincipal(user), request.getCursoMtec(), request.getSerieMtec());
         }

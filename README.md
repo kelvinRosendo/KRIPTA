@@ -1,6 +1,6 @@
 # 🎓 KRIPTA
 
-Versão integrada: consulte [como executar e testar](docs/EXECUTAR_E_TESTAR.md) e a [revisão das etapas 7 e 8](docs/ETAPAS07_08.md). O Kai possui arquitetura de provedores, mas segue desativado até conectar um serviço real.
+**MVP Web publicado para demonstração do TCC.** [Abrir o KRIPTA](https://kripta-web.onrender.com) · [Como executar e testar](docs/EXECUTAR_E_TESTAR.md) · [Configuração do deploy](docs/DEPLOY_WEB.md).
 
 <p align="center">
   <strong>Organize. Estude. Evolua.</strong>
@@ -11,7 +11,7 @@ Versão integrada: consulte [como executar e testar](docs/EXECUTAR_E_TESTAR.md) 
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/status-em%20desenvolvimento-yellow" alt="Status">
+  <img src="https://img.shields.io/badge/status-MVP%20Web%20publicado-brightgreen" alt="Status">
   <img src="https://img.shields.io/badge/java-21-orange" alt="Java">
   <img src="https://img.shields.io/badge/spring%20boot-3.x-brightgreen" alt="Spring Boot">
   <img src="https://img.shields.io/badge/postgresql-16-blue" alt="PostgreSQL">
@@ -52,7 +52,7 @@ O principal objetivo do KRIPTA é desenvolver uma plataforma capaz de **auxiliar
 
 # ✨ Funcionalidades
 
-> 🚧 Algumas funcionalidades ainda estão em desenvolvimento.
+> O status do MVP e as próximas etapas estão no [roadmap](#roadmap).
 
 ### 👤 Autenticação e usuários
 
@@ -366,31 +366,23 @@ Projeto desenvolvido por estudantes como parte de um Trabalho de Conclusão de C
 
 ---
 
-# 🚧 Status do projeto
+# Status do projeto
 
-████████░░░░░░░░░░░░  Em desenvolvimento
-
-O KRIPTA encontra-se atualmente em fase de desenvolvimento.
+O **MVP Web está publicado no Render**, com frontend, API Spring Boot e PostgreSQL. A branch `main` é a origem do deploy automático. O primeiro acesso pode demorar se a API estiver ociosa. [Abrir o KRIPTA](https://kripta-web.onrender.com).
 
 ### Roadmap
 
-- [x] Definição inicial do projeto
-- [x] Definição da arquitetura
-- [x] Estrutura inicial do backend
-- [x] Configuração do Spring Boot
-- [x] Configuração do PostgreSQL
-- [x] Sistema de autenticação
-- [x] Gerenciamento de usuários
-- [x] Sistema de disciplinas
-- [ ] Sistema de tarefas
-- [ ] Sistema de conteúdos
-- [ ] Acompanhamento de progresso
-- [ ] Gamificação
-- [ ] Integração com IA
-- [ ] Testes
-- [ ] Integração frontend + backend
-- [ ] Versão MVP
-- [ ] Testes finais
+- [x] Cadastro, login e perfis de aluno e professor
+- [x] Disciplinas, conteúdos, tarefas, agenda e acompanhamento de progresso
+- [x] Cinco cursos M-Tec com matérias pré-carregadas por série
+- [x] Salas de até 40 alunos com código de entrada e atividades publicadas pelo professor
+- [x] Gamificação com XP, níveis, sequência de estudos e insígnias
+- [x] Integração do Web App com a API e publicação do MVP
+- [x] Auditoria de professor e aluno no Chrome, com validação em largura de celular
+- [x] Teste local de concorrência para a última vaga e entrega de atividades aos 40 alunos
+- [x] Validação no ambiente publicado do login, da entrega e da conclusão de uma atividade
+- [ ] Teste de carga no ambiente publicado
+- [ ] Ativação do Kai com um provedor de IA
 - [ ] Apresentação do TCC
 
 ---

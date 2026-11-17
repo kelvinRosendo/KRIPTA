@@ -1,0 +1,12 @@
+[build]
+  base = "frontend"
+  command = "npm run build && node scripts/build-deploy.js"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[headers]]
+  for = "/services/config.js"
+  [headers.values]
+    Cache-Control = "no-cache"

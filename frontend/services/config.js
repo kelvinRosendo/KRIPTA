@@ -16,7 +16,7 @@
    O modo final não aceita ativação de mocks pela URL.
    ─────────────────────────────────────────────────────────────
 */
-const ENV = 'dev';
+const ENV = globalThis.KRIPTA_API_URL ? 'prod' : 'dev';
 
 const CONFIG = {
   dev: {
@@ -29,7 +29,7 @@ const CONFIG = {
     DEV_LATENCY: 150,
   },
   prod: {
-    API_URL: 'https://api.kripta.app/api',
+    API_URL: globalThis.KRIPTA_API_URL,
     DEV_ACCESS_KEY: '',
     DEV_MODE: false,
     DEV_LATENCY: 0,

@@ -236,6 +236,21 @@ input::placeholder, textarea::placeholder { color: var(--app-secondary); opacity
 .settings-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; cursor: pointer; }
 .settings-row + .settings-row { border-top: 1px solid var(--app-border); }
 .settings-row .text-text-mid { font-size: 13px; }
+.course-card { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 15px; margin-bottom: 16px; background: var(--app-muted); }
+.course-card[hidden] { display: none; }
+.course-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; color: var(--app-link); background: var(--app-indigo); font-size: 18px; }
+.course-summary { flex: 1 1 180px; min-width: 0; }
+.course-summary h2 { font-size: 17px; font-weight: 800; }
+.course-summary p { color: var(--app-subtle); font-size: 13px; margin-top: 3px; }
+.course-action { width: auto; margin: 0; padding: 9px 13px; background: var(--app-surface); color: var(--app-link); border-color: var(--app-border); font-size: 13px; }
+.course-dialog { width: min(460px, calc(100% - 24px)); max-height: 90dvh; overflow-y: auto; }
+.login-course-fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(92px, 1fr); gap: 8px; min-width: 0; }
+.login-course-fields[hidden] { display: none; }
+.login-course-fields > p, .login-course-fields > button { grid-column: 1 / -1; justify-self: start; }
+.login-course-fields select { min-width: 0; }
+.subject-tasks { display: grid; gap: 10px; padding-top: 14px; }
+.subject-tasks .subjects-add { justify-self: start; }
+.task-due { color: var(--app-text); font-weight: 750; }
 #conn-banner { pointer-events: none; top: auto; bottom: 84px; }
 
 @media (min-width: 880px) {

@@ -37,6 +37,17 @@ public class User {
 
     @Column(length = 50)
     private String rm;
+    @Column(name = "curso_mtec", length = 32)
+    private String cursoMtec;
+    @Column(name = "serie_mtec")
+    private Integer serieMtec;
+
+    public String getCursoMtec() { return cursoMtec; }
+    public Integer getSerieMtec() { return serieMtec; }
+    public void selecionarCursoMtec(String curso, int serie) {
+        cursoMtec = curso;
+        serieMtec = serie;
+    }
     public String getRm() { return rm; }
     public void setRm(String rm) { this.rm = rm; }
     @Column(name = "pode_aprovar", nullable = false)

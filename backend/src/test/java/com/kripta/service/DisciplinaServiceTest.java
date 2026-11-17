@@ -43,6 +43,7 @@ class DisciplinaServiceTest {
         usuario = new User("Joao Silva", "joao@email.com", "senha", User.UserType.USUARIO);
         usuario.setId(1L);
         principal = new UserPrincipal(usuario);
+        lenient().when(userRepository.locked(1L)).thenReturn(Optional.of(usuario));
 
         disciplina = new Disciplina(usuario, "Matematica", "#FF5733");
         disciplina.setId(10L);
@@ -81,7 +82,6 @@ class DisciplinaServiceTest {
 
     @Test
     void deveCriarDisciplinaComCorPadraoQuandoCorVazia() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
         when(disciplinaRepository.existsByUsuarioIdAndNomeIgnoreCase(1L, "Matematica")).thenReturn(false);
         when(disciplinaRepository.save(any(Disciplina.class))).thenAnswer(inv -> {
             Disciplina d = inv.getArgument(0);
@@ -100,7 +100,6 @@ class DisciplinaServiceTest {
 
     @Test
     void deveCriarDisciplinaComCorInformada() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
         when(disciplinaRepository.existsByUsuarioIdAndNomeIgnoreCase(1L, "Portugues")).thenReturn(false);
         when(disciplinaRepository.save(any(Disciplina.class))).thenAnswer(inv -> {
             Disciplina d = inv.getArgument(0);

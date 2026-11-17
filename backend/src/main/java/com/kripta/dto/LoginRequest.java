@@ -2,6 +2,10 @@ package com.kripta.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 public class LoginRequest {
 
@@ -11,6 +15,22 @@ public class LoginRequest {
 
     @NotBlank(message = "Senha é obrigatória")
     private String senha;
+    @Size(max = 32)
+    private String cursoMtec;
+    @Min(1)
+    @Max(3)
+    private Integer serieMtec;
+
+    public String getCursoMtec() { return cursoMtec; }
+    public void setCursoMtec(String cursoMtec) { this.cursoMtec = cursoMtec; }
+    public Integer getSerieMtec() { return serieMtec; }
+    public void setSerieMtec(Integer serieMtec) { this.serieMtec = serieMtec; }
+
+    @AssertTrue(message = "Selecione o curso e a série juntos")
+    public boolean isTurmaValida() {
+        return (cursoMtec == null && serieMtec == null)
+                || (cursoMtec != null && !cursoMtec.isBlank() && serieMtec != null);
+    }
 
     protected LoginRequest() {
     }

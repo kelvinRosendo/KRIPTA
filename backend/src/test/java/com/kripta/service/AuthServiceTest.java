@@ -44,7 +44,8 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(userRepository, encoder, authenticationManager, jwtService);
+        authService = new AuthService(userRepository, encoder, authenticationManager, jwtService,
+                mock(CursoMtecService.class));
     }
 
     @Test

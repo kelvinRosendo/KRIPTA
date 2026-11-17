@@ -7,7 +7,12 @@ async function registerUser(data) {
 
 async function loginUser(data) {
   if (isDevAccess(data)) return enterDevMode(data);
-  var res = await api.post('/auth/login', {email: data.email, senha: data.password});
+  var credentials = { email: data.email, senha: data.password };
+  if (data.course) {
+    credentials.cursoMtec = data.course;
+    credentials.serieMtec = data.grade;
+  }
+  var res = await api.post('/auth/login', credentials);
   storeAuth(res);
   return res;
 }

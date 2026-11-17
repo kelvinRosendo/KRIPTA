@@ -99,6 +99,23 @@
             <option value="PROFESSOR">Professor</option>
           </select>
         </label>
+        <fieldset id="login-course-fields" class="login-course-fields">
+          <label class="flex flex-col gap-1 text-xs font-bold text-text-mid">CURSO M-TEC
+            <select name="curso" required class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm" disabled>
+              <option value="">Carregando cursos…</option>
+            </select>
+          </label>
+          <label class="flex flex-col gap-1 text-xs font-bold text-text-mid">SÉRIE
+            <select name="serie" required class="w-full border border-border rounded-md bg-bg px-3.5 py-2.5 text-sm">
+              <option value="">Escolha a série</option>
+              <option value="1">1ª série</option>
+              <option value="2">2ª série</option>
+              <option value="3">3ª série</option>
+            </select>
+          </label>
+          <p data-course-note class="text-xs text-text-mid" hidden></p>
+          <button type="button" id="login-courses-retry" class="text-xs text-indigo font-bold" hidden>Recarregar cursos</button>
+        </fieldset>
         <label class="flex flex-col gap-1">
           <span class="text-xs font-bold text-text-mid tracking-wide">E-MAIL</span>
           <input type="email" name="email" required autocomplete="email" placeholder="voce@email.com"
@@ -303,6 +320,14 @@
     </div>
 
     <div class="px-app">
+      <section class="card course-card" aria-labelledby="mtec-heading" id="mtec-card" hidden>
+        <div class="course-icon" aria-hidden="true"><svg class="ui-icon"><use href="#icon-book"></use></svg></div>
+        <div class="course-summary">
+          <h2 id="mtec-heading">Minha turma M-Tec</h2>
+          <p id="mtec-status" aria-live="polite">Carregando…</p>
+        </div>
+        <button type="button" class="btn-ghost course-action" id="mtec-open" onclick="openCourseModal()" disabled>Selecionar curso e série</button>
+      </section>
       <section class="card subjects-panel" aria-label="Minhas matérias">
         <div class="subjects-toolbar">
           <input id="subject-search" type="search" aria-label="Buscar matéria" placeholder="Buscar por nome" class="subject-search bg-surface border border-border rounded-md px-3.5 py-2.5 text-sm">
@@ -339,6 +364,7 @@
       <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid mr-[18px] cursor-pointer shrink-0" data-detail-tab="contents" onclick="switchTab('contents')">Conteúdos</div>
       <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid mr-[18px] cursor-pointer shrink-0" data-detail-tab="materials" onclick="switchTab('materials')">Materiais</div>
       <div class="py-2.5 px-1 text-[13px] font-semibold text-text-mid cursor-pointer shrink-0" data-detail-tab="avisos" onclick="switchTab('avisos')">Avisos</div>
+      <button type="button" class="py-2.5 px-1 text-[13px] font-semibold text-text-mid shrink-0" data-detail-tab="atividades" onclick="switchTab('atividades')">Atividades</button>
     </div>
 
     <div id="subject-body"></div>
@@ -380,8 +406,9 @@
     </div>
 
     <div class="flex gap-2 pt-1 px-5 overflow-x-auto scrollbar-hidden">
-      <span class="pill bg-indigo text-white cursor-pointer" data-cal-scope="ESCOLAR" onclick="setCalendarScope('ESCOLAR')">Escolar</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-cal-scope="PESSOAL" onclick="setCalendarScope('PESSOAL')">Pessoal</span>
+      <button type="button" class="pill bg-indigo text-white cursor-pointer" data-cal-scope="ALL" onclick="setCalendarScope('ALL')">Todos</button>
+      <button type="button" class="pill bg-surface text-text-mid border border-border cursor-pointer" data-cal-scope="ESCOLAR" onclick="setCalendarScope('ESCOLAR')">Escolar</button>
+      <button type="button" class="pill bg-surface text-text-mid border border-border cursor-pointer" data-cal-scope="PESSOAL" onclick="setCalendarScope('PESSOAL')">Pessoal</button>
     </div>
 
     <div class="px-app mt-3">
@@ -743,6 +770,32 @@
   <!-- ══════════════════════════════════════════════════
        MODAL: TAREFA
        ══════════════════════════════════════════════════ -->
+  <div id="course-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop">
+    <section class="card course-dialog p-5" role="dialog" aria-modal="true" aria-labelledby="course-modal-title">
+      <h2 class="font-display text-xl font-bold" id="course-modal-title">Selecionar curso M-Tec</h2>
+      <p class="text-sm text-text-mid mt-1">Adicione as matérias da sua série na Etec São Mateus. Suas matérias e atividades ficam salvas ao trocar de turma.</p>
+      <form id="course-form" class="flex flex-col gap-3 mt-4">
+        <label class="flex flex-col gap-1 text-sm font-bold">Curso
+          <select name="curso" required class="w-full border border-border rounded-md bg-bg p-2.5 text-sm"></select>
+        </label>
+        <label class="flex flex-col gap-1 text-sm font-bold">Série
+          <select name="serie" required class="w-full border border-border rounded-md bg-bg p-2.5 text-sm">
+            <option value="">Escolha a série</option>
+            <option value="1">1ª série</option>
+            <option value="2">2ª série</option>
+            <option value="3">3ª série</option>
+          </select>
+        </label>
+        <p data-course-note class="text-xs text-text-mid" hidden></p>
+        <p id="course-error" class="text-sm text-crimson" role="alert"></p>
+        <div class="flex gap-2">
+          <button type="button" class="btn-ghost !w-auto !py-2.5" onclick="closeCourseModal()">Cancelar</button>
+          <button type="submit" class="btn-primary !py-2.5">Carregar matérias</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
   <div id="task-modal" class="hidden fixed inset-0 bg-black/45 z-[100] items-center justify-center modal-backdrop">
     <div class="card w-[330px] p-[22px] bg-surface max-h-[88vh] overflow-y-auto" onclick="event.stopPropagation()">
       <div class="text-base font-bold" id="task-modal-title">Nova tarefa</div>
@@ -876,6 +929,7 @@
 <script src="services/dev-data.js"></script>
 <script src="services/dashboard.js"></script>
 <script src="services/subjects.js"></script>
+<script src="services/courses.js"></script>
 <script src="services/units.js"></script>
 <script src="services/materials.js"></script>
 <script src="services/tasks.js"></script>

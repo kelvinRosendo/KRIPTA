@@ -104,8 +104,8 @@ function goToAuth(screen) {
 }
 
 /* Depois do login/cadastro, volta para onde o usuário queria ir */
-function resolvePostAuth() {
-  var dest = window.__afterAuth || defaultScreenForRole();
+function resolvePostAuth(preferredScreen) {
+  var dest = preferredScreen || window.__afterAuth || defaultScreenForRole();
   window.__afterAuth = null;
   if (isProfessor() && (dest === 'home' || dest === 'tasks' || dest === 'materias')) dest = 'professor';
   if (typeof updateStatusbarAvatar === 'function') updateStatusbarAvatar();

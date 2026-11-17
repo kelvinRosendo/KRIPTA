@@ -4,10 +4,16 @@ async function getDashboard() {
   var stats = values[0], tasks = values[1];
   var today = toLocalDateStr(new Date());
   var tomorrow = toLocalDateStr(calAddDays(new Date(),1));
+  var nextWeek = toLocalDateStr(calAddDays(new Date(), 7));
   var pending = tasks.filter(function(t){return !t.completed && t.dueDate;});
   function day(t) {return toLocalDateStr(new Date(t.dueDate));}
   return {stats:stats, xp:stats.xp, level:stats.level, streak:stats.streak,
-    tasksToday:pending.filter(function(t){return day(t)===today;}), tasksTomorrow:pending.filter(function(t){return day(t)===tomorrow;}), overdueTasks:pending.filter(function(t){return day(t)<today;}), achievements:await getAchievements()};
+    tasksToday:pending.filter(function(t){return day(t)===today;}),
+    tasksTomorrow:pending.filter(function(t){return day(t)===tomorrow;}),
+    upcomingTasks:pending.filter(function(t){return day(t)>tomorrow && day(t)<=nextWeek;})
+      .sort(function(a,b){return new Date(a.dueDate)-new Date(b.dueDate);}),
+    overdueTasks:pending.filter(function(t){return day(t)<today;}),
+    achievements:await getAchievements()};
 }
 
 function taskSideLabel(t) {

@@ -194,7 +194,7 @@ async function renderHomeSubjects() {
 }
 
 function fillHomeHighlight(dash) {
-  var next = dash.tasksToday.concat(dash.tasksTomorrow).reduce(function (earliest, task) {
+  var next = dash.tasksToday.concat(dash.tasksTomorrow, dash.upcomingTasks || []).reduce(function (earliest, task) {
     return !earliest || new Date(task.dueDate) < new Date(earliest.dueDate) ? task : earliest;
   }, null);
   if (!next) return;
@@ -266,10 +266,11 @@ function fillHomeTasks(dash) {
   var tasks = [];
   (dash.tasksToday || []).forEach(function (t) { tasks.push({ task: t, label: '<span class="pill bg-orange-light text-orange" style="flex:0 0 auto">hoje</span>', color: 'border-l-orange' }); });
   (dash.tasksTomorrow || []).forEach(function (t) { tasks.push({ task: t, label: '<span class="pill bg-teal-light text-teal" style="flex:0 0 auto">amanhã</span>', color: 'border-l-teal' }); });
+  (dash.upcomingTasks || []).forEach(function (t) { tasks.push({ task: t, label: taskSideLabel(t), color: 'border-l-border' }); });
   (dash.overdueTasks || []).forEach(function (t) { tasks.push({ task: t, label: '<span class="pill bg-crimson-light text-crimson" style="flex:0 0 auto">atrasada</span>', color: 'border-l-crimson' }); });
 
   if (!tasks.length) {
-    container.innerHTML = emptyState('Nada por aqui', 'Você não tem tarefas para hoje e amanhã.', 'tasks');
+    container.innerHTML = emptyState('Nada por aqui', 'Você não tem atividades pendentes nos próximos sete dias.', 'tasks');
     return;
   }
 
@@ -311,6 +312,7 @@ var subjectsView = null;
 async function renderSubjects() {
   var token = State.token;
   subjectsView = null;
+  renderCourseSelection();
   var list = document.getElementById('subjects-list');
   var countEl = document.getElementById('subjects-count');
   showLoading(list);
@@ -346,6 +348,18 @@ function applySubjectFilter(subjects) {
       '<span class="subjects-empty-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 6c-3-2-6-2-10-1v14c4-1 7-1 10 1 3-2 6-2 10-1V5c-4-1-7-1-10 1v14"/></svg></span>' +
       '<h2>' + (hasCriteria ? 'Nenhuma matéria encontrada' : 'Nenhuma matéria cadastrada') + '</h2>' +
       '<p>' + (hasCriteria ? 'Tente outro nome ou mude o filtro.' : 'Adicione sua primeira matéria para organizar unidades e materiais.') + '</p></div>';
+  } else if (courseView && courseView.selecao) {
+    var courseIds = new Set(courseView.selecao.disciplinaIds);
+    var current = filtered.filter(function (subject) { return courseIds.has(subject.id); });
+    var other = filtered.filter(function (subject) { return !courseIds.has(subject.id); });
+    if (current.length) {
+      list.insertAdjacentHTML('beforeend', subjectGroupHTML('Matérias da minha turma'));
+      current.forEach(function (subject) { list.insertAdjacentHTML('beforeend', subjectCardHTML(subject)); });
+    }
+    if (other.length) {
+      list.insertAdjacentHTML('beforeend', subjectGroupHTML('Outras matérias'));
+      other.forEach(function (subject) { list.insertAdjacentHTML('beforeend', subjectCardHTML(subject)); });
+    }
   } else {
     var GROUPS = [
       { key: 'CURSO', label: 'Matérias do curso' },
@@ -464,7 +478,35 @@ function switchTab(tab) {
   if (tab === 'units') renderUnits(0);
   else if (tab === 'contents') renderSubjectContents();
   else if (tab === 'materials') renderAllMaterials();
+  else if (tab === 'atividades') renderSubjectTasks();
   else renderSubjectAvisos();
+}
+
+async function renderSubjectTasks() {
+  var body = document.getElementById('subject-body');
+  var subject = State.currentSubject;
+  var token = State.token;
+  showLoading(body);
+  try {
+    var tasks = await getTasks({ subjectId: subject.id });
+    if (State.token !== token || State.currentSubject !== subject || DETAIL_TAB !== 'atividades') return;
+    var wrap = el('section', 'px-app subject-tasks');
+    var action = el('button', 'btn-primary subjects-add', 'Nova atividade');
+    action.type = 'button';
+    action.addEventListener('click', function () { openTaskModal(subject.id); });
+    wrap.appendChild(action);
+    if (!tasks.length) {
+      wrap.insertAdjacentHTML('beforeend', emptyState('Nenhuma atividade nesta matéria', 'Adicione uma atividade com prazo para ver o lembrete na agenda.', 'tasks'));
+    }
+    tasks.forEach(function (task) {
+      wrap.insertAdjacentHTML('beforeend', taskRow(task, { onEdit: true, sideLabel: taskSideLabel }));
+    });
+    body.replaceChildren(wrap);
+  } catch (error) {
+    if (State.token === token && State.currentSubject === subject && DETAIL_TAB === 'atividades') {
+      body.innerHTML = errorView(error && error.message);
+    }
+  }
 }
 
 /* Conteúdos aprovados do componente curricular (RF05 — consulta do aluno) */
@@ -700,8 +742,11 @@ async function renderTasks() {
     var params = {};
     if (TASKS_FILTER === 'COMPLETED') params.status = 'COMPLETED';
     else if (TASKS_FILTER === 'PENDING') params.status = 'PENDING';
-    var tasks = await getTasks(params);
+    var values = await Promise.all([getTasks(params), getSubjects().catch(function () { return []; })]);
+    var tasks = values[0];
+    var names = new Map(values[1].map(function (subject) { return [subject.id, subject.name]; }));
     var arr = Array.isArray(tasks) ? tasks : (tasks && tasks.content ? tasks.content : []);
+    arr.forEach(function (task) { task.subjectName = names.get(task.subjectId); });
     if (countEl) countEl.textContent = arr.length + ' tarefa' + (arr.length === 1 ? '' : 's');
     renderTaskGroups(arr);
   } catch (e) {
@@ -758,33 +803,41 @@ function renderTaskGroups(arr) {
 }
 
 /* ── Formulário de tarefa ── */
-async function prepareTaskForm(form, editingId) {
+var taskFormRequest = 0;
+
+async function prepareTaskForm(form, subjectId) {
+  var request = ++taskFormRequest;
+  var token = State.token;
   var subjectSel = form.elements['subjectId'];
-  subjectSel.innerHTML = '';
+  var submit = form.querySelector('button[type="submit"]');
+  subjectSel.replaceChildren(new Option('Carregando matérias…', ''));
+  subjectSel.disabled = true;
+  submit.disabled = true;
   try {
     var subjects = await getSubjects();
-    var arr = Array.isArray(subjects) ? subjects : (subjects && subjects.content ? subjects.content : []);
-    var placeholder = el('option', null, 'Sem matéria');
-    placeholder.value = '';
-    subjectSel.appendChild(placeholder);
-    arr.forEach(function (s) {
-      var opt = el('option', null, s.name);
-      opt.value = s.id;
-      subjectSel.appendChild(opt);
-    });
-    if (editingId && window.__editingTask && window.__editingTask.subject) {
-      subjectSel.value = window.__editingTask.subject.id;
-    }
-  } catch (e) { /* sem matérias */ }
+    if (request !== taskFormRequest || State.token !== token) return;
+    subjectSel.replaceChildren(new Option('Sem matéria', ''));
+    subjects.forEach(function (subject) { subjectSel.add(new Option(subject.name, subject.id)); });
+    subjectSel.value = subjectId || '';
+    submit.disabled = false;
+  } catch (error) {
+    if (request !== taskFormRequest || State.token !== token) return;
+    subjectSel.replaceChildren(new Option('Não foi possível carregar as matérias', ''));
+    toast('Não foi possível carregar as matérias. Feche o formulário e tente novamente.', 'error');
+  } finally {
+    if (request === taskFormRequest && State.token === token) subjectSel.disabled = false;
+  }
 }
 
-function openTaskModal() {
+function openTaskModal(subjectId) {
   var form = document.getElementById('task-form');
   window.__editingTask = null;
   form.reset();
-  document.getElementById('task-modal-title').textContent = 'Nova tarefa';
+  document.getElementById('task-modal-title').textContent = subjectId ? 'Nova atividade' : 'Nova tarefa';
+  form.elements['dueDate'].required = Boolean(subjectId);
+  form.elements['subjectId'].required = Boolean(subjectId);
   form.elements['priority'].value = 'MEDIUM';
-  prepareTaskForm(form, null);
+  prepareTaskForm(form, subjectId);
   document.getElementById('task-modal').classList.remove('hidden');
   document.getElementById('task-modal').classList.add('flex');
 }
@@ -800,7 +853,9 @@ function openTaskEditModal(id) {
       form.elements['description'].value = t.description || '';
       form.elements['dueDate'].value = dueDateInputValue(t.dueDate);
       form.elements['priority'].value = t.priority || 'MEDIUM';
-      prepareTaskForm(form, id);
+      form.elements['dueDate'].required = false;
+      form.elements['subjectId'].required = false;
+      prepareTaskForm(form, t.subjectId || (t.subject && t.subject.id));
       document.getElementById('task-modal').classList.remove('hidden');
       document.getElementById('task-modal').classList.add('flex');
     })
@@ -809,9 +864,10 @@ function openTaskEditModal(id) {
 
 async function submitTaskForm(form) {
   var btn = form.querySelector('button[type="submit"]');
+  if (btn.disabled || !form.reportValidity()) return;
   submitBtnLoading(btn);
-  var data = taskFormPayload(form);
   try {
+    var data = taskFormPayload(form);
     if (window.__editingTask) {
       await updateTask(window.__editingTask.id, data);
       toast('Tarefa atualizada');
@@ -821,7 +877,7 @@ async function submitTaskForm(form) {
     }
     window.__editingTask = null;
     closeModal('task-modal');
-    renderTasks();
+    refreshTaskScreen();
   } catch (e) {
     toast(cleanError(e), 'error');
   } finally {
@@ -829,14 +885,20 @@ async function submitTaskForm(form) {
   }
 }
 
+function refreshTaskScreen() {
+  var active = document.querySelector('.screen.active');
+  if (active && active.id === 'screen-materia-detalhe' && DETAIL_TAB === 'atividades') renderSubjectTasks();
+  else if (active && active.id === 'screen-home') renderHome();
+  else if (active && active.id === 'screen-calendario') renderCalendar();
+  else renderTasks();
+}
+
 async function doCompleteTask(id, btn) {
   try {
     var res = await completeTask(id);
     var earned = res && res.gamification && res.gamification.xpEarned;
-    toast(earned ? '+' + earned + ' XP' : '+20 XP', earned ? 'success' : 'success');
-    var row = document.querySelector('[data-task="' + id + '"]');
-    if (row) row.classList.add('opacity-55');
-    setTimeout(function () { renderTasks(); }, 700);
+    toast(earned ? '+' + earned + ' XP' : 'Tarefa concluída');
+    refreshTaskScreen();
   } catch (e) {
     toast(cleanError(e), 'error');
   }
@@ -1292,14 +1354,30 @@ function bindKaiSend() {
 async function submitLogin(form) {
   var btn = form.querySelector('button[type="submit"]');
   var errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  var student = form.elements.role.value === 'ALUNO';
+  if (student && form.elements.curso.disabled) {
+    errEl.textContent = 'Aguarde o carregamento dos cursos ou tente novamente.';
+    return;
+  }
+  if (btn.disabled || !form.reportValidity()) return;
   submitBtnLoading(btn);
   try {
     await loginUser({
       email: form.elements['email'].value,
       password: form.elements['password'].value,
       role: form.elements['role'] ? form.elements['role'].value : 'ALUNO',
+      course: student ? form.elements.curso.value : null,
+      grade: student ? Number(form.elements.serie.value) : null,
     });
-    resolvePostAuth();
+    if (!student && !isProfessor()) {
+      logout();
+      form.elements.role.value = 'ALUNO';
+      form.elements.role.dispatchEvent(new Event('change'));
+      errEl.textContent = 'Entre com o perfil Aluno e selecione sua turma.';
+      return;
+    }
+    resolvePostAuth(student ? 'materias' : null);
     startStreakTracking();
     healthCheck();
   } catch (e) {

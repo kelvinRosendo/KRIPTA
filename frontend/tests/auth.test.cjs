@@ -5,5 +5,8 @@ test('web maps credentials and user, registration does not create a session',asy
  await context.registerUser({name:'Aluno',email:'a@b.com',password:'secret',role:'ALUNO',rm:'123'});
  assert.equal(context.State.token,undefined); assert.equal(calls[0][1].rm,'123'); assert.equal(calls[0][1].senha,'secret');
  await context.loginUser({email:'a@b.com',password:'secret'}); assert.equal(context.State.token,'jwt'); assert.equal(context.State.user.name,'Aluno'); assert.equal(calls[1][1].senha,'secret');
+ assert.equal(calls[1][1].cursoMtec,undefined);
+ await context.loginUser({email:'a@b.com',password:'secret',course:'marketing',grade:2});
+ assert.equal(calls[2][1].cursoMtec,'marketing'); assert.equal(calls[2][1].serieMtec,2);
  context.logout(); assert.equal(context.State.token,null); assert.equal(context.State.user,null);
 });

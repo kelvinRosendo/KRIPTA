@@ -1,3 +1,7 @@
+function uiIcon(name) {
+  return '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-' + name + '"></use></svg>';
+}
+
 /* ── Helpers de UI compartilhados ── */
 
 function esc(str) {
@@ -34,10 +38,10 @@ function skeleton() {
   return '<div class="px-app mt-3">' + blocks + '</div>';
 }
 
-function emptyState(title, subtitle) {
+function emptyState(title, subtitle, icon) {
   return (
     '<div class="px-app mt-6 flex flex-col items-center text-center py-10">' +
-    '<div class="text-3xl mb-3">🍃</div>' +
+    '<div class="state-icon">' + uiIcon(icon || 'empty') + '</div>' +
     '<div class="font-display text-sm font-bold text-text-hi">' + esc(title) + '</div>' +
     (subtitle ? '<div class="text-xs text-text-mid mt-1 leading-relaxed max-w-[240px]">' + esc(subtitle) + '</div>' : '') +
     '</div>'
@@ -61,7 +65,7 @@ function toast(message, type) {
 function errorView(message) {
   return (
     '<div class="px-app mt-6 flex flex-col items-center text-center py-10">' +
-    '<div class="text-3xl mb-3">⚠️</div>' +
+    '<div class="state-icon state-icon-error">' + uiIcon('alert') + '</div>' +
     '<div class="font-display text-sm font-bold text-text-hi">' + esc(message || 'Algo deu errado') + '</div>' +
     '<button class="btn-ghost !mt-4 !w-auto !py-2.5 !px-6" onclick="window.location.reload()">Tentar novamente</button>' +
     '</div>'

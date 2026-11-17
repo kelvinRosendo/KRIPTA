@@ -266,3 +266,49 @@ input::placeholder, textarea::placeholder { color: var(--app-secondary); opacity
   .profile-drawer-panel { transform: translateX(105%); }
   #conn-banner { right: 16px; bottom: 16px; }
 }
+
+.icon-definitions { position: absolute; width: 0; height: 0; overflow: hidden; }
+.ui-icon {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -.22em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.home-stat-icon, .state-icon, .badge-emblem {
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 10px;
+  background: var(--app-indigo);
+  color: var(--app-link);
+}
+.home-stat-icon { width: 32px; height: 32px; margin: 0 auto 7px; }
+.home-stat-group > :first-child .home-stat-icon { background: var(--app-surface); color: var(--app-teal-text); }
+.home-stat-group > :last-child .home-stat-icon { background: var(--app-surface); color: var(--app-lilac-text); }
+.home-stat-group > :nth-child(2) .home-stat-icon { background: var(--app-surface); }
+.home-badges-link:hover { border-color: var(--app-link); }
+.streak-mark { color: var(--app-orange-text); font-size: 22px; }
+.home-heading { display: inline-flex; align-items: center; gap: 7px; }
+.home-heading .ui-icon { width: 1em; height: 1em; color: var(--app-link); }
+.home-secondary .bg-lilac .ui-icon, #kai-chat .bg-lilac .ui-icon { color: #1e1644; }
+.state-icon { width: 50px; height: 50px; margin-bottom: 12px; font-size: 22px; }
+.state-icon-error { background: var(--app-danger-soft); color: var(--app-danger-text, var(--app-orange-text)); }
+
+.badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(235px, 100%), 1fr)); gap: 12px; }
+.badge-card { display: grid; grid-template-columns: 45px minmax(0, 1fr); align-items: start; gap: 8px 12px; padding: 15px; }
+.badge-emblem { width: 45px; height: 45px; font-size: 20px; }
+.badge-orange { background: var(--app-orange); color: var(--app-orange-text); }
+.badge-teal { background: var(--app-teal); color: var(--app-teal-text); }
+.badge-lilac { background: var(--app-lilac); color: var(--app-lilac-text); }
+.badge-card h3 { font-size: 15px; line-height: 1.3; font-weight: 800; }
+.badge-card p { margin-top: 3px; font-size: 13px; color: var(--app-subtle); }
+.badge-status { grid-column: 2; justify-self: start; border-radius: 6px; padding: 3px 7px; background: var(--app-teal); color: var(--app-teal-text); font-size: 11px; font-weight: 750; }
+.badge-locked .badge-status { background: var(--app-muted); color: var(--app-subtle); }
+.badge-locked .badge-emblem { background: var(--app-muted); color: var(--app-secondary); }
+.badges-grid > :not(.badge-card) { grid-column: 1 / -1; }

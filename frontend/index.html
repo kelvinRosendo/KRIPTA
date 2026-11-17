@@ -37,6 +37,25 @@
   <link rel="stylesheet" href="styles/redesign.css">
 </head>
 <body>
+  <svg class="icon-definitions" aria-hidden="true" focusable="false">
+    <symbol id="icon-flame" viewBox="0 0 24 24"><path d="M12.6 2.8c.7 4.1 5.7 5.6 5.7 11.3a6.3 6.3 0 0 1-12.6 0c0-2.5 1.5-4.6 3.4-6.1-.1 2 .7 3.1 1.5 3.6 1.6-2.6 2.4-5.5 2-8.8Z"/><path d="M12.5 13.6c1.4 1.2 2.2 2.4 2.2 3.5a2.7 2.7 0 0 1-5.4 0c0-1.3 1-2.7 3.2-3.5Z"/></symbol>
+    <symbol id="icon-bolt" viewBox="0 0 24 24"><path d="m13.4 2.8-8 10.2h5.3l-.8 8.2 8.7-11h-5.4l.2-7.4Z"/></symbol>
+    <symbol id="icon-level" viewBox="0 0 24 24"><path d="m4 15 8-6 8 6M4 20l8-6 8 6M9 6l3-2.3L15 6"/></symbol>
+    <symbol id="icon-medal" viewBox="0 0 24 24"><path d="m8 14-2 7 6-2.7 6 2.7-2-7"/><circle cx="12" cy="9" r="6"/><path d="m9.6 9 1.6 1.6 3.2-3.2"/></symbol>
+    <symbol id="icon-kai" viewBox="0 0 24 24"><path d="m12 2.7 7.8 4.5v9.6L12 21.3l-7.8-4.5V7.2L12 2.7Z"/><path d="m7.8 12 2.8 2.8 5.5-5.5M12 2.7v2.5m7.8 11.6-2.2-1.3m-13.4 1.3 2.2-1.3"/></symbol>
+    <symbol id="icon-tasks" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="3"/><path d="M9 4v-1m6 1v-1m-6 9 2 2 4-4"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="14" rx="3"/><path d="M8 4v4m8-4v4M4 10h16m-11 4h2m3 0h2m-7 3h2"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Zm0 0v14"/></symbol>
+    <symbol id="icon-folder" viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
+    <symbol id="icon-document" viewBox="0 0 24 24"><path d="M7 3h7l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm7 0v5h4M9 12h5m-5 4h5"/></symbol>
+    <symbol id="icon-link" viewBox="0 0 24 24"><path d="m10 14 4-4m-5 6-1 1a3.5 3.5 0 0 1-5-5l4-4a3.5 3.5 0 0 1 5 0m0 8a3.5 3.5 0 0 0 5 0l4-4a3.5 3.5 0 0 0-5-5l-1 1"/></symbol>
+    <symbol id="icon-video" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></symbol>
+    <symbol id="icon-note" viewBox="0 0 24 24"><path d="M6 3h12a2 2 0 0 1 2 2v9l-6 6H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 17v-5a1 1 0 0 1 1-1h5M8 8h8m-8 4h4"/></symbol>
+    <symbol id="icon-attachment" viewBox="0 0 24 24"><path d="M8 12.5l5.9-5.9a2.6 2.6 0 0 1 3.7 3.7l-7.2 7.2a4 4 0 0 1-5.7-5.7l8-8"/></symbol>
+    <symbol id="icon-empty" viewBox="0 0 24 24"><path d="M4 11l2.6-6h10.8l2.6 6v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm0 0h5l1.6 2h2.8l1.6-2h5"/></symbol>
+    <symbol id="icon-alert" viewBox="0 0 24 24"><path d="m10.4 4.7-7 12.6A1.8 1.8 0 0 0 5 20h14a1.8 1.8 0 0 0 1.6-2.7l-7-12.6a1.8 1.8 0 0 0-3.2 0Z"/><path d="M12 9v4m0 3h.01"/></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M9 10V7a3 3 0 1 1 6 0v3m-3 4v2"/></symbol>
+  </svg>
 
 <div class="device">
 
@@ -202,7 +221,7 @@
                 stroke-dasharray="144.5" stroke-dashoffset="144.5" stroke-linecap="round"
                 style="transition: stroke-dashoffset .5s ease"/>
             </svg>
-            <div class="absolute inset-0 flex items-center justify-center text-xl">🔥</div>
+            <div class="absolute inset-0 flex items-center justify-center streak-mark"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-flame"></use></svg></div>
           </div>
           <div class="flex-1">
             <div class="font-display text-[17px] font-bold text-text-hi" id="home-streak-days">—</div>
@@ -212,17 +231,20 @@
 
         <div class="home-stat-group">
           <div class="card flex-1 p-3 text-center">
+            <span class="home-stat-icon"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-bolt"></use></svg></span>
             <div class="font-display text-[17px] font-bold text-indigo" id="home-stat-xp">—</div>
             <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">XP TOTAL</div>
           </div>
           <div class="card flex-1 p-3 text-center">
+            <span class="home-stat-icon"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-level"></use></svg></span>
             <div class="font-display text-[17px] font-bold" id="home-stat-level">—</div>
             <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">NÍVEL</div>
           </div>
-          <div class="card flex-1 p-3 text-center cursor-pointer" onclick="openProfileDrawer()">
+          <button type="button" class="card flex-1 p-3 text-center home-badges-link" onclick="goTo('perfil')">
+            <span class="home-stat-icon"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-medal"></use></svg></span>
             <div class="font-display text-[17px] font-bold" id="home-stat-badges">—</div>
             <div class="text-[10px] text-text-low font-bold mt-px tracking-wider">INSÍGNIAS</div>
-          </div>
+          </button>
         </div>
       </div>
     </div>
@@ -230,7 +252,7 @@
     <div class="home-columns px-app">
       <section class="card home-panel" aria-labelledby="home-tasks-heading">
         <div class="flex justify-between items-baseline gap-3">
-          <h2 id="home-tasks-heading">Próximas tarefas</h2>
+          <h2 id="home-tasks-heading"><span class="home-heading"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-tasks"></use></svg><span>Próximas tarefas</span></span></h2>
           <button type="button" class="text-sm text-indigo font-bold" onclick="goTo('tasks')">Ver todas →</button>
         </div>
 
@@ -239,7 +261,7 @@
       <div class="home-secondary">
         <section class="card home-panel">
           <div class="flex items-baseline justify-between gap-3">
-            <h2>Na agenda</h2>
+            <h2><span class="home-heading"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-calendar"></use></svg><span>Na agenda</span></span></h2>
             <button type="button" class="text-sm text-indigo font-bold" onclick="goTo('calendario')">Ver calendário →</button>
           </div>
           <div id="home-agenda" class="mt-3" aria-live="polite"></div>
@@ -248,7 +270,7 @@
         <div>
           <div class="card p-[15px] flex items-center gap-3 cursor-pointer bg-lilac-light border-lilac" onclick="goTo('ia')">
             <div class="w-10 h-10 rounded-xl bg-lilac flex items-center justify-center shrink-0">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+              <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-kai"></use></svg>
             </div>
             <div class="flex-1">
               <div class="text-[13.5px] font-bold text-text-hi">Travou em algo?</div>
@@ -261,7 +283,7 @@
     </div>
     <section class="px-app home-subjects-panel" aria-labelledby="home-subjects-heading">
       <div class="flex items-baseline justify-between gap-3">
-        <h2 id="home-subjects-heading">Minhas matérias</h2>
+        <h2 id="home-subjects-heading"><span class="home-heading"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-book"></use></svg><span>Minhas matérias</span></span></h2>
         <button type="button" class="text-sm text-indigo font-bold" onclick="goTo('materias')">Ver todas →</button>
       </div>
       <div id="home-subjects" class="home-subjects" aria-live="polite"></div>
@@ -380,7 +402,7 @@
     <div class="topbar">
       <div class="flex items-center gap-2.5">
         <div class="w-[34px] h-[34px] rounded-[10px] bg-lilac flex items-center justify-center">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+          <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-kai"></use></svg>
         </div>
         <div><h1 class="!text-[17px]">Kai</h1><div class="sub">assistente de estudos</div></div>
       </div>
@@ -392,8 +414,8 @@
     <div class="px-app flex flex-col gap-[13px] mt-1.5 flex-1 overflow-y-auto max-h-[56vh]" id="kai-chat"></div>
 
     <div class="flex gap-2 pt-[10px] px-5 overflow-x-auto scrollbar-hidden">
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="var i=document.getElementById('kai-input'); i.value='Monte um roteiro de estudos para hoje'; sendKai()">📋 Roteiro de hoje</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="var i=document.getElementById('kai-input'); i.value='Quais são minhas pendências?'; sendKai()">📊 Minhas pendências</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="var i=document.getElementById('kai-input'); i.value='Monte um roteiro de estudos para hoje'; sendKai()"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-tasks"></use></svg> Roteiro de hoje</span>
+      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" onclick="var i=document.getElementById('kai-input'); i.value='Quais são minhas pendências?'; sendKai()"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-level"></use></svg> Minhas pendências</span>
     </div>
 
     <div class="px-app mt-2.5 flex gap-2">
@@ -431,12 +453,12 @@
 
     <div class="px-app mt-[26px]" id="profile-badges-section">
       <div class="section-label">Insígnias conquistadas</div>
-      <div class="grid grid-cols-4 gap-[9px] mt-0.5" id="badges-grid"></div>
+      <div class="badges-grid" id="badges-grid"></div>
     </div>
 
     <div class="px-app mt-[22px] flex flex-col gap-2">
       <div class="card py-3.5 px-4 flex items-center gap-3 cursor-pointer" id="profile-kai-row" onclick="goTo('ia')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+        <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-kai"></use></svg>
         <span class="text-[13.5px] font-semibold">Personalizar o Kai</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8ABBD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto"><path d="m9 18 6-6-6-6"/></svg>
       </div>
@@ -784,7 +806,7 @@
       <span>Agenda</span>
     </button>
     <button class="navitem" data-screen="ia" onclick="goTo('ia')">
-      <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>
+      <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-kai"></use></svg>
       <span>Kai</span>
     </button>
     <button class="navitem" data-screen="professor" onclick="goTo('professor')" style="display:none;">

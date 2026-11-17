@@ -269,7 +269,7 @@ function fillHomeTasks(dash) {
   (dash.overdueTasks || []).forEach(function (t) { tasks.push({ task: t, label: '<span class="pill bg-crimson-light text-crimson" style="flex:0 0 auto">atrasada</span>', color: 'border-l-crimson' }); });
 
   if (!tasks.length) {
-    container.innerHTML = emptyState('Nada por aqui', 'Você não tem tarefas para hoje e amanhã.');
+    container.innerHTML = emptyState('Nada por aqui', 'Você não tem tarefas para hoje e amanhã.', 'tasks');
     return;
   }
 
@@ -287,14 +287,13 @@ function subjectGroupHTML(label) {
 
 function subjectCardHTML(s) {
   var c = SUBJECT_COLORS[Math.abs(s.id || 1) % SUBJECT_COLORS.length];
-  var icon = s.icon || '📚';
   var meta = subjectMeta(s);
   var pending = (s.pendingCount && s.pendingCount > 0)
     ? '<span class="pill bg-crimson-light text-crimson">' + s.pendingCount + ' pendência' + (s.pendingCount === 1 ? '' : 's') + '</span>'
     : '<span class="pill bg-teal-light text-teal">em dia</span>';
   return (
     '<div class="card p-3.5 flex items-center gap-3 cursor-pointer" data-open-subject="' + s.id + '">' +
-    '<div class="w-[44px] h-[44px] rounded-[13px] ' + c + ' flex items-center justify-center text-xl shrink-0">' + esc(icon) + '</div>' +
+    '<div class="w-[44px] h-[44px] rounded-[13px] ' + c + ' flex items-center justify-center text-xl shrink-0">' + uiIcon('book') + '</div>' +
     '<div class="flex-1 min-w-0">' +
     '<div class="text-[14.5px] font-bold truncate">' + esc(s.name) + '</div>' +
     (meta ? '<div class="text-xs text-text-mid mt-px truncate">' + esc(meta) + '</div>' : '') +
@@ -517,7 +516,7 @@ function unitCardHTML(unit) {
   return (
     '<div class="card p-[15px]">' +
     '<div class="flex justify-between items-center cursor-pointer" data-toggle-unit="' + unit.id + '">' +
-    '<div class="text-[14.5px] font-bold">📂 ' + esc(unit.name) + '</div>' +
+    '<div class="text-[14.5px] font-bold">' + uiIcon('folder') + ' ' + esc(unit.name) + '</div>' +
     '<span class="text-[11.5px] text-text-mid font-semibold">' + (unit.materialsCount || unit.materialCount || 0) + ' materiais</span>' +
     '</div>' +
     '</div>'
@@ -940,24 +939,33 @@ async function renderProfile() {
       else if (p && p.overallProgress !== undefined) bar.style.width = p.overallProgress + '%';
     }
 
-    var achievements = null;
-    try { achievements = await getAchievements(); } catch (e) {}
-    empty(badgesEl);
-    if (achievements && Array.isArray(achievements) && achievements.length) {
-      var open = achievements.filter(function (a) { return a.earned !== false; });
-      open.forEach(function (a) {
-        badgesEl.insertAdjacentHTML('beforeend',
-          '<div class="card aspect-square flex flex-col items-center justify-center gap-[5px]">' +
-          '<span class="text-xl">' + esc(a.icon || '🏅') + '</span>' +
-          '<span class="text-[9px] text-text-mid font-bold">' + esc(a.name || a.title || '') + '</span></div>');
-      });
-    } else {
-      badgesEl.innerHTML =
-        '<div class="card aspect-square flex flex-col items-center justify-center gap-[5px] opacity-[.28] border-dashed"><span class="text-xl">🔒</span><span class="text-[9px] text-text-low font-bold">VOCÊ DESBLOQUEIA</span></div>';
-    }
+    renderBadges(badgesEl, await getAchievements());
   } catch (e) {
     badgesEl.innerHTML = errorView(e && e.message);
   }
+}
+
+var badgeDefinitions = [
+  { code: 'FIRST_TASK', name: 'Primeira tarefa', description: 'Conclua uma tarefa.', icon: 'tasks', tone: 'teal' },
+  { code: 'TEN_TASKS', name: 'Dez tarefas', description: 'Conclua dez tarefas.', icon: 'medal', tone: 'lilac' },
+  { code: 'FIRST_STREAK', name: 'Primeiro dia', description: 'Estude por 10 minutos em um dia.', icon: 'flame', tone: 'orange' },
+  { code: 'WEEK_STREAK', name: 'Semana de estudos', description: 'Mantenha a sequência por 7 dias.', icon: 'calendar', tone: 'indigo' }
+];
+
+function renderBadges(container, achievements) {
+  var earned = achievements.filter(function (badge) { return badge.earned !== false; });
+  var catalog = badgeDefinitions.concat(earned.filter(function (badge) {
+    return !badgeDefinitions.some(function (definition) { return definition.code === badge.code; });
+  }));
+  container.innerHTML = catalog.map(function (badge) {
+    var unlocked = earned.includes(badge) || earned.some(function (item) { return item.code === badge.code; });
+    return '<article class="card badge-card' + (unlocked ? '' : ' badge-locked') + '">' +
+      '<div class="badge-emblem badge-' + (badgeDefinitions.includes(badge) ? badge.tone : 'indigo') + '">' +
+      uiIcon(badgeDefinitions.includes(badge) ? badge.icon : 'medal') + '</div>' +
+      '<div><h3>' + esc(badge.name || badge.title || 'Insígnia') + '</h3>' +
+      (badgeDefinitions.includes(badge) ? '<p>' + badge.description + '</p>' : '') +
+      '</div><span class="badge-status">' + (unlocked ? 'Conquistada' : uiIcon('lock') + ' Bloqueada') + '</span></article>';
+  }).join('');
 }
 
 function logoutAndGoLogin() {
@@ -1229,7 +1237,7 @@ function initKai() {
   var name = State.user ? State.user.name.split(' ')[0] : 'humano';
   container.innerHTML =
     '<div class="flex gap-2 max-w-[90%]">' +
-    '<div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">🤖</div>' +
+    '<div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">' + uiIcon('kai') + '</div>' +
     '<div class="chat-bubble-kai"><div class="text-[13px] leading-[1.55] text-text-hi">Oi, ' + esc(name) + '! Posso te ajudar com matérias, tarefas e prazos. O que precisa hoje?</div></div>' +
     '</div>';
   container.dataset.ready = '1';
@@ -1251,7 +1259,7 @@ async function sendKai() {
 
   var typingId = 'kai-typing';
   container.insertAdjacentHTML('beforeend',
-    '<div class="flex gap-2 max-w-[90%]"><div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">🤖</div>' +
+    '<div class="flex gap-2 max-w-[90%]"><div class="w-7 h-7 rounded-[9px] bg-lilac shrink-0 flex items-center justify-center text-[13px]">' + uiIcon('kai') + '</div>' +
     '<div class="chat-bubble-kai"><div class="text-[13px]" id="' + typingId + '">…</div></div></div>');
 
   try {

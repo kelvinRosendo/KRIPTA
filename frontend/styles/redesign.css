@@ -47,7 +47,7 @@
 
 body, .device, .bg-bg { background: var(--app-bg); color: var(--app-text); }
 .card, .bg-surface, .bg-white, .icon-btn, .profile-drawer-panel { background-color: var(--app-surface); }
-.bg-surface-2, .drawer-settings .drawer-row { background-color: var(--app-muted); }
+.bg-surface-2 { background-color: var(--app-muted); }
 .card, .border-border, .bottomnav, .drawer-row, .icon-btn { border-color: var(--app-border); }
 .text-text-hi, .topbar h1 { color: var(--app-text); }
 .text-text-mid, .topbar .sub { color: var(--app-subtle); }
@@ -167,16 +167,7 @@ input::placeholder, textarea::placeholder { color: var(--app-secondary); opacity
 }
 
 @media (min-width: 1024px) {
-  .device { padding-left: 224px; }
-  .device:has(#screen-login.active, #screen-register.active) { padding-left: 0; }
   .screen { max-width: 1370px; padding-inline: 12px; }
-  .bottomnav { width: 224px; max-width: 224px; padding: 24px 16px; gap: 6px; overflow: auto; }
-  .sidebar-brand { display: flex; padding: 0 7px; margin-bottom: 24px; }
-  .navitem { width: 100%; min-height: 44px; flex: none; flex-direction: row; justify-content: flex-start; padding: 10px 14px; gap: 12px; border-radius: 10px; }
-  .navitem span { font-size: 14px; }
-  .navitem.active::before { left: 0; height: 26px; }
-  .statusbar { min-height: 68px; margin-inline: -12px; justify-content: flex-end; }
-  .statusbar .app-wordmark { display: none; }
   #screen-login, #screen-register { max-width: none; margin: 0; padding: 0; }
   #screen-login.active, #screen-register.active { display: grid; grid-template-columns: 1fr 1fr; }
   .auth-art {
@@ -219,4 +210,44 @@ input::placeholder, textarea::placeholder { color: var(--app-secondary); opacity
 @media (min-width: 1024px) {
   .desktop-task-action { display: inline-flex; width: auto; gap: 8px; margin: 0; white-space: nowrap; }
   #screen-tasks .fab { display: none; }
+}
+
+.statusbar-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.statusbar .header-settings, .statusbar .statusbar-avatar { width: 40px; height: 40px; }
+.header-settings { color: var(--app-link); }
+.nav-account, .nav-settings { display: none; }
+.settings-card { max-width: 680px; padding: 20px; }
+.settings-card h2 { margin-bottom: 6px; font: 800 22px/1.2 Nunito, sans-serif; }
+.settings-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; cursor: pointer; }
+.settings-row + .settings-row { border-top: 1px solid var(--app-border); }
+.settings-row .text-text-mid { font-size: 13px; }
+#conn-banner { pointer-events: none; top: auto; bottom: 84px; }
+
+@media (min-width: 880px) {
+  .device { padding-left: 204px; }
+  .device:has(#screen-login.active, #screen-register.active) { padding-left: 0; }
+  .bottomnav {
+    inset: 0 auto 0 0;
+    width: 204px;
+    max-width: 204px;
+    height: 100dvh;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 22px 13px;
+    gap: 5px;
+    overflow: auto;
+    border-top: 0;
+    border-right: 1px solid var(--app-border);
+  }
+  .sidebar-brand { display: flex; padding: 0 7px; margin-bottom: 23px; }
+  .navitem { width: 100%; min-height: 44px; flex: none; flex-direction: row; justify-content: flex-start; padding: 10px 12px; gap: 10px; border-radius: 10px; }
+  .navitem span { font-size: 14px; }
+  .navitem.active::before { top: auto; left: 0; width: 3px; height: 24px; }
+  .nav-account, .nav-settings { display: flex; }
+  .nav-account { margin-top: auto; }
+  .statusbar { min-height: 62px; justify-content: flex-end; }
+  .statusbar .app-wordmark { display: none; }
+  .profile-drawer { justify-content: flex-end; }
+  .profile-drawer-panel { transform: translateX(105%); }
+  #conn-banner { right: 16px; bottom: 16px; }
 }

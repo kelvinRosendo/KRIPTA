@@ -6,7 +6,7 @@ function init() {
   updateTopbarDate();
   bindGlobalEvents();
   bindSubjectFilter();
-  mountStatusbarAvatars();
+  mountStatusbarActions();
   updateStatusbarAvatar();
   applyPrefs();
 
@@ -961,7 +961,7 @@ function logoutAndGoLogin() {
 }
 
 /* ── Avatar do usuário no statusbar (abre o drawer de perfil) ── */
-function mountStatusbarAvatars() {
+function mountStatusbarActions() {
   document.querySelectorAll('.statusbar').forEach(function (bar) {
     if (bar.querySelector('.statusbar-avatar')) return;
     var btn = document.createElement('button');
@@ -970,7 +970,12 @@ function mountStatusbarAvatars() {
     btn.setAttribute('aria-label', 'Abrir perfil');
     btn.innerHTML = '<span class="statusbar-avatar-initial">A</span>';
     btn.addEventListener('click', openProfileDrawer);
-    bar.appendChild(btn);
+    var settings = document.getElementById('header-settings-template').content.firstElementChild.cloneNode(true);
+    settings.addEventListener('click', function () { goTo('configuracoes'); });
+    var actions = document.createElement('div');
+    actions.className = 'statusbar-actions';
+    actions.append(settings, btn);
+    bar.appendChild(actions);
   });
 }
 
@@ -1007,12 +1012,9 @@ function closeProfileDrawer() {
   }, 300);
 }
 
-function toggleDrawerSettings() {
-  var panel = document.getElementById('drawer-settings');
-  var trigger = document.querySelector('[aria-controls="drawer-settings"]');
-  if (!panel) return;
-  var open = panel.classList.toggle('open');
-  if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+function openSettingsFromDrawer() {
+  closeProfileDrawer();
+  goTo('configuracoes');
 }
 
 function renderProfileDrawer() {

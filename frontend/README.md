@@ -40,7 +40,6 @@ frontend/
 │   ├── dev-data.js         # dados fictícios do modo demonstração
 │   ├── state.js            # estado global da aplicação
 │   ├── ui.js               # helpers de interface
-│   ├── loader.js           # transições de tela e skeletons
 │   ├── navigation.js       # troca de telas
 │   ├── dashboard.js        # tela inicial
 │   ├── subjects.js         # matérias

@@ -42,7 +42,6 @@
   /* â”€â”€ Screen system â”€â”€ */
   .screen {
     @apply hidden flex-col min-h-screen pb-[90px];
-    animation: fadeIn 0.22s ease;
   }
   .screen.active {
     @apply flex;
@@ -212,17 +211,6 @@
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* â”€â”€ Small phones (max-width: 374px) â”€â”€ */
 @media (max-width: 374px) {
   .device {
@@ -342,7 +330,7 @@
   }
 }
 
-/* -- Avatar do usuário no statusbar -- */
+/* -- Avatar do usuï¿½rio no statusbar -- */
 .statusbar-avatar {
   display: flex;
   align-items: center;
@@ -407,16 +395,6 @@
   text-align: left;
   cursor: pointer;
 }
-.drawer-settings {
-  display: none;
-  flex-direction: column;
-  gap: 8px;
-  padding-left: 10px;
-}
-.drawer-settings.open { display: flex; }
-.drawer-settings .drawer-row { background: #FFFFFF; }
-.drawer-chevron { transition: transform 0.2s ease; }
-[aria-expanded="true"] .drawer-chevron { transform: rotate(90deg); }
 
 /* -- Switch (toggle) -- */
 input.toggle {
@@ -446,7 +424,7 @@ input.toggle::after {
 input.toggle:checked { background: #3D3DB4; }
 input.toggle:checked::after { transform: translateX(18px); }
 
-/* -- Calendário: grid dia/semana/mês -- */
+/* -- Calendï¿½rio: grid dia/semana/mï¿½s -- */
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -478,7 +456,7 @@ input.toggle:checked::after { transform: translateX(18px); }
 .cal-dot { width: 4px; height: 4px; border-radius: 9999px; background: #3D3DB4; }
 .cal-cell.selected .cal-dot { background: #FFFFFF; }
 
-/* -- Modo acessibilidade (preferência do usuário) -- */
+/* -- Modo acessibilidade (preferï¿½ncia do usuï¿½rio) -- */
 .a11y-mode .text-text-mid { color: #4A4D66 !important; }
 .a11y-mode .text-text-low { color: #6B6F8E !important; }
 .a11y-mode *,
@@ -489,5 +467,3 @@ input.toggle:checked::after { transform: translateX(18px); }
   transition-duration: 0.001ms !important;
 }
 .a11y-mode .card { border-width: 2px; border-color: #C9CCE0; }
-.a11y-mode .screen { animation: none; }
-.a11y-mode .loader-overlay { display: none !important; }

@@ -1,6 +1,5 @@
 /* ── Navegação entre telas ── */
 var PUBLIC_SCREENS = ['login', 'register'];
-var __appBooted = false;
 
 /* Papéis da plataforma (RN01/RN02): aluno e professor. */
 function userRole() {
@@ -24,7 +23,7 @@ function applyRoleNav() {
   document.querySelectorAll('.navitem[data-screen="aprovacoes"]').forEach(function (n) {
     n.style.display = (prof && canApprove) ? '' : 'none';
   });
-  document.querySelectorAll('.navitem[data-screen="home"], .navitem[data-screen="tasks"], .navitem[data-screen="materias"], .navitem[data-screen="ia"]').forEach(function (n) {
+  document.querySelectorAll('.navitem[data-screen="home"], .navitem[data-screen="tasks"], .navitem[data-screen="materias"], .navitem[data-screen="ia"], .navitem[data-screen="perfil"]').forEach(function (n) {
     n.style.display = prof ? 'none' : '';
   });
 }
@@ -39,7 +38,6 @@ function defaultScreenForRole() {
  * - Telas protegidas sem token → redireciona para login e guarda o destino.
  * - Telas públicas: login/register (sem bottom nav).
  * - Após navegar para tela autenticada, dispara o render dinâmico.
- * - A partir da segunda navegação, roda a transição animada do loader.
  */
 function goTo(screenName) {
   /* Professor não tem acesso ao agente de IA (Kai). */
@@ -56,22 +54,12 @@ function goTo(screenName) {
     isPublic = true;
   }
 
-  var apply = function () { applyScreen(screenName, isPublic); };
-
-  if (!__appBooted) {
-    __appBooted = true;
-    apply();
-    return;
-  }
-
-  if (typeof playPageTransition === 'function') {
-    playPageTransition(apply);
-  } else {
-    apply();
-  }
+  var active = document.querySelector('.screen.active');
+  if (active && active.id === 'screen-' + screenName) return;
+  applyScreen(screenName, isPublic);
 }
 
-/* Aplica a troca de tela em si (usada pelo goTo e pela transição). */
+/* Atualiza a tela e inicia seu carregamento sem bloquear a navegação. */
 function applyScreen(screenName, isPublic) {
   document.querySelectorAll('.screen').forEach(function (s) {
     s.classList.remove('active');

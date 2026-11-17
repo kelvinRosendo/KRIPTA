@@ -64,6 +64,7 @@ function renderScreen(screenName) {
 
 function handleSessionExpired() {
   logout();
+  closeProfileDrawer(true);
   goTo('login');
   toast('Sua sessão expirou. Entre novamente.', 'warn');
 }
@@ -1127,7 +1128,7 @@ function celebrateProgress(progress) {
 function logoutAndGoLogin() {
   stopStreakTracking();
   logout();
-  closeProfileDrawer();
+  closeProfileDrawer(true);
   goTo('login');
   toast('Você saiu da sua conta.');
 }
@@ -1148,16 +1149,25 @@ function openProfileDrawer() {
   if (!drawer) return;
   if (PROFILE_DRAWER_TIMER) { clearTimeout(PROFILE_DRAWER_TIMER); PROFILE_DRAWER_TIMER = null; }
   drawer.style.display = 'flex';
-  requestAnimationFrame(function () { drawer.classList.add('open'); });
   drawer.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(function () {
+    if (drawer.getAttribute('aria-hidden') === 'false') drawer.classList.add('open');
+  });
 }
 
-function closeProfileDrawer() {
+function closeProfileDrawer(immediately) {
   var drawer = document.getElementById('profile-drawer');
   if (!drawer) return;
   drawer.classList.remove('open');
   drawer.setAttribute('aria-hidden', 'true');
-  if (PROFILE_DRAWER_TIMER) clearTimeout(PROFILE_DRAWER_TIMER);
+  if (PROFILE_DRAWER_TIMER) {
+    clearTimeout(PROFILE_DRAWER_TIMER);
+    PROFILE_DRAWER_TIMER = null;
+  }
+  if (immediately) {
+    drawer.style.display = 'none';
+    return;
+  }
   PROFILE_DRAWER_TIMER = setTimeout(function () {
     if (!drawer.classList.contains('open')) drawer.style.display = 'none';
   }, 300);
@@ -1249,6 +1259,7 @@ async function renderNotifications() {
 async function renderProfessor() {
   var subEl = document.getElementById('professor-sub');
   var container = document.getElementById('professor-contents');
+  document.getElementById('professor-approvals').style.display = isAuthorizedTeacher() ? '' : 'none';
   if (subEl && State.user) subEl.textContent = (State.user.name || 'Professor') + (State.user.authorized ? ' · autorizado a aprovar' : ' · sem permissão de aprovação');
   showLoading(container);
   try {

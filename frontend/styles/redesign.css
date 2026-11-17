@@ -91,7 +91,19 @@ input::placeholder, textarea::placeholder { color: var(--app-secondary); opacity
 }
 .statusbar[hidden] { display: none; }
 .statusbar:not([hidden]) ~ .screen { min-height: calc(100vh - 62px); }
-.subject-search { width: min(100%, 420px); }
+.subjects-heading { align-items: center; flex-wrap: wrap; gap: 12px; }
+.subjects-add { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: auto; padding: 10px 14px; margin: 0; font-size: 14px; }
+.subjects-panel { padding: clamp(14px, 2.25vw, 24px); }
+.subjects-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--app-border); }
+.subject-search { flex: 1 1 250px; min-width: 0; max-width: 420px; }
+.subjects-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.subjects-filters .pill { min-height: 32px; border: 1px solid var(--app-border); background: var(--app-muted); color: var(--app-subtle); font-size: 12px; }
+.subjects-filters [aria-pressed="true"] { border-color: transparent; background: var(--app-primary); color: #fff; }
+#subjects-list { display: grid; gap: 10px; min-width: 0; padding-top: 16px; }
+.subjects-empty { display: grid; place-items: center; align-content: center; gap: 8px; min-height: 220px; padding: 18px 0; text-align: center; }
+.subjects-empty-icon { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 15px; background: var(--app-indigo); color: var(--app-link); margin-bottom: 4px; }
+.subjects-empty h2 { font: 800 20px/1.2 Nunito, sans-serif; }
+.subjects-empty p { color: var(--app-subtle); max-width: 38ch; font-size: 14px; }
 .app-wordmark {
   display: flex;
   align-items: center;
@@ -206,7 +218,7 @@ input::placeholder, textarea::placeholder { color: var(--app-secondary); opacity
   .home-subjects { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .calendar-layout { grid-template-columns: minmax(0, 2fr) minmax(230px, 1fr); }
   .calendar-layout .cal-cell { min-height: 64px; }
-  #subjects-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr)); }
+  #subjects-list { grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
   #subjects-list > :not([data-open-subject]) { grid-column: 1 / -1; }
 }
 

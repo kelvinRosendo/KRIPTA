@@ -342,9 +342,11 @@ function applySubjectFilter(subjects) {
 
   empty(list);
   if (!filtered.length) {
-    list.innerHTML = query
-      ? emptyState('Nenhuma matéria encontrada', 'Tente buscar por outro nome.')
-      : emptyState('Nenhuma matéria aqui', 'Toque em "Adicionar matéria" para começar.');
+    var hasCriteria = query || filter !== 'all';
+    list.innerHTML = '<div class="subjects-empty" role="status">' +
+      '<span class="subjects-empty-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 6c-3-2-6-2-10-1v14c4-1 7-1 10 1 3-2 6-2 10-1V5c-4-1-7-1-10 1v14"/></svg></span>' +
+      '<h2>' + (hasCriteria ? 'Nenhuma matéria encontrada' : 'Nenhuma matéria cadastrada') + '</h2>' +
+      '<p>' + (hasCriteria ? 'Tente outro nome ou mude o filtro.' : 'Adicione sua primeira matéria para organizar unidades e materiais.') + '</p></div>';
   } else {
     var GROUPS = [
       { key: 'CURSO', label: 'Matérias do curso' },
@@ -365,9 +367,6 @@ function applySubjectFilter(subjects) {
       byGroup.OUTROS.forEach(function (s) { list.insertAdjacentHTML('beforeend', subjectCardHTML(s)); });
     }
   }
-  list.insertAdjacentHTML('beforeend',
-    '<button type="button" class="btn-ghost flex items-center justify-center gap-2 mt-1" onclick="openSubjectModal()">' +
-    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Adicionar matéria</button>');
 }
 
 function normalizeSubjectSearch(value) {
@@ -384,11 +383,7 @@ function bindSubjectFilter() {
     pill.addEventListener('click', function () {
       window.__subjectFilter = pill.getAttribute('data-subject-filter');
       document.querySelectorAll('[data-subject-filter]').forEach(function (p) {
-        if (p === pill) {
-          p.className = 'pill bg-indigo text-white cursor-pointer';
-        } else {
-          p.className = 'pill bg-surface text-text-mid border border-border cursor-pointer';
-        }
+        p.setAttribute('aria-pressed', String(p === pill));
       });
       refreshSubjectFilter();
     });

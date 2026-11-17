@@ -272,22 +272,28 @@
        MATÉRIAS
        ══════════════════════════════════════════════════ -->
   <section class="screen" id="screen-materias">
-    <div class="topbar">
+    <div class="topbar subjects-heading">
       <div><h1>Matérias</h1><div class="sub" id="subjects-count">Carregando…</div></div>
+      <button type="button" class="btn-primary subjects-add" onclick="openSubjectModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Adicionar matéria
+      </button>
     </div>
 
-    <div class="px-app mb-3">
-      <input id="subject-search" type="search" aria-label="Buscar matéria" placeholder="Buscar por nome" class="subject-search bg-surface border border-border rounded-md px-3.5 py-2.5 text-sm">
+    <div class="px-app">
+      <section class="card subjects-panel" aria-label="Minhas matérias">
+        <div class="subjects-toolbar">
+          <input id="subject-search" type="search" aria-label="Buscar matéria" placeholder="Buscar por nome" class="subject-search bg-surface border border-border rounded-md px-3.5 py-2.5 text-sm">
+          <div class="subjects-filters" role="group" aria-label="Filtrar matérias">
+            <button type="button" class="pill" data-subject-filter="all" aria-pressed="true">Todas</button>
+            <button type="button" class="pill" data-subject-filter="hasExam" aria-pressed="false">Provas em breve</button>
+            <button type="button" class="pill" data-subject-filter="isProject" aria-pressed="false">Projetos</button>
+            <button type="button" class="pill" data-subject-filter="isFavorite" aria-pressed="false">Favoritas</button>
+          </div>
+        </div>
+        <div id="subjects-list"></div>
+      </section>
     </div>
-
-    <div class="flex gap-2 overflow-x-auto pt-1 px-5 scrollbar-hidden">
-      <span class="pill bg-indigo text-white cursor-pointer" data-subject-filter="all">Todas</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-subject-filter="hasExam">📌 Provas em breve</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-subject-filter="isProject">📁 Projetos</span>
-      <span class="pill bg-surface text-text-mid border border-border cursor-pointer" data-subject-filter="isFavorite">⭐ Favoritas</span>
-    </div>
-
-    <div class="px-app flex flex-col gap-[9px] mt-4" id="subjects-list"></div>
   </section>
 
   <!-- ══════════════════════════════════════════════════

@@ -187,6 +187,9 @@ async function renderHomeSubjects() {
       item.type = 'button';
       item.className = 'card home-subject';
       item.dataset.openSubject = subject.id;
+      var appearance = subjectAppearance(subject);
+      item.style.setProperty('--subject-color', appearance.color);
+      item.style.setProperty('--subject-ink', appearance.ink);
       item.textContent = subject.name;
       panel.append(item);
     });
@@ -287,32 +290,38 @@ function fillHomeTasks(dash) {
 
 /* ══════════════════════ MATÉRIAS (Etapa 5) ══════════════════════ */
 var SUBJECT_STYLES = [
-  [/program|sistemas|banco de dados|internet|tecnologia|informati|comput/, 'code', '#373c9c'],
-  [/matemat|estatistica|calculo/, 'calc', '#18548c'],
-  [/quimica|fisica|laborat/, 'flask', '#9c3e35'],
-  [/biologia|nutri|ambiente|saude|alimento/, 'leaf', '#17645a'],
-  [/geografia|historia|filosofia|sociologia/, 'globe', '#804279'],
-  [/marketing|gestao|administr|negocio|financ|contab/, 'chart', '#8b411d'],
-  [/arte|design/, 'palette', '#8b3e60']
+  [/program|sistemas|banco de dados|internet|tecnologia|informati|comput/, 'code', '#625add'],
+  [/matemat|estatistica|calculo/, 'calc', '#42ddd7'],
+  [/quimica|fisica|laborat/, 'flask', '#ff6b35'],
+  [/biologia|nutri|ambiente|saude|alimento/, 'leaf', '#30d5a0'],
+  [/geografia|historia|filosofia|sociologia/, 'globe', '#b28fff'],
+  [/marketing|gestao|administr|negocio|financ|contab/, 'chart', '#ffad47'],
+  [/arte|design/, 'palette', '#f47cb6']
 ];
 
 function subjectGroupHTML(label) {
   return '<div class="subject-group-label text-[11px] font-bold uppercase tracking-wide text-text-low mt-2 mb-0.5 px-0.5">' + esc(label) + '</div>';
 }
 
-function subjectCardHTML(s) {
+function subjectAppearance(s) {
   var name = s.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   var style = SUBJECT_STYLES.find(function (entry) { return entry[0].test(name); });
   var icon = style ? style[1] : 'book';
-  var color = style ? style[2] : '#51427e';
+  var color = style ? style[2] : '#b28fff';
+  var ink = color === '#625add' ? '#ffffff' : '#171329';
+  return { icon: icon, color: color, ink: ink };
+}
+
+function subjectCardHTML(s) {
+  var appearance = subjectAppearance(s);
   var meta = subjectMeta(s);
   var pending = (s.pendingCount && s.pendingCount > 0)
     ? '<span class="pill bg-crimson-light text-crimson">' + s.pendingCount + ' pendência' + (s.pendingCount === 1 ? '' : 's') + '</span>'
     : '<span class="pill bg-teal-light text-teal">em dia</span>';
   return (
-    '<div class="card subject-color-card" style="--subject-color:' + color + '">' +
+    '<div class="card subject-color-card" style="--subject-color:' + appearance.color + ';--subject-ink:' + appearance.ink + '">' +
     '<button type="button" class="subject-open" data-open-subject="' + s.id + '">' +
-    '<span class="subject-emblem">' + uiIcon(icon) + '</span>' +
+    '<span class="subject-emblem">' + uiIcon(appearance.icon) + '</span>' +
     '<span class="subject-text"><strong>' + esc(s.name) + '</strong>' +
     (meta ? '<small>' + esc(meta) + '</small>' : '') +
     '</span>' + pending + '</button>' +
@@ -1110,7 +1119,7 @@ function celebrateProgress(progress) {
   toast(messages.join(' · '));
   var message = document.getElementById('toast');
   message.classList.add(progress.levelUp ? 'level-celebration' : 'xp-celebration');
-  if (!unlocked.length || matchMedia('(prefers-reduced-motion: reduce)').matches ||
+  if ((!unlocked.length && !progress.xpEarned) || matchMedia('(prefers-reduced-motion: reduce)').matches ||
       document.documentElement.classList.contains('a11y-mode')) return;
   var confetti = el('div', 'badge-confetti');
   confetti.setAttribute('aria-hidden', 'true');

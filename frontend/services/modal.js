@@ -23,15 +23,20 @@ async function confirmDelete() {
   var state = window.__deleteState;
   if (!state) { closeDeleteModal(); return; }
   var btn = document.querySelector('#delete-modal .confirm-delete');
+  if (btn.disabled) return;
+  var token = State.token;
   submitBtnLoading(btn, 'Excluindo…');
   try {
     if (state.kind === 'task') await deleteTask(state.id);
     else if (state.kind === 'subject') await deleteSubject(state.id);
     else if (state.kind === 'unit') await deleteUnit(state.id);
     else if (state.kind === 'material') await deleteMaterial(state.id);
-    toast('Removido com sucesso');
+    if (State.token !== token) return;
     window.__deleteState = null;
     closeDeleteModal();
+    if (state.kind === 'task') await dissolveTask(state.id);
+    if (State.token !== token) return;
+    toast('Removido com sucesso');
     if (state.kind === 'subject') renderSubjects();
     else if (state.kind === 'unit' || state.kind === 'material') switchTab(DETAIL_TAB);
     else refreshTaskScreen();

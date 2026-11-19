@@ -87,6 +87,7 @@ function applyScreen(screenName, isPublic) {
   }
 
   applyRoleNav();
+  updateNavIndicator();
 
   window.scrollTo(0, 0);
 
@@ -103,6 +104,37 @@ function goToAuth(screen) {
   }
   goTo(screen);
 }
+
+function updateNavIndicator() {
+  var nav = document.getElementById('bottomnav');
+  var selected = nav.querySelector('.navitem.active');
+  var indicator = nav.querySelector('.nav-indicator');
+  if (!indicator) {
+    indicator = document.createElement('span');
+    indicator.className = 'nav-indicator';
+    indicator.setAttribute('aria-hidden', 'true');
+    nav.prepend(indicator);
+  }
+  if (!selected || !nav.getClientRects().length) {
+    indicator.hidden = true;
+    return;
+  }
+  var bounds = nav.getBoundingClientRect();
+  var item = selected.getBoundingClientRect();
+  var colors = { home: '#b28fff', materias: '#ff6b35', tasks: '#42ddd7', calendario: '#3d3db4' };
+  nav.style.setProperty('--nav-selection', colors[selected.dataset.screen] || '#b28fff');
+  nav.style.setProperty('--nav-foreground', selected.dataset.screen === 'calendario' ? '#ffffff' : '#171329');
+  indicator.style.width = item.width + 'px';
+  indicator.style.height = item.height + 'px';
+  indicator.style.transform = 'translate(' + (item.left - bounds.left + nav.scrollLeft - nav.clientLeft) +
+    'px,' + (item.top - bounds.top + nav.scrollTop - nav.clientTop) + 'px)';
+  indicator.hidden = false;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  new ResizeObserver(updateNavIndicator).observe(document.getElementById('bottomnav'));
+});
+window.addEventListener('resize', updateNavIndicator);
 
 /* Depois do login/cadastro, volta para onde o usuário queria ir */
 function resolvePostAuth(preferredScreen) {

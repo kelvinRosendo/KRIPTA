@@ -457,8 +457,8 @@ input.toggle:checked::after { transform: translateX(18px); }
 .cal-cell.selected .cal-dot { background: #FFFFFF; }
 
 /* -- Modo acessibilidade (prefer�ncia do usu�rio) -- */
-.a11y-mode .text-text-mid { color: #4A4D66 !important; }
-.a11y-mode .text-text-low { color: #6B6F8E !important; }
+.a11y-mode .text-text-mid { color: var(--app-subtle, #242033) !important; }
+.a11y-mode .text-text-low { color: var(--app-secondary, #333044) !important; }
 .a11y-mode *,
 .a11y-mode *::before,
 .a11y-mode *::after {
@@ -466,4 +466,4 @@ input.toggle:checked::after { transform: translateX(18px); }
   animation-iteration-count: 1 !important;
   transition-duration: 0.001ms !important;
 }
-.a11y-mode .card { border-width: 2px; border-color: #C9CCE0; }
+.a11y-mode .card { border-width: 2px; border-color: var(--app-border, #45435c); }

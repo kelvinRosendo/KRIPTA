@@ -1,6 +1,13 @@
 /* Seleção de turma e sincronização das matérias M-Tec da Etec São Mateus. */
 var courseView = null;
 var courseRequest = 0;
+var MTEC_OPTIONS = [
+  { id: 'administracao', nome: 'Administração' },
+  { id: 'desenvolvimento-de-sistemas', nome: 'Desenvolvimento de Sistemas' },
+  { id: 'marketing', nome: 'Marketing' },
+  { id: 'meio-ambiente', nome: 'Meio Ambiente' },
+  { id: 'nutricao-e-dietetica', nome: 'Nutrição e Dietética' }
+];
 
 async function renderCourseSelection() {
   var card = document.getElementById('mtec-card');
@@ -73,19 +80,13 @@ function bindLoginCourseFields() {
   var course = form.elements.curso;
   var retry = document.getElementById('login-courses-retry');
 
-  async function load() {
-    course.disabled = true;
+  function load() {
+    var selected = course.value;
     retry.hidden = true;
-    course.replaceChildren(new Option('Carregando cursos…', ''));
-    try {
-      var options = await api.get('/curso-mtec/opcoes');
-      course.replaceChildren(new Option('Escolha o curso', ''));
-      options.forEach(function (item) { course.add(new Option(item.nome, item.id)); });
-      course.disabled = false;
-    } catch (error) {
-      course.replaceChildren(new Option('Cursos indisponíveis', ''));
-      retry.hidden = false;
-    }
+    course.replaceChildren(new Option('Escolha o curso', ''));
+    MTEC_OPTIONS.forEach(function (item) { course.add(new Option(item.nome, item.id)); });
+    course.value = selected;
+    course.disabled = false;
   }
 
   function updateRole() {

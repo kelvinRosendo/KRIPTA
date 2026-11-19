@@ -47,6 +47,12 @@ function applyPrefs() {
 
 function applyTheme(dark) {
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  var logo = dark ? 'assets/kripta-logo-dark.jpeg' : 'assets/kripta-logo-light.jpeg';
+  document.querySelectorAll('[data-brand-logo]').forEach(function (image) {
+    if (image.getAttribute('src') !== logo) image.setAttribute('src', logo);
+  });
+  var favicon = document.querySelector('link[rel="shortcut icon"]');
+  if (favicon) favicon.setAttribute('href', logo);
 }
 
 applyTheme(getPrefs().dark);
